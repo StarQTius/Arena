@@ -1,19 +1,15 @@
 #pragma once
 
+#include <concepts>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
-
 #include <pybind11/pybind11.h>
 
-namespace py = pybind11;
-
-// Associates Python type names to component types
-using Fetcher = std::function<py::object(entt::registry &, entt::entity)>;
-using FetcherMap = std::unordered_map<std::string, Fetcher>;
+#include <arena/binding/fetcher.hpp>
 
 namespace component {
 
@@ -39,8 +35,3 @@ private:
 };
 
 } // namespace component
-
-// Convenience function to be passed as callback to register_component
-template <typename T> auto get_component(entt::registry &world, entt::entity self) {
-  return py::cast(world.get<T>(self));
-}

@@ -1,12 +1,10 @@
-#include <component/host.hpp>
+#include <arena/component/host.hpp>
 
 #include <unordered_map>
 
 #include <ltl/Range/Map.h>
 #include <ltl/Range/enumerate.h>
 #include <ltl/operator.h>
-
-#include <pybind11/cast.h>
 
 namespace py = pybind11;
 

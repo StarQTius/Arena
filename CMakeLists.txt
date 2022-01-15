@@ -1,35 +1,17 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 
-project(Cassiope)
+project(
+  Cassiope
+  VERSION 0.0
+  LANGUAGES CXX)
 
-add_subdirectory(lib/Catch2)
-add_subdirectory(lib/entt)
-add_subdirectory(lib/Little-Type-Library)
-add_subdirectory(lib/pybind11)
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib/box2d/src)
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib/Catch2)
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib/entt)
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib/Little-Type-Library)
 
-execute_process(COMMAND python3.8-config --cflags --embed OUTPUT_VARIABLE PYTHON_COMPILER_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-set(COMPILER_FLAGS -fPIC -fvisibility=hidden -Werror -ggdb ${PYTHON_COMPILER_FLAGS})
+find_package(Python COMPONENTS Interpreter Development)
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib/pybind11)
 
-execute_process(COMMAND python3-config --ldflags --embed OUTPUT_VARIABLE PYTHON_LINKER_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-set(LIBRARIES ${PYTHON_LINKER_FLAGS})
-
-add_library(src src/host.cpp)
-target_include_directories(src PRIVATE include)
-target_include_directories(src PRIVATE ${pybind11_INCLUDE_DIRS})
-target_link_libraries(src PRIVATE EnTT::EnTT)
-target_link_libraries(src PRIVATE pybind11::pybind11)
-target_link_libraries(src PRIVATE LTL)
-target_link_libraries(src PRIVATE ${LIBRARIES})
-target_compile_options(src PRIVATE ${COMPILER_FLAGS})
-set_target_properties(src PROPERTIES CXX_STANDARD 20)
-
-add_executable(test test/main.cpp test/host.cpp)
-target_include_directories(test PRIVATE include)
-target_include_directories(test PRIVATE ${pybind11_INCLUDE_DIRS})
-target_link_libraries(test PRIVATE Catch2::Catch2)
-target_link_libraries(test PRIVATE EnTT::EnTT)
-target_link_libraries(test PRIVATE pybind11::pybind11)
-target_link_libraries(test PRIVATE ${LIBRARIES})
-target_link_libraries(test PRIVATE src)
-target_compile_options(test PRIVATE ${COMPILER_FLAGS})
-set_target_properties(test PROPERTIES CXX_STANDARD 20)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src)
+add_subdirectory(${PROJECT_SOURCE_DIR}/test)
