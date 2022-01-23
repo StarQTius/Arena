@@ -15,7 +15,8 @@ TEST_CASE("PyHost class testing", "[component][PyHost]") {
   auto self = registry.create();
 
   SECTION("PyHost callback is called on the entity components") {
-    using component::PyHost;
+    using namespace arena;
+    using namespace arena::component;
 
     py::exec(R"(
       value = 0

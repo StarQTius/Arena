@@ -15,7 +15,8 @@ namespace py = pybind11;
 using namespace Catch::literals;
 
 PYBIND11_EMBEDDED_MODULE(module, m) {
-  using namespace component;
+  using namespace arena;
+  using namespace arena::component;
 
   py::class_<ObserverPtr<b2Body>>(m, "Body").def_property(
       "velocity",
@@ -31,10 +32,10 @@ PYBIND11_EMBEDDED_MODULE(module, m) {
 TEST_CASE("Single host interactions with environment", "[.integration]") {
   b2World world{{.0f, .0f}};
   entt::registry registry;
-  // registry.ctx_or_set<b2World>();
 
   SECTION("Entities with PyHost and BodyPtr components collide with other shapes") {
-    using namespace component;
+    using namespace arena;
+    using namespace arena::component;
 
     py::scoped_interpreter guard;
 
@@ -70,7 +71,7 @@ TEST_CASE("Single host interactions with environment", "[.integration]") {
 
     registry.view<PyHost>().each([&](auto self, auto &pyhost) { pyhost.invoke(registry, self, fetchers); });
 
-    for (auto _ : ltl::valueRange(0, 10))
+    for ([[maybe_unused]] auto x : ltl::valueRange(0, 10))
       world.Step(1.f, 8, 3);
 
     REQUIRE(registry.get<BodyPtr>(pyhost_self)->GetPosition().x == (3._a).margin(.1f));

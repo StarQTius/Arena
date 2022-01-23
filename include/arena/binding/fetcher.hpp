@@ -9,17 +9,12 @@
 #include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
 
-namespace py = pybind11;
+#include <arena/concept.hpp>
 
-template <typename T> concept IsUniquePtr = requires(T x) {
-  {
-    std::unique_ptr { std::move(x) }
-  }
-  ->std::same_as<T>;
-};
+namespace arena {
 
 // Associates Python type names to component types
-using Fetcher = std::function<py::object(entt::registry &, entt::entity)>;
+using Fetcher = std::function<pybind11::object(entt::registry &, entt::entity)>;
 using FetcherMap = std::unordered_map<std::string, Fetcher>;
 
 // Observer pointer wrapper for Python (because it seems pybind11 is handling raw pointers in a specific way)
@@ -39,8 +34,10 @@ private:
 
 // Convenience function to be passed as callback to register_component
 template <typename T> requires(!IsUniquePtr<T>) auto get_component(entt::registry &world, entt::entity self) {
-  return py::cast(world.get<T>(self));
+  return pybind11::cast(world.get<T>(self));
 }
 template <IsUniquePtr T> auto get_component(entt::registry &world, entt::entity self) {
-  return py::cast(ObserverPtr{world.get<T>(self).get()});
+  return pybind11::cast(ObserverPtr{world.get<T>(self).get()});
 }
+
+} // namespace arena
