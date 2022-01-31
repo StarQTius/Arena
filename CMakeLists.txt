@@ -19,4 +19,5 @@ find_package(Python COMPONENTS Interpreter Development)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/pybind11)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)
+add_subdirectory(${PROJECT_SOURCE_DIR}/include)
 add_subdirectory(${PROJECT_SOURCE_DIR}/test)
