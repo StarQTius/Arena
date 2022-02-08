@@ -1,6 +1,6 @@
 #include <arena/entity/field.hpp>
 
-#include <arena/component/physics.hpp>
+#include <arena/component/body.hpp>
 #include <units/quantity_cast.h>
 
 entt::entity arena::entity::create(b2World &world, entt::registry &registry, const arena::entity::Field &def) {

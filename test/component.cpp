@@ -1,5 +1,5 @@
+#include <arena/component/body.hpp>
 #include <arena/component/host.hpp>
-#include <arena/component/physics.hpp>
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>

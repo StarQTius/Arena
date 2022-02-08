@@ -5,7 +5,7 @@
 #include <entt/entity/registry.hpp>
 #include <pybind11/pybind11.h>
 
-#include <arena/component/physics.hpp>
+#include <arena/component/body.hpp>
 
 namespace arena {
 namespace entity {

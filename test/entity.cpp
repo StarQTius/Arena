@@ -10,20 +10,21 @@
 
 #include <box2d/b2_circle_shape.h>
 #include <box2d/b2_world.h>
+#include <entt/entity/registry.hpp>
 #include <ltl/Range/Value.h>
 #include <pybind11/embed.h>
 #include <units/isq/si/length.h>
 #include <units/isq/si/time.h>
 
+#include <arena/component/body.hpp>
 #include <arena/component/host.hpp>
-#include <arena/component/physics.hpp>
 #include <arena/environment.hpp>
 
 TEST_CASE("Field interaction with contained bodies", "[.integration]") {
   using namespace arena;
   using namespace units::isq::si::literals;
 
-  Environment environment;
+  Environment environment([](entt::registry &) {});
   create(environment.world, environment.registry, entity::Field{.width = 10_q_m, .height = 10_q_m});
 
   SECTION("Move around within the bound of the field") {
@@ -68,7 +69,7 @@ TEST_CASE("Cup interaction with contained bodies", "[.integration]") {
   using namespace arena;
   using namespace units::isq::si::literals;
 
-  Environment environment;
+  Environment environment{[](entt::registry &) {}};
 
   SECTION("Cup can be moved on collision") {
     using namespace arena::entity;

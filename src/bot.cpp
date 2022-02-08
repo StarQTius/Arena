@@ -2,8 +2,8 @@
 
 #include <units/quantity_cast.h>
 
+#include <arena/component/body.hpp>
 #include <arena/component/host.hpp>
-#include <arena/component/physics.hpp>
 
 //
 // Definitions

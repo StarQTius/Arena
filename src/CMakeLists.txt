@@ -1,9 +1,11 @@
 add_library(Arena
+  body.cpp
   host.cpp
   field.cpp
   physics.cpp
   bot.cpp
   cup.cpp)
+target_sources(Arena INTERFACE module.cpp)
 target_link_libraries(Arena
   PUBLIC
     box2d

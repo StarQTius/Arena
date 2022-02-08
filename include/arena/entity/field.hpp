@@ -5,7 +5,7 @@
 #include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
 
-#include <arena/component/physics.hpp>
+#include <arena/component/body.hpp>
 
 namespace arena {
 namespace entity {
