@@ -7,6 +7,7 @@ project(
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/lib/Catch2/extras)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
+set(MEMORYCHECK_SUPPRESSIONS_FILE ${PROJECT_SOURCE_DIR}/test/python.supp)
 include(CTest)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/box2d/src)

@@ -45,20 +45,20 @@ ARENA_MODULE(arena, module) {
   // Components
   //
 
-  py::class_<ObserverPtr<b2Body>>(module, "Body")
+  py::class_<b2Body, ObserverPtr<b2Body>>(module, "Body")
       .def_property_readonly("position",
-                             [](const ObserverPtr<b2Body> &self) {
-                               auto &velocity = self->GetPosition();
+                             [](const b2Body &self) {
+                               auto &velocity = self.GetPosition();
                                return py::make_tuple(velocity.x, velocity.y);
                              })
       .def_property(
           "velocity",
-          [](const ObserverPtr<b2Body> &self) {
-            auto &velocity = self->GetLinearVelocity();
+          [](const b2Body &self) {
+            auto &velocity = self.GetLinearVelocity();
             return py::make_tuple(velocity.x, velocity.y);
           },
-          [](ObserverPtr<b2Body> &self, py::tuple value) {
-            self->SetLinearVelocity({py::cast<float>(value[0]), py::cast<float>(value[1])});
+          [](b2Body &self, py::tuple value) {
+            self.SetLinearVelocity({py::cast<float>(value[0]), py::cast<float>(value[1])});
           });
 
   //

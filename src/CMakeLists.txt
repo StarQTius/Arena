@@ -19,5 +19,5 @@ set_target_properties(Arena PROPERTIES CXX_STANDARD 20 INTERPROCEDURAL_OPTIMIZAT
 if(MSVC)
   target_compile_options(Arena PRIVATE /W4 /WX)
 else()
-  target_compile_options(Arena PRIVATE -Wall -Wextra -Werror)
+  target_compile_options(Arena PRIVATE -Wall -Wextra -Werror -fdiagnostics-color=always)
 endif()

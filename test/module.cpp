@@ -15,7 +15,7 @@ using namespace arena;
 using namespace Catch::literals;
 using namespace py::literals;
 
-TEST_CASE("C++/Python binding", "[.integration]") {
+TEST_CASE("C++/Python binding", "[.integration][binding]") {
   py::scoped_interpreter guard;
 
   SECTION("Create a bot and drive it") {

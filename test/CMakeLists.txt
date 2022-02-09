@@ -16,7 +16,7 @@ set_target_properties(run_tests PROPERTIES CXX_STANDARD 20 INTERPROCEDURAL_OPTIM
 if(MSVC)
   target_compile_options(run_tests PRIVATE /W4 /WX)
 else()
-  target_compile_options(run_tests PRIVATE -Wall -Wextra -Werror)
+  target_compile_options(run_tests PRIVATE -Wall -Wextra -Werror -fdiagnostics-color=always)
 endif()
 
 catch_discover_tests(run_tests TEST_SPEC)

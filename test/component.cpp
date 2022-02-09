@@ -18,14 +18,14 @@ PYBIND11_EMBEDDED_MODULE(module, m) {
   using namespace arena;
   using namespace arena::component;
 
-  py::class_<ObserverPtr<b2Body>>(m, "Body").def_property(
+  py::class_<b2Body, ObserverPtr<b2Body>>(m, "Body").def_property(
       "velocity",
-      [](const ObserverPtr<b2Body> &self) {
-        auto &velocity = self->GetLinearVelocity();
+      [](const b2Body &self) {
+        auto &velocity = self.GetLinearVelocity();
         return py::make_tuple(velocity.x, velocity.y);
       },
-      [](ObserverPtr<b2Body> &self, py::tuple value) {
-        self->SetLinearVelocity({py::cast<float>(value[0]), py::cast<float>(value[1])});
+      [](b2Body &self, py::tuple value) {
+        self.SetLinearVelocity({py::cast<float>(value[0]), py::cast<float>(value[1])});
       });
 }
 
