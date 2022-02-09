@@ -31,9 +31,9 @@ TEST_CASE("Environment renderer from Python", "[.manual]") {
 
       env = Environment(with_rendering=True)
       env.create(Bot(x=-1, y=0, mass=1, logic=move_forward))
-      env.create(Cup(x=0, y=0.05, color=Color.RED))
+      env.create(Cup(x=0, y=0.07, color=Color.RED))
       env.create(Cup(x=0, y=0, color=Color.GREEN))
-      env.create(Cup(x=0, y=-0.05, color=Color.RED))
+      env.create(Cup(x=0, y=-0.07, color=Color.RED))
       for _ in range(300):
         env.step(0.01)
     )");

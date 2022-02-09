@@ -24,18 +24,18 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
       from arena import *
 
       def logic(body: Body):
-        body.velocity = (0.5, 1)
+        body.velocity = (1, 0.5)
 
       env = Environment()
       env.create(Bot(x=0, y=0, mass=1, logic=logic))
-      for _ in range(30):
+      for _ in range(10):
         env.step(1 / 10)
     )");
 
     auto &environment = py::globals()["env"].cast<Environment &>();
     for (auto &&[self, body_ptr, py_host] : environment.registry.view<component::BodyPtr, component::PyHost>().each()) {
-      REQUIRE(body_ptr->GetPosition().x == 1.5_a);
-      REQUIRE(body_ptr->GetPosition().y == 3_a);
+      REQUIRE(body_ptr->GetPosition().x == 1_a);
+      REQUIRE(body_ptr->GetPosition().y == 0.5_a);
     }
   }
 

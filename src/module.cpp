@@ -8,6 +8,7 @@
 #include <arena/component/body.hpp>
 #include <arena/component/host.hpp>
 #include <arena/entity/bot.hpp>
+#include <arena/entity/field.hpp>
 #include <arena/environment.hpp>
 
 #ifdef ARENA_EMBED
@@ -41,8 +42,10 @@ void upkeep(entt::registry &registry) {
 ARENA_MODULE(arena, module) {
   py::class_<Environment, std::shared_ptr<Environment>>(module, "Environment")
       .def(py::init([](bool with_rendering) {
-             return with_rendering ? std::make_shared<Environment>(upkeep, arena::with_rendering)
-                                   : std::make_shared<Environment>(upkeep);
+             auto environment_ptr = with_rendering ? std::make_shared<Environment>(upkeep, arena::with_rendering)
+                                                   : std::make_shared<Environment>(upkeep);
+             environment_ptr->create(entity::Field{.width = 3_q_m, .height = 2_q_m});
+             return environment_ptr;
            }),
            "with_rendering"_a = false)
       .def("create", [](Environment &self, const entity::Bot &bot) { self.create(bot, bot_shape); })
