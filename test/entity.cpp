@@ -20,7 +20,7 @@
 #include <arena/component/host.hpp>
 #include <arena/environment.hpp>
 
-TEST_CASE("Field interaction with contained bodies", "[.integration]") {
+TEST_CASE("Field interaction with contained bodies", "[.integration][field]") {
   using namespace arena;
   using namespace units::isq::si::literals;
 
@@ -65,7 +65,7 @@ TEST_CASE("Field interaction with contained bodies", "[.integration]") {
   }
 }
 
-TEST_CASE("Cup interaction with contained bodies", "[.integration]") {
+TEST_CASE("Cup interaction with contained bodies", "[.integration][cup]") {
   using namespace arena;
   using namespace units::isq::si::literals;
 

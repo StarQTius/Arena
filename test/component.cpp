@@ -29,7 +29,7 @@ PYBIND11_EMBEDDED_MODULE(module, m) {
       });
 }
 
-TEST_CASE("Single host interactions with environment", "[.integration]") {
+TEST_CASE("Single host interactions with environment", "[.integration][host]") {
   b2World world{{.0f, .0f}};
   entt::registry registry;
 

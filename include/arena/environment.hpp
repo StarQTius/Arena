@@ -35,7 +35,8 @@ struct Environment {
 
   explicit Environment(std::invocable<entt::registry &> auto &&upkeep, with_rendering_t)
       : world{{0, 0}}, upkeep{std::forward<decltype(upkeep)>(upkeep)},
-        m_render_window{std::in_place, sf::VideoMode{1000, 1000}, "Arena"}, m_drawer{*m_render_window} {
+        m_render_window{std::in_place, sf::VideoMode{1000, 800}, "Arena"}, m_drawer{*m_render_window} {
+    m_render_window->setView(sf::View{{0, 0}, {1000, 800}});
     m_drawer->SetFlags(b2Draw::e_shapeBit);
     world.SetDebugDraw(&m_drawer.value());
   }

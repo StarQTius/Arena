@@ -3,6 +3,7 @@
 #include <pybind11/pybind11.h>
 #include <units/isq/si/length.h>
 
+#include <arena/2021/cup.hpp>
 #include <arena/binding/fetcher.hpp>
 #include <arena/component/body.hpp>
 #include <arena/component/host.hpp>
@@ -45,6 +46,7 @@ ARENA_MODULE(arena, module) {
            }),
            "with_rendering"_a = false)
       .def("create", [](Environment &self, const entity::Bot &bot) { self.create(bot, bot_shape); })
+      .def("create", [](Environment &self, const entity::Cup &cup) { self.create(cup); })
       .def("step", [](Environment &self, precision_t dt) { self.step(dt * s); });
 
   //
@@ -76,4 +78,18 @@ ARENA_MODULE(arena, module) {
              return entity::Bot(x * m, y * m, mass * kg, logic);
            }),
            py::arg("x"), py::arg("y"), py::arg("mass"), py::arg("logic"));
+
+  py::class_<entity::Cup>(module, "Cup")
+      .def(py::init([](precision_t x, precision_t y, component::Color color) {
+             return entity::Cup{x * m, y * m, color};
+           }),
+           "x"_a, "y"_a, "color"_a);
+
+  //
+  // Miscellaneous
+  //
+
+  py::enum_<component::Color>(module, "Color")
+      .value("RED", component::Color::RED)
+      .value("GREEN", component::Color::GREEN);
 }
