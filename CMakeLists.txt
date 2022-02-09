@@ -4,6 +4,10 @@ project(
   Arena
   VERSION 0.0
   LANGUAGES CXX)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/lib/Catch2/extras)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
+
+include(CTest)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/box2d/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/Catch2)
@@ -11,6 +15,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/lib/entt)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/Little-Type-Library)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/gsl-lite)
+set(gsl-lite_DIR ${CMAKE_BINARY_DIR}/lib/gsl-lite)
 add_library(gsl-lite::gsl-lite ALIAS gsl-lite-v1)
 set(UNITS_USE_LIBFMT OFF)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/units/src)

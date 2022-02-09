@@ -1,3 +1,5 @@
+include(Catch)
+
 add_executable(run_tests
   module.cpp
   main.cpp
@@ -16,3 +18,6 @@ if(MSVC)
 else()
   target_compile_options(run_tests PRIVATE -Wall -Wextra -Werror)
 endif()
+
+catch_discover_tests(run_tests TEST_SPEC)
+catch_discover_tests(run_tests TEST_SPEC [.integration])
