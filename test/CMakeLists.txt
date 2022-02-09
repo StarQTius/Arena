@@ -5,7 +5,8 @@ add_executable(run_tests
   main.cpp
   host.cpp
   component.cpp
-  entity.cpp)
+  entity.cpp
+  render.cpp)
 target_link_libraries(run_tests PRIVATE
   Arena
   Catch2::Catch2WithMain

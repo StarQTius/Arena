@@ -1,10 +1,11 @@
-add_library(Arena
+add_library(Arena STATIC
   body.cpp
   host.cpp
   field.cpp
   physics.cpp
   bot.cpp
-  cup.cpp)
+  cup.cpp
+  SFMLDebugDraw.cpp)
 target_sources(Arena INTERFACE module.cpp)
 target_link_libraries(Arena
   PUBLIC
@@ -12,6 +13,7 @@ target_link_libraries(Arena
     EnTT::EnTT
     pybind11::pybind11
     mp-units::mp-units
+    sfml-graphics
   PRIVATE
     LTL)
 target_compile_definitions(Arena PRIVATE ARENA_C21)

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cmake -G Ninja -B build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
-cd build
-ctest $@
+cmake -G Ninja -B build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug \
+&& cmake --build build \
+&& cd build \
+&& ctest $@
