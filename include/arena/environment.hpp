@@ -31,19 +31,15 @@ struct Environment {
   constexpr static int32_t position_iterations = 3;
 
   explicit Environment(std::invocable<entt::registry &> auto &&upkeep)
-      : world{{0, 0}}, upkeep{std::forward<decltype(upkeep)>(upkeep)} {}
-
-  explicit Environment(std::invocable<entt::registry &> auto &&upkeep, with_rendering_t)
-      : world{{0, 0}}, upkeep{std::forward<decltype(upkeep)>(upkeep)},
-        m_render_window{std::in_place, sf::VideoMode{1000, 800}, "Arena"}, m_drawer{*m_render_window} {
-    m_render_window->setView(sf::View{{0, 0}, {1000, 800}});
-    m_drawer->SetFlags(b2Draw::e_shapeBit);
-    world.SetDebugDraw(&m_drawer.value());
+      : world{{0, 0}}, upkeep{std::forward<decltype(upkeep)>(upkeep)}, m_drawer{renderer} {
+    m_drawer.SetFlags(b2Draw::e_shapeBit);
+    world.SetDebugDraw(&m_drawer);
   }
 
   b2World world;
   entt::registry registry;
   std::function<void(entt::registry &)> upkeep;
+  sf::RenderWindow renderer;
 
   template <typename... Args> auto create(Args &&...args) {
     using ::create;
@@ -53,18 +49,17 @@ struct Environment {
   void step(box2d_time_t timestep) {
     upkeep(registry);
     world.Step(timestep.number(), velocity_iterations, position_iterations);
-    if (m_drawer) {
+    if (renderer.isOpen()) {
       world.DebugDraw();
-      m_render_window->display();
+      renderer.display();
       std::this_thread::sleep_for(units::quantity_cast<units::isq::si::second>(timestep).number() *
                                   std::chrono::seconds{1});
-      m_render_window->clear();
+      renderer.clear();
     }
   }
 
 private:
-  std::optional<sf::RenderWindow> m_render_window;
-  std::optional<SFMLDebugDraw> m_drawer;
+  SFMLDebugDraw m_drawer;
 };
 
 } // namespace arena

@@ -41,16 +41,24 @@ void upkeep(entt::registry &registry) {
 
 ARENA_MODULE(arena, module) {
   py::class_<Environment, std::shared_ptr<Environment>>(module, "Environment")
-      .def(py::init([](bool with_rendering) {
-             auto environment_ptr = with_rendering ? std::make_shared<Environment>(upkeep, arena::with_rendering)
-                                                   : std::make_shared<Environment>(upkeep);
-             environment_ptr->create(entity::Field{.width = 3_q_m, .height = 2_q_m});
-             return environment_ptr;
-           }),
-           "with_rendering"_a = false)
+      .def(py::init([]() {
+        auto environment_ptr = std::make_shared<Environment>(upkeep);
+        environment_ptr->create(entity::Field{.width = 3_q_m, .height = 2_q_m});
+        return environment_ptr;
+      }))
       .def("create", [](Environment &self, const entity::Bot &bot) { self.create(bot, bot_shape); })
       .def("create", [](Environment &self, const entity::Cup &cup) { self.create(cup); })
-      .def("step", [](Environment &self, precision_t dt) { self.step(dt * s); });
+      .def("step", [](Environment &self, precision_t dt) { self.step(dt * s); })
+      .def_property_readonly(
+          "renderer", [](const Environment &self) -> auto & { return self.renderer; });
+
+  py::class_<sf::RenderWindow>(module, "Renderer")
+      .def("__enter__",
+           [](sf::RenderWindow &self) {
+             self.create(sf::VideoMode{1000, 800}, "Arena");
+             self.setView(sf::View{{0, 0}, {1000, 800}});
+           })
+      .def("__exit__", [](sf::RenderWindow &self, py::object, py::object, py::object) { self.close(); });
 
   //
   // Components
