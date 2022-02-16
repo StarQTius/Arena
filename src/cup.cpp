@@ -26,7 +26,7 @@ entt::entity arena::entity::create(b2World &world, entt::registry &registry, con
 
   auto self = registry.create();
   registry.emplace<component::BodyPtr>(self, body_ptr);
-  registry.emplace<component::Color>(self, def.color);
+  registry.emplace<component::CupColor>(self, def.color);
 
   return self;
 }

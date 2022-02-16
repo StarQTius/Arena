@@ -16,9 +16,9 @@ namespace py = pybind11;
 // PyHost internals
 //
 
-static auto get_components_as_pyobjects(const auto &pytypes, const arena::FetcherMap &fetchers, entt::registry &world,
-                                        entt::entity self) {
-  auto get_component_by_pytype = [&](const auto &pytype) { return fetchers.at(pytype)(world, self); };
+static auto get_components_as_pyobjects(const auto &pytypes, const arena::FetcherMap &fetchers,
+                                        arena::Environment &environment, entt::entity self) {
+  auto get_component_by_pytype = [&](const auto &pytype) { return fetchers.at(pytype)(environment, self); };
   py::list component_pylist{size(pytypes)};
 
   for (auto &&[i, pyobject] : ltl::enumerate(pytypes | ltl::map(get_component_by_pytype)))
@@ -31,8 +31,8 @@ static auto get_components_as_pyobjects(const auto &pytypes, const arena::Fetche
 // PyHost definitions
 //
 
-void arena::component::PyHost::invoke(entt::registry &world, entt::entity self, const FetcherMap &fetchers) {
-  m_pycallback(*get_components_as_pyobjects(m_pytypes, fetchers, world, self));
+void arena::component::PyHost::invoke(Environment &environment, entt::entity self, const FetcherMap &fetchers) {
+  m_pycallback(*get_components_as_pyobjects(m_pytypes, fetchers, environment, self));
 }
 
 std::vector<std::string> arena::component::PyHost::get_annotations(const py::function &pycallback) {

@@ -1,4 +1,6 @@
 #include <box2d/b2_circle_shape.h>
+#include <ltl/Range/Map.h>
+#include <ltl/tuple_algos.h>
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 #include <units/isq/si/length.h>
@@ -30,11 +32,14 @@ namespace {
 
 const auto bot_shape = component::make_circle_shape(10_q_cm);
 
-FetcherMap fetchers{{"Body", get_component<component::BodyPtr>}};
+FetcherMap fetchers{{"Environment", [](Environment &retval, entt::entity) { return py::cast(retval); }},
+                    {"Entity", [](Environment &, entt::entity retval) { return py::cast(retval); }},
+                    {"Body", get_component<component::BodyPtr>},
+                    {"CupGrabber", get_component_with_environment<component::CupGrabber>}};
 
-void upkeep(entt::registry &registry) {
-  for (auto &&[self, py_host] : registry.view<component::PyHost>().each())
-    py_host.invoke(registry, self, fetchers);
+void upkeep(Environment &environment) {
+  for (auto &&[self, py_host] : environment.registry.view<component::PyHost>().each())
+    py_host.invoke(environment, self, fetchers);
 }
 
 } // namespace
@@ -50,7 +55,17 @@ ARENA_MODULE(arena, module) {
       .def("create", [](Environment &self, const entity::Cup &cup) { self.create(cup); })
       .def("step", [](Environment &self, precision_t dt) { self.step(dt * s); })
       .def_property_readonly(
-          "renderer", [](const Environment &self) -> auto & { return self.renderer; });
+          "renderer", [](const Environment &self) -> auto & { return self.renderer; })
+      .def_property_readonly(
+          "cups",
+          [](Environment &self) {
+            auto component_view = self.registry.view<component::BodyPtr, component::CupColor>().each() |
+                                  ltl::map(dereference_tuple_elements_if_needed);
+            return py::make_iterator(component_view.begin(), component_view.end());
+          },
+          py::return_value_policy::copy, py::keep_alive<0, 1>{});
+
+  py::class_<entt::entity>(module, "Entity");
 
   py::class_<sf::RenderWindow>(module, "Renderer")
       .def("__enter__",
@@ -80,18 +95,25 @@ ARENA_MODULE(arena, module) {
             self.SetLinearVelocity({py::cast<float>(value[0]), py::cast<float>(value[1])});
           });
 
+  py::class_<WithEnvironment<component::CupGrabber>>(module, "CupGrabber")
+      .def("grab", [](WithEnvironment<component::CupGrabber> &self,
+                      entt::entity target) { return self.value.get().grab(self.environment.get(), target); })
+      .def("drop", [](WithEnvironment<component::CupGrabber> &self, const entity::Cup &cup) {
+        return self.value.get().drop(self.environment.get(), cup);
+      });
+
   //
   // Entities
   //
 
   py::class_<entity::Bot>(module, "Bot")
-      .def(py::init([](precision_t x, precision_t y, precision_t mass, pybind11::function logic) {
-             return entity::Bot(x * m, y * m, mass * kg, logic);
+      .def(py::init([](precision_t x, precision_t y, precision_t mass, pybind11::function logic, size_t cup_capacity) {
+             return entity::Bot{x * m, y * m, mass * kg, logic, cup_capacity};
            }),
-           py::arg("x"), py::arg("y"), py::arg("mass"), py::arg("logic"));
+           "x"_a, "y"_a, "mass"_a, "logic"_a, "cup_capacity"_a);
 
   py::class_<entity::Cup>(module, "Cup")
-      .def(py::init([](precision_t x, precision_t y, component::Color color) {
+      .def(py::init([](precision_t x, precision_t y, component::CupColor color) {
              return entity::Cup{x * m, y * m, color};
            }),
            "x"_a, "y"_a, "color"_a);
@@ -100,7 +122,7 @@ ARENA_MODULE(arena, module) {
   // Miscellaneous
   //
 
-  py::enum_<component::Color>(module, "Color")
-      .value("RED", component::Color::RED)
-      .value("GREEN", component::Color::GREEN);
+  py::enum_<component::CupColor>(module, "Color")
+      .value("RED", component::CupColor::RED)
+      .value("GREEN", component::CupColor::GREEN);
 }

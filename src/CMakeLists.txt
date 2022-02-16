@@ -21,6 +21,7 @@ set_target_properties(
 if(MSVC)
   target_compile_options(Arena PRIVATE /W4 /WX)
 else()
-  target_compile_options(Arena PRIVATE -Wall -Wextra -Werror
-                                       -fdiagnostics-color=always)
+  target_compile_options(
+    Arena PRIVATE -Wall -Wextra -Werror -fdiagnostics-color=always
+                  -fconcepts-diagnostics-depth=2)
 endif()

@@ -1,4 +1,5 @@
 #include <memory>
+#include <ranges>
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
@@ -27,7 +28,7 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
         body.velocity = (1, 0.5)
 
       env = Environment()
-      env.create(Bot(x=0, y=0, mass=1, logic=logic))
+      env.create(Bot(x=0, y=0, mass=1, logic=logic, cup_capacity=0))
       for _ in range(10):
         env.step(1 / 10)
     )");
@@ -47,16 +48,42 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
         body.velocity = (1, 0)
 
       env = Environment()
-      env.create(Bot(x=-1.5, y=0, mass=1, logic=move_forward))
+      env.create(Bot(x=-1.5, y=0, mass=1, logic=move_forward, cup_capacity=0))
       env.create(Cup(x=1, y=0, color=Color.RED))
       for _ in range(500):
         env.step(0.1)
     )");
 
     auto &environment = py::globals()["env"].cast<Environment &>();
-    for (auto &&[self, body_ptr, color] : environment.registry.view<component::BodyPtr, component::Color>().each()) {
+    for (auto &&[self, body_ptr, color] : environment.registry.view<component::BodyPtr, component::CupColor>().each()) {
       REQUIRE(body_ptr->GetPosition().x > 1);
       REQUIRE(body_ptr->GetPosition().y == 0_a);
     }
+  }
+
+  SECTION("Let a bot grab a cup in range by filtering 'Environment.cups' with 'filter'") {
+    REQUIRE_THROWS(py::exec(R"(
+      from arena import *
+
+      def distance_squared(body_a, body_b):
+        return (body_a.position[0] - body_b.position[0]) ** 2 + (body_a.position[1] - body_b.position[1]) ** 2
+
+      def grab(env: Environment, body: Body, cup_grabber: CupGrabber):
+        inrange_cups = filter(lambda x: distance_squared(body, x[1]) < 4, env.cups)
+        cup_grabber.grab(next(inrange_cups)[0])
+
+      env = Environment()
+      env.create(Bot(x=-1.5, y=0, mass=1, logic=grab, cup_capacity=2))
+      env.create(Cup(x=0, y=0, color=Color.RED))
+      env.create(Cup(x=1, y=0, color=Color.GREEN))
+      env.step(1)
+      env.step(1)
+    )"));
+
+    auto &environment = py::globals()["env"].cast<Environment &>();
+    auto view = environment.registry.view<component::CupColor>();
+
+    REQUIRE(environment.world.GetBodyCount() == 3);
+    REQUIRE(view.get<component::CupColor>(*view.begin()) == component::CupColor::GREEN);
   }
 }

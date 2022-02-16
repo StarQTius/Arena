@@ -14,6 +14,7 @@ struct Bot {
   distance_t x, y;
   mass_t mass;
   pybind11::function logic;
+  size_t cup_storage_size;
 };
 
 entt::entity create(b2World &, entt::registry &, const Bot &, const b2Shape &);

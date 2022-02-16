@@ -10,6 +10,7 @@
 #include <pybind11/pybind11.h>
 
 #include <arena/binding/fetcher.hpp>
+#include <arena/environment.hpp>
 
 namespace arena {
 namespace component {
@@ -26,7 +27,7 @@ public:
       : m_pytypes{get_annotations(pycallback)}, m_pycallback{std::move(pycallback)} {}
 
   // Call the stored invocable on the entity component
-  void invoke(entt::registry &, entt::entity, const FetcherMap &);
+  void invoke(Environment &, entt::entity, const FetcherMap &);
 
 private:
   // Get the annotations (type hints) of a Python function arguments

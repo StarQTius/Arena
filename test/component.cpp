@@ -14,10 +14,10 @@
 namespace py = pybind11;
 using namespace Catch::literals;
 
-PYBIND11_EMBEDDED_MODULE(module, m) {
-  using namespace arena;
-  using namespace arena::component;
+using namespace arena;
+using namespace arena::component;
 
+PYBIND11_EMBEDDED_MODULE(module, m) {
   py::class_<b2Body, ObserverPtr<b2Body>>(m, "Body").def_property(
       "velocity",
       [](const b2Body &self) {
@@ -30,8 +30,7 @@ PYBIND11_EMBEDDED_MODULE(module, m) {
 }
 
 TEST_CASE("Single host interactions with environment", "[.integration][host]") {
-  b2World world{{.0f, .0f}};
-  entt::registry registry;
+  Environment environment{[](Environment &) {}};
 
   SECTION("Entities with PyHost and BodyPtr components collide with other shapes") {
     using namespace arena;
@@ -53,28 +52,29 @@ TEST_CASE("Single host interactions with environment", "[.integration][host]") {
     pyhost_body_def.type = b2_dynamicBody;
     pyhost_body_def.position = {0.f, 0.f};
     pyhost_hitbox.SetAsBox(1.f, 1.f);
-    auto *pyhost_body_ptr = world.CreateBody(&pyhost_body_def);
+    auto *pyhost_body_ptr = environment.world.CreateBody(&pyhost_body_def);
     pyhost_body_ptr->CreateFixture(&pyhost_hitbox, 1.f);
-    auto pyhost_self = registry.create();
-    registry.emplace<BodyPtr>(pyhost_self, pyhost_body_ptr);
-    registry.emplace<PyHost>(pyhost_self, py::globals()[py::str{"go_left"}]);
+    auto pyhost_self = environment.registry.create();
+    environment.registry.emplace<BodyPtr>(pyhost_self, pyhost_body_ptr);
+    environment.registry.emplace<PyHost>(pyhost_self, py::globals()[py::str{"go_left"}]);
 
     // Obstacle setup
     b2BodyDef obstacle_body_def;
     b2PolygonShape obstacle_hitbox;
     obstacle_body_def.position = {5.f, 0.f};
     obstacle_hitbox.SetAsBox(1.f, 10.f);
-    auto *obstacle_body_ptr = world.CreateBody(&obstacle_body_def);
+    auto *obstacle_body_ptr = environment.world.CreateBody(&obstacle_body_def);
     obstacle_body_ptr->CreateFixture(&obstacle_hitbox, 0.f);
-    auto obstacle_self = registry.create();
-    registry.emplace<BodyPtr>(obstacle_self, obstacle_body_ptr);
+    auto obstacle_self = environment.registry.create();
+    environment.registry.emplace<BodyPtr>(obstacle_self, obstacle_body_ptr);
 
-    registry.view<PyHost>().each([&](auto self, auto &pyhost) { pyhost.invoke(registry, self, fetchers); });
+    environment.registry.view<PyHost>().each(
+        [&](auto self, auto &pyhost) { pyhost.invoke(environment, self, fetchers); });
 
     for ([[maybe_unused]] auto x : ltl::valueRange(0, 10))
-      world.Step(1.f, 8, 3);
+      environment.world.Step(1.f, 8, 3);
 
-    REQUIRE(registry.get<BodyPtr>(pyhost_self)->GetPosition().x == (3._a).margin(.1f));
-    REQUIRE(registry.get<BodyPtr>(pyhost_self)->GetPosition().y == (0._a).margin(.1f));
+    REQUIRE(environment.registry.get<BodyPtr>(pyhost_self)->GetPosition().x == (3._a).margin(.1f));
+    REQUIRE(environment.registry.get<BodyPtr>(pyhost_self)->GetPosition().y == (0._a).margin(.1f));
   }
 }

@@ -1,4 +1,5 @@
 #include <arena/component/host.hpp>
+#include <arena/environment.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -8,16 +9,16 @@
 namespace py = pybind11;
 using namespace py::literals;
 
+using namespace arena;
+using namespace arena::component;
+
 TEST_CASE("PyHost class testing", "[component][PyHost]") {
   py::scoped_interpreter guard;
 
-  entt::registry registry;
-  auto self = registry.create();
+  Environment environment{[](auto &) {}};
+  auto self = environment.registry.create();
 
   SECTION("PyHost callback is called on the entity components") {
-    using namespace arena;
-    using namespace arena::component;
-
     py::exec(R"(
       value = 0
       def function(a : int, b : float):
@@ -26,11 +27,12 @@ TEST_CASE("PyHost class testing", "[component][PyHost]") {
 
     FetcherMap fetchers{{"int", get_component<int>}, {"float", get_component<float>}};
 
-    registry.emplace<PyHost>(self, py::globals()[py::str{"function"}]);
-    registry.emplace<int>(self, 8);
-    registry.emplace<float>(self, 16);
+    environment.registry.emplace<PyHost>(self, py::globals()[py::str{"function"}]);
+    environment.registry.emplace<int>(self, 8);
+    environment.registry.emplace<float>(self, 16);
 
-    registry.view<PyHost>().each([&](auto self, auto &pyhost) { pyhost.invoke(registry, self, fetchers); });
+    environment.registry.view<PyHost>().each(
+        [&](auto self, auto &pyhost) { pyhost.invoke(environment, self, fetchers); });
 
     REQUIRE(py::int_{py::globals()["value"]} == 8 + 16);
   }

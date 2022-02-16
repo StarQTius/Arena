@@ -9,7 +9,6 @@
 #include <entt/entity/registry.hpp>
 
 #include <SFMLDebugDraw.h>
-#include <arena/binding/fetcher.hpp>
 #include <arena/physics.hpp>
 
 namespace {
@@ -30,7 +29,7 @@ struct Environment {
   constexpr static int32_t velocity_iterations = 8;
   constexpr static int32_t position_iterations = 3;
 
-  explicit Environment(std::invocable<entt::registry &> auto &&upkeep)
+  explicit Environment(std::invocable<Environment &> auto &&upkeep)
       : world{{0, 0}}, upkeep{std::forward<decltype(upkeep)>(upkeep)}, m_drawer{renderer} {
     m_drawer.SetFlags(b2Draw::e_shapeBit);
     world.SetDebugDraw(&m_drawer);
@@ -38,7 +37,7 @@ struct Environment {
 
   b2World world;
   entt::registry registry;
-  std::function<void(entt::registry &)> upkeep;
+  std::function<void(Environment &)> upkeep;
   sf::RenderWindow renderer;
 
   template <typename... Args> auto create(Args &&...args) {
@@ -47,7 +46,7 @@ struct Environment {
   }
 
   void step(box2d_time_t timestep) {
-    upkeep(registry);
+    upkeep(*this);
     world.Step(timestep.number(), velocity_iterations, position_iterations);
     if (renderer.isOpen()) {
       world.DebugDraw();

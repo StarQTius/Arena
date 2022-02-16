@@ -24,7 +24,7 @@ TEST_CASE("Field interaction with contained bodies", "[.integration][field]") {
   using namespace arena;
   using namespace units::isq::si::literals;
 
-  Environment environment([](entt::registry &) {});
+  Environment environment([](Environment &) {});
   create(environment.world, environment.registry, entity::Field{.width = 10_q_m, .height = 10_q_m});
 
   SECTION("Move around within the bound of the field") {
@@ -45,8 +45,10 @@ TEST_CASE("Field interaction with contained bodies", "[.integration][field]") {
         {4_q_m, 4_q_m, {1, 1}}, {4_q_m, -4_q_m, {1, -1}}, {-4_q_m, 4_q_m, {-1, 1}}, {-4_q_m, -4_q_m, {-1, -1}}};
 
     for (auto &&[x, y, velocity_vector] : init_parameters) {
-      auto bot_self = create(environment.world, environment.registry,
-                             entity::Bot{.x = x, .y = y, .mass = 1_q_kg, .logic = pybind11::globals()["noop"]}, hitbox);
+      auto bot_self = create(
+          environment.world, environment.registry,
+          entity::Bot{.x = x, .y = y, .mass = 1_q_kg, .logic = pybind11::globals()["noop"], .cup_storage_size = 0},
+          hitbox);
       environment.registry.emplace<b2Vec2>(bot_self, velocity_vector);
     }
 
@@ -69,7 +71,7 @@ TEST_CASE("Cup interaction with contained bodies", "[.integration][cup]") {
   using namespace arena;
   using namespace units::isq::si::literals;
 
-  Environment environment{[](entt::registry &) {}};
+  Environment environment{[](Environment &) {}};
 
   SECTION("Cup can be moved on collision") {
     using namespace arena::entity;
@@ -86,14 +88,15 @@ TEST_CASE("Cup interaction with contained bodies", "[.integration][cup]") {
     auto hitbox = make_circle_shape(10_q_cm);
 
     auto middle_cup_self =
-        create(environment.world, environment.registry, Cup{.x = 10_q_cm, .y = 0_q_cm, .color = Color::RED});
+        create(environment.world, environment.registry, Cup{.x = 10_q_cm, .y = 0_q_cm, .color = CupColor::RED});
     auto upper_cup_self =
-        create(environment.world, environment.registry, Cup{.x = 10_q_cm, .y = 5_q_cm, .color = Color::GREEN});
+        create(environment.world, environment.registry, Cup{.x = 10_q_cm, .y = 5_q_cm, .color = CupColor::GREEN});
     auto lower_cup_self =
-        create(environment.world, environment.registry, Cup{.x = 10_q_cm, .y = -5_q_cm, .color = Color::GREEN});
-    auto bot_self =
-        create(environment.world, environment.registry,
-               Bot{.x = -30_q_cm, .y = 0_q_cm, .mass = 1_q_kg, .logic = pybind11::globals()["noop"]}, hitbox);
+        create(environment.world, environment.registry, Cup{.x = 10_q_cm, .y = -5_q_cm, .color = CupColor::GREEN});
+    auto bot_self = create(
+        environment.world, environment.registry,
+        Bot{.x = -30_q_cm, .y = 0_q_cm, .mass = 1_q_kg, .logic = pybind11::globals()["noop"], .cup_storage_size = 0},
+        hitbox);
 
     environment.registry.emplace<b2Vec2>(middle_cup_self, 0.1, 0);
     environment.registry.emplace<b2Vec2>(upper_cup_self, 0.1, 0.05);
@@ -107,7 +110,7 @@ TEST_CASE("Cup interaction with contained bodies", "[.integration][cup]") {
     }
 
     for (auto &&[self, body_ptr, color, initial_position] :
-         environment.registry.view<BodyPtr, Color, b2Vec2>().each()) {
+         environment.registry.view<BodyPtr, CupColor, b2Vec2>().each()) {
       REQUIRE(body_ptr->GetPosition().x != Catch::Approx(initial_position.x));
       REQUIRE(body_ptr->GetPosition().y != Catch::Approx(initial_position.y));
     }
