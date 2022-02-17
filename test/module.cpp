@@ -49,7 +49,7 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
 
       env = Environment()
       env.create(Bot(x=-1.5, y=0, mass=1, logic=move_forward, cup_capacity=0))
-      env.create(Cup(x=1, y=0, color=Color.RED))
+      env.create(Cup(x=1, y=0, color=CupColor.RED))
       for _ in range(500):
         env.step(0.1)
     )");
@@ -74,8 +74,8 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
 
       env = Environment()
       env.create(Bot(x=-1.5, y=0, mass=1, logic=grab, cup_capacity=2))
-      env.create(Cup(x=0, y=0, color=Color.RED))
-      env.create(Cup(x=1, y=0, color=Color.GREEN))
+      env.create(Cup(x=0, y=0, color=CupColor.RED))
+      env.create(Cup(x=1, y=0, color=CupColor.GREEN))
       env.step(1)
       env.step(1)
     )"));
@@ -97,12 +97,12 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
         if not flag:
           cup_grabber.grab(next(env.cups)[0])
         else:
-          cup_grabber.drop(Cup(x=0.5, y=0, color=Color.RED))
+          cup_grabber.drop(Cup(x=0.5, y=0, color=CupColor.RED))
         flag = True
 
       env = Environment()
       env.create(Bot(x=-1, y=0, mass=1, logic=grab_n_drop, cup_capacity=2))
-      env.create(Cup(x=0, y=0, color=Color.RED))
+      env.create(Cup(x=0, y=0, color=CupColor.RED))
       env.step(1)
     )");
 

@@ -177,7 +177,7 @@ ARENA_MODULE(arena, module) {
   // Miscellaneous
   //
 
-  py::enum_<component::CupColor>(module, "Color")
+  py::enum_<component::CupColor>(module, "CupColor")
       .value("RED", component::CupColor::RED)
       .value("GREEN", component::CupColor::GREEN);
 }
