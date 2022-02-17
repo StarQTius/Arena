@@ -7,6 +7,7 @@
 #include <ltl/tuple_algos.h>
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <units/isq/si/length.h>
 
 #include <arena/2021/cup.hpp>
@@ -153,9 +154,10 @@ ARENA_MODULE(arena, module) {
   py::class_<WithEnvironment<component::CupGrabber>>(module, "CupGrabber")
       .def("grab", [](WithEnvironment<component::CupGrabber> &self,
                       entt::entity target) { return self.value.get().grab(self.environment.get(), target); })
-      .def("drop", [](WithEnvironment<component::CupGrabber> &self, const entity::Cup &cup) {
-        return self.value.get().drop(self.environment.get(), cup);
-      });
+      .def("drop", [](WithEnvironment<component::CupGrabber> &self,
+                      const entity::Cup &cup) { return self.value.get().drop(self.environment.get(), cup); })
+      .def_property_readonly(
+          "storage", [](const WithEnvironment<component::CupGrabber> &self) { return self.value.get().storage; });
 
   //
   // Entities

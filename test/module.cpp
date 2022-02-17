@@ -118,4 +118,34 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
     REQUIRE(view.get<component::BodyPtr>(*view.begin())->GetPosition().x == 0.5_a);
     REQUIRE(view.get<component::BodyPtr>(*view.begin())->GetPosition().y == 0_a);
   }
+
+  SECTION("Access a cup grabber storage") {
+    py::exec(R"(
+      from arena import *
+
+      red_count = 0
+      green_count = 0
+      def grab_all(env: Environment, cup_grabber: CupGrabber):
+        global red_count, green_count
+        for entity, _0, _1 in env.cups:
+          cup_grabber.grab(entity)
+        red_count = cup_grabber.storage[CupColor.RED]
+        green_count = cup_grabber.storage[CupColor.GREEN]
+
+      env = Environment()
+      env.create(Bot(x=-1, y=0, mass=1, logic=grab_all, cup_capacity=5))
+      env.create(Cup(x=0, y=0, color=CupColor.RED))
+      env.create(Cup(x=0.2, y=0, color=CupColor.GREEN))
+      env.create(Cup(x=0.4, y=0, color=CupColor.RED))
+      env.create(Cup(x=0.6, y=0, color=CupColor.GREEN))
+      env.create(Cup(x=0.8, y=0, color=CupColor.RED))
+      env.step(1)
+    )");
+
+    auto &environment = py::globals()["env"].cast<Environment &>();
+
+    REQUIRE(environment.world.GetBodyCount() == 2);
+    REQUIRE(py::globals()["red_count"].cast<size_t>() == 3);
+    REQUIRE(py::globals()["green_count"].cast<size_t>() == 2);
+  }
 }
