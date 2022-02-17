@@ -1,5 +1,5 @@
+#include <iterator>
 #include <memory>
-#include <ranges>
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
@@ -85,5 +85,37 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
 
     REQUIRE(environment.world.GetBodyCount() == 3);
     REQUIRE(view.get<component::CupColor>(*view.begin()) == component::CupColor::GREEN);
+  }
+
+  SECTION("Let a bot grab a cup then drop it") {
+    py::exec(R"(
+      from arena import *
+
+      flag = False
+      def grab_n_drop(env: Environment, body: Body, cup_grabber: CupGrabber):
+        global flag
+        if not flag:
+          cup_grabber.grab(next(env.cups)[0])
+        else:
+          cup_grabber.drop(Cup(x=0.5, y=0, color=Color.RED))
+        flag = True
+
+      env = Environment()
+      env.create(Bot(x=-1, y=0, mass=1, logic=grab_n_drop, cup_capacity=2))
+      env.create(Cup(x=0, y=0, color=Color.RED))
+      env.step(1)
+    )");
+
+    auto &environment = py::globals()["env"].cast<Environment &>();
+
+    REQUIRE(environment.world.GetBodyCount() == 2);
+
+    py::exec(R"(env.step(1))");
+    auto view = environment.registry.view<component::BodyPtr, component::CupColor>();
+
+    REQUIRE(environment.world.GetBodyCount() == 3);
+    REQUIRE(view.get<component::CupColor>(*view.begin()) == component::CupColor::RED);
+    REQUIRE(view.get<component::BodyPtr>(*view.begin())->GetPosition().x == 0.5_a);
+    REQUIRE(view.get<component::BodyPtr>(*view.begin())->GetPosition().y == 0_a);
   }
 }
