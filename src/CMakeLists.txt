@@ -12,7 +12,10 @@ target_link_libraries(
   Arena
   PUBLIC box2d EnTT::EnTT pybind11::pybind11 mp-units::mp-units sfml-graphics
   PRIVATE LTL)
-target_compile_definitions(Arena PRIVATE ARENA_C21)
+target_compile_definitions(
+  Arena
+  PUBLIC ARENA_ASSET_PATH="${Arena_ASSET_PATH}"
+  PRIVATE ARENA_C21)
 set_target_properties(
   Arena
   PROPERTIES CXX_STANDARD 20
