@@ -1,3 +1,5 @@
+FetchContent_MakeAvailable(box2d entt Little-Type-Library pybind11 units sfml)
+
 add_library(
   Arena STATIC
   body.cpp
@@ -20,11 +22,6 @@ set_target_properties(
   Arena
   PROPERTIES CXX_STANDARD 20
              INTERPROCEDURAL_OPTIMIZATION ON
-             CXX_VISIBILITY_PRESET hidden)
-if(MSVC)
-  target_compile_options(Arena PRIVATE /W4 /WX)
-else()
-  target_compile_options(
-    Arena PRIVATE -Wall -Wextra -Werror -fdiagnostics-color=always
-                  -fconcepts-diagnostics-depth=2)
-endif()
+             CXX_VISIBILITY_PRESET hidden
+             POSITION_INDEPENDENT_CODE ON)
+target_compile_options(Arena PRIVATE ${Arena_CPP_FLAGS})
