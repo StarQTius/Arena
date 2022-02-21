@@ -1,7 +1,7 @@
-list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
-include(Catch)
-
 FetchContent_MakeAvailable(Catch2)
+list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+
+include(Catch)
 
 add_executable(run_tests module.cpp main.cpp host.cpp component.cpp entity.cpp
                          render.cpp)
