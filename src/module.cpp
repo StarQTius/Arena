@@ -38,8 +38,6 @@ namespace {
 
 const auto bot_shape = component::make_circle_shape(10_q_cm);
 
-sf::Font font;
-
 auto sfml_color(component::CupColor &cup_color) {
   switch (cup_color) {
   case component::CupColor::RED:
@@ -64,16 +62,6 @@ auto cup_sprite(const component::BodyPtr &body_ptr, component::CupColor cup_colo
   return sprite;
 }
 
-auto bot_sprite(const component::BodyPtr &body_ptr, component::CupGrabber &cup_grabber) {
-  sf::Text text{"RED: "s + std::to_string(cup_grabber.storage[component::CupColor::RED]) + "\nGREEN: "s +
-                    std::to_string(cup_grabber.storage[component::CupColor::GREEN]),
-                font, 15};
-  text.setPosition(sfdd::SCALE * sf::Vector2f{body_ptr->GetWorldCenter().x, body_ptr->GetWorldCenter().y} +
-                   sf::Vector2f{-30, -70});
-
-  return text;
-}
-
 FetcherMap fetchers{{"Environment", [](Environment &retval, entt::entity) { return py::cast(retval); }},
                     {"Entity", [](Environment &, entt::entity retval) { return py::cast(retval); }},
                     {"Body", get_component<component::BodyPtr>},
@@ -88,19 +76,12 @@ void upkeep(Environment &environment) {
         [&](const component::BodyPtr &body_ptr, component::CupColor cup_color) {
           environment.renderer.draw(cup_sprite(body_ptr, cup_color));
         });
-    environment.registry.view<component::BodyPtr, component::CupGrabber>().each(
-        [&](const component::BodyPtr &body_ptr, component::CupGrabber cup_grabber) {
-          environment.renderer.draw(bot_sprite(body_ptr, cup_grabber));
-        });
   }
 }
 
 } // namespace
 
 ARENA_MODULE(arena, module) {
-  if (!font.loadFromFile(ARENA_ASSET_PATH "/F25_Bank_Printer.ttf"))
-    throw std::runtime_error{"Font not found"};
-
   py::class_<Environment, std::shared_ptr<Environment>>(module, "Environment")
       .def(py::init([]() {
         auto environment_ptr = std::make_shared<Environment>(upkeep);

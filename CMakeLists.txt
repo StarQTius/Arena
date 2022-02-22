@@ -15,7 +15,6 @@ project(
   LANGUAGES CXX)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
-set(Arena_ASSET_PATH ${PROJECT_SOURCE_DIR}/asset)
 set(Arena_CPP_FLAGS $<$<CXX_COMPILER_ID:GNU>: -Wall -Wextra -Werror
                     -fdiagnostics-color=always -fconcepts-diagnostics-depth=2>)
 set(Arena_FETCH_CONTENT_OPTIONS GIT_PROGRESS ON $<$<CONFIG:RELEASE>:

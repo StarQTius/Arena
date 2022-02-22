@@ -21,5 +21,5 @@ class CMakeBuild(build_ext):
 setup(
   name="arena",
   ext_modules=[CMakeExtension(name="arena", sourcedir=".")],
-  cmdclass={"build_ext": CMakeBuild}
+  cmdclass={"build_ext": CMakeBuild},
 )
