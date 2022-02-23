@@ -1,3 +1,4 @@
+#include <cmath>
 #include <stdexcept>
 #include <string>
 
@@ -130,6 +131,19 @@ ARENA_MODULE(arena, module) {
           },
           [](b2Body &self, py::tuple value) {
             self.SetLinearVelocity({py::cast<float>(value[0]), py::cast<float>(value[1])});
+          })
+      .def_property(
+          "angular_velocity",
+          [](const b2Body &self) {
+            auto velocity = self.GetAngularVelocity();
+            return velocity;
+          },
+          [](b2Body &self, float value) { self.SetAngularVelocity(value); })
+      .def_property(
+          "forward_velocity", [](const b2Body &) { return py::none{}; },
+          [](b2Body &self, float value) {
+            auto angle = self.GetAngle();
+            self.SetLinearVelocity({std::cos(angle) * value, std::sin(angle) * value});
           });
 
   py::class_<WithEnvironment<component::CupGrabber>>(module, "CupGrabber")

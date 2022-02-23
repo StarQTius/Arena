@@ -63,4 +63,21 @@ TEST_CASE("Environment renderer from Python", "[.manual]") {
         env.step(1)
     )");
   }
+
+  SECTION("Drive a bot with forward velocity") {
+    py::exec(R"(
+      from arena import *
+
+      def drive_n_turn(body: Body):
+        body.angular_velocity = 5
+        body.forward_velocity = 0.5
+
+      env = Environment()
+      env.create(Bot(x=-1, y=0, mass=1, logic=drive_n_turn, cup_capacity=0))
+
+      with env.renderer:
+        for _ in range(60):
+          env.step(1/20)
+    )");
+  }
 }
