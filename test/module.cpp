@@ -148,4 +148,26 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
     REQUIRE(py::globals()["red_count"].cast<size_t>() == 3);
     REQUIRE(py::globals()["green_count"].cast<size_t>() == 2);
   }
+
+  SECTION("Create a field of custom dimension") {
+    py::exec(R"(
+      from arena import *
+
+      def go_forward(body: Body):
+        body.forward_velocity = 1
+
+      env = Environment(width=1, height=1)
+      env.create(Bot(x=-1, y=0, mass=1, logic=go_forward, cup_capacity=0))
+      for _ in range(5):
+        env.step(1)
+    )");
+
+    auto &environment = py::globals()["env"].cast<Environment &>();
+    auto &bot = *environment.registry.view<component::PyHost>().begin();
+
+    REQUIRE(environment.registry.get<component::BodyPtr>(bot)->GetPosition().x < 0.5);
+    REQUIRE(environment.registry.get<component::BodyPtr>(bot)->GetPosition().x > -0.5);
+    REQUIRE(environment.registry.get<component::BodyPtr>(bot)->GetPosition().y < 0.5);
+    REQUIRE(environment.registry.get<component::BodyPtr>(bot)->GetPosition().y > -0.5);
+  }
 }

@@ -84,11 +84,12 @@ void upkeep(Environment &environment) {
 
 ARENA_MODULE(arena, module) {
   py::class_<Environment, std::shared_ptr<Environment>>(module, "Environment")
-      .def(py::init([]() {
-        auto environment_ptr = std::make_shared<Environment>(upkeep);
-        environment_ptr->create(entity::Field{.width = 3_q_m, .height = 2_q_m});
-        return environment_ptr;
-      }))
+      .def(py::init([](precision_t width, precision_t height) {
+             auto environment_ptr = std::make_shared<Environment>(upkeep);
+             environment_ptr->create(entity::Field{.width = width * m, .height = height * m});
+             return environment_ptr;
+           }),
+           "width"_a = 3, "height"_a = 2)
       .def("create", [](Environment &self, const entity::Bot &bot) { self.create(bot, bot_shape); })
       .def("create", [](Environment &self, const entity::Cup &cup) { self.create(cup); })
       .def("step", [](Environment &self, precision_t dt) { self.step(dt * s); })
