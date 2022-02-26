@@ -58,11 +58,6 @@ FetchContent_Declare(
   GIT_PROGRESS ON
   GIT_SHALLOW ON)
 FetchContent_Declare(
-  sfml
-  GIT_REPOSITORY https://github.com/SFML/sfml
-  GIT_PROGRESS ON
-  GIT_SHALLOW ON)
-FetchContent_Declare(
   units
   GIT_REPOSITORY https://github.com/mpusz/units
   SOURCE_SUBDIR src

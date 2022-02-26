@@ -8,7 +8,7 @@
 namespace py = pybind11;
 
 TEST_CASE("Environment renderer from Python", "[.manual]") {
-  py::scoped_interpreter guard;
+  SECTION("py::initialize_interpreter()") { py::initialize_interpreter(); }
 
   SECTION("Render a bot alone") {
     py::exec(R"(
@@ -80,4 +80,6 @@ TEST_CASE("Environment renderer from Python", "[.manual]") {
           env.step(1/20)
     )");
   }
+
+  SECTION("py::finalize_interpreter()") { py::finalize_interpreter(); }
 }

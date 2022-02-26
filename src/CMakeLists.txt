@@ -1,4 +1,4 @@
-FetchContent_MakeAvailable(box2d entt Little-Type-Library pybind11 units sfml)
+FetchContent_MakeAvailable(box2d entt Little-Type-Library pybind11 units)
 
 add_library(
   Arena STATIC
@@ -8,10 +8,10 @@ add_library(
   physics.cpp
   bot.cpp
   cup.cpp
-  SFMLDebugDraw.cpp)
+  draw.cpp)
 target_sources(Arena INTERFACE module.cpp)
 target_link_libraries(Arena PUBLIC box2d EnTT::EnTT pybind11::pybind11
-                                   mp-units::mp-units sfml-graphics LTL)
+                                   mp-units::mp-units LTL)
 target_compile_definitions(Arena PUBLIC ARENA_C21)
 set_target_properties(
   Arena

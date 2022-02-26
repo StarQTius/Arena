@@ -2,7 +2,6 @@
 #include <stdexcept>
 #include <string>
 
-#include <SFML/Graphics.hpp>
 #include <box2d/b2_circle_shape.h>
 #include <ltl/Range/Map.h>
 #include <ltl/tuple_algos.h>
@@ -39,30 +38,6 @@ namespace {
 
 const auto bot_shape = component::make_circle_shape(10_q_cm);
 
-auto sfml_color(component::CupColor &cup_color) {
-  switch (cup_color) {
-  case component::CupColor::RED:
-    return sf::Color::Red;
-  case component::CupColor::GREEN:
-    return sf::Color::Green;
-  default:
-    return sf::Color::Transparent;
-  }
-}
-
-auto cup_sprite(const component::BodyPtr &body_ptr, component::CupColor cup_color) {
-  constexpr float radius = 10;
-
-  sf::CircleShape sprite{radius};
-  sprite.setOutlineColor(sfml_color(cup_color));
-  sprite.setFillColor(sf::Color::Transparent);
-  sprite.setOutlineThickness(2);
-  sprite.setOrigin(sf::Vector2f{radius, radius});
-  sprite.setPosition(sfdd::SCALE * sf::Vector2f{body_ptr->GetWorldCenter().x, body_ptr->GetWorldCenter().y});
-
-  return sprite;
-}
-
 FetcherMap fetchers{{"Environment", [](Environment &retval, entt::entity) { return py::cast(retval); }},
                     {"Entity", [](Environment &, entt::entity retval) { return py::cast(retval); }},
                     {"Body", get_component<component::BodyPtr>},
@@ -72,12 +47,12 @@ void upkeep(Environment &environment) {
   for (auto &&[self, py_host] : environment.registry.view<component::PyHost>().each())
     py_host.invoke(environment, self, fetchers);
 
-  if (environment.renderer.isOpen()) {
+  /*if (environment.renderer) {
     environment.registry.view<component::BodyPtr, component::CupColor>().each(
         [&](const component::BodyPtr &body_ptr, component::CupColor cup_color) {
           environment.renderer.draw(cup_sprite(body_ptr, cup_color));
         });
-  }
+  }*/
 }
 
 } // namespace
@@ -106,13 +81,26 @@ ARENA_MODULE(arena, module) {
 
   py::class_<entt::entity>(module, "Entity");
 
-  py::class_<sf::RenderWindow>(module, "Renderer")
+  py::class_<PyGameDrawer>(module, "Renderer")
       .def("__enter__",
-           [](sf::RenderWindow &self) {
-             self.create(sf::VideoMode{1000, 800}, "Arena");
-             self.setView(sf::View{{0, 0}, {1000, 800}});
+           [](PyGameDrawer &self) {
+             auto pygame_pymodule = py::module::import("pygame");
+             auto init_pyfunction = pygame_pymodule.attr("init");
+
+             auto display_pymodule = pygame_pymodule.attr("display");
+             auto set_mode_pyfunction = display_pymodule.attr("set_mode");
+
+             init_pyfunction();
+             self.bind_screen(set_mode_pyfunction(py::make_tuple(800, 500)));
+             return self;
            })
-      .def("__exit__", [](sf::RenderWindow &self, py::object, py::object, py::object) { self.close(); });
+      .def("__exit__", [](PyGameDrawer &self, py::object, py::object, py::object) {
+        auto pygame_pymodule = py::module::import("pygame");
+        auto quit_pyfunction = pygame_pymodule.attr("quit");
+
+        self.unbind_screen();
+        quit_pyfunction();
+      });
 
   //
   // Components
