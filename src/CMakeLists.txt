@@ -19,4 +19,4 @@ set_target_properties(
              INTERPROCEDURAL_OPTIMIZATION ON
              CXX_VISIBILITY_PRESET hidden
              POSITION_INDEPENDENT_CODE ON)
-target_compile_options(Arena PRIVATE ${Arena_CPP_FLAGS})
+target_compile_options(Arena PRIVATE ${ARENA_CPP_FLAGS})

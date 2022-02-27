@@ -9,13 +9,16 @@ else()
   message(WARNING "ccache not found")
 endif()
 
+execute_process(COMMAND git describe --tags
+                OUTPUT_VARIABLE ARENA_GIT_TAG_VERSION)
+string(REGEX REPLACE ".*v([0-9]+.[0-9]+.[0-9]+).*" "\\1" ARENA_GIT_TAG_VERSION
+                     ${ARENA_GIT_TAG_VERSION})
 project(
-  Arena
-  VERSION 0.0
+  Eurobot-Arena
+  VERSION ${ARENA_GIT_TAG_VERSION}
   LANGUAGES CXX)
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
-set(Arena_CPP_FLAGS $<$<CXX_COMPILER_ID:GNU>: -Wall -Wextra -Werror
+set(ARENA_CPP_FLAGS $<$<CXX_COMPILER_ID:GNU>: -Wall -Wextra -Werror
                     -fdiagnostics-color=always -fconcepts-diagnostics-depth=2>)
 
 include(CTest)
@@ -44,7 +47,7 @@ FetchContent_Declare(
   GIT_SHALLOW ON)
 FetchContent_Declare(
   gsl-lite
-  GIT_REPOSITORY "https://github.com/gsl-lite/gsl-lite"
+  GIT_REPOSITORY https://github.com/gsl-lite/gsl-lite
   GIT_PROGRESS ON
   GIT_SHALLOW ON)
 FetchContent_Declare(
@@ -68,7 +71,7 @@ FetchContent_MakeAvailable(gsl-lite)
 set(gsl-lite_DIR ${gsl-lite_BINARY_DIR})
 add_library(gsl-lite::gsl-lite ALIAS gsl-lite-v1)
 
-if(Arena_BUILD_MODULE)
+if(ARENA_BUILD_MODULE)
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 set(BUILD_SHARED_LIBS OFF)
@@ -81,12 +84,12 @@ find_package(Python3 COMPONENTS Interpreter Development)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/include)
 
-if(Arena_BUILD_MODULE)
+if(ARENA_BUILD_MODULE)
   pybind11_add_module(arena)
   target_link_libraries(arena PRIVATE Arena)
 endif()
 
-if(Arena_BUILD_TESTS)
+if(ARENA_BUILD_TESTS)
   set(BUILD_TESTING ON)
   add_subdirectory(${PROJECT_SOURCE_DIR}/test)
 endif()
