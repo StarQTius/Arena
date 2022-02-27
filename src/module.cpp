@@ -5,7 +5,6 @@
 #include <box2d/b2_circle_shape.h>
 #include <ltl/Range/Map.h>
 #include <ltl/tuple_algos.h>
-#include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <units/isq/si/length.h>
@@ -19,6 +18,7 @@
 #include <arena/environment.hpp>
 
 #ifdef ARENA_EMBED
+#include <pybind11/embed.h>
 #define ARENA_MODULE(NAME, M) PYBIND11_EMBEDDED_MODULE(NAME, M)
 #else // ARENA_EMBED
 #define ARENA_MODULE(NAME, M) PYBIND11_MODULE(NAME, M)

@@ -5,11 +5,10 @@ TOP_LEVEL=$(git rev-parse --show-toplevel)
 DOCKER_TOP_LEVEL=/arena
 DOCKER_IMAGE=$1
 PYTHON_VERSION=$2
-DOCKER_PYTHON_PATH=/opt/python/${PYTHON_VERSION}/bin/python
+DOCKER_PYTHON_PATH=/opt/_internal/cpython-${PYTHON_VERSION}/bin/python
 DOCKER_DIST=${DOCKER_TOP_LEVEL}/dist
 DOCKER_VENV=${DOCKER_DIST}/${DOCKER_IMAGE}/venv/${PYTHON_VERSION}
 
 docker run -it --mount src="${TOP_LEVEL}",dst="${DOCKER_TOP_LEVEL}",type=bind ${DOCKER_IMAGE} sh -c "
-  ${DOCKER_PYTHON_PATH} -m venv ${DOCKER_VENV}
-  ${DOCKER_VENV}/bin/pip install cmake GitPython setuptools wheel
-  ${DOCKER_VENV}/bin/pip wheel -e ${DOCKER_TOP_LEVEL} --require-virtualenv --no-build-isolation --no-deps -w ${DOCKER_DIST}"
+  ${DOCKER_PYTHON_PATH} -m pip install GitPython setuptools wheel
+  ${DOCKER_PYTHON_PATH} -m pip wheel -e ${DOCKER_TOP_LEVEL} --no-deps --no-build-isolation -w ${DOCKER_DIST} -v"

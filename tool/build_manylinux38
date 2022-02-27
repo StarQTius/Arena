@@ -1,4 +1,4 @@
 #!/bin/sh
 
 THIS_DIR=$(cd $(dirname $0) && echo ${PWD})
-${THIS_DIR}/build_wheel quay.io/pypa/manylinux2014_x86_64 cp38-cp38
+${THIS_DIR}/build_manylinux quay.io/pypa/manylinux2014_x86_64 3.8.12
