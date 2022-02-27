@@ -8,7 +8,7 @@ from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 
 repository = Repo(path.dirname(__file__))
-version = search(r"(?<=v)(\d+\.\d+\.\d+)", Tag.list_items(repository)[0].path).group(0)
+version = search(r"(?<=v)(\d+\.\d+\.\d+)", Tag.list_items(repository)[-1].path).group(0)
 
 
 class CMakeExtension(Extension):
