@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.21)
 
 message(STATUS "Finding ccache...")
 find_program(CCACHE_FOUND ccache)
@@ -79,7 +79,18 @@ set(SFML_BUILD_AUDIO OFF)
 set(SFML_BUILD_NETWORK OFF)
 set(UNITS_BUILD_DOC OFF)
 set(UNITS_USE_LIBFMT OFF)
-find_package(Python3 COMPONENTS Interpreter Development)
+
+if(DEFINED ENV{ARENA_MANYLINUX_PYTHON3_INCLUDE_DIR})
+  # Python3 installation hinting for manylinux We expect Python3 not to be
+  # found, but it is okay since we are giving CMake enough hints to find the
+  # necessary resources for building the wheel.
+  set(Python3_INCLUDE_DIR $ENV{ARENA_MANYLINUX_PYTHON3_INCLUDE_DIR})
+  find_package(Python3 COMPONENTS Interpreter Development)
+  set(Python3_FOUND TRUE)
+else()
+  # Standard Python3 detection
+  find_package(Python3 COMPONENTS Interpreter Development)
+endif()
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/include)

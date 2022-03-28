@@ -1,4 +1,5 @@
-from os import environ, makedirs, path
+import sys
+from os import makedirs, path
 from re import search
 from subprocess import check_call
 
@@ -31,6 +32,7 @@ class CMakeBuild(build_ext):
                 "-DCMAKE_BUILD_TYPE=Release",
                 f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}",
                 "-DARENA_BUILD_MODULE=ON",
+                f"-DPython3_EXECUTABLE={sys.executable}",
             ],
             cwd=self.build_temp,
         )
