@@ -112,6 +112,7 @@ ARENA_MODULE(arena, module) {
                                auto &velocity = self.GetPosition();
                                return py::make_tuple(velocity.x, velocity.y);
                              })
+      .def_property_readonly("angle", [](const b2Body &self) { return self.GetAngle(); })
       .def_property(
           "velocity",
           [](const b2Body &self) {
