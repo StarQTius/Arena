@@ -149,6 +149,19 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
     REQUIRE(py::globals()["green_count"].cast<size_t>() == 2);
   }
 
+  SECTION("Get the content of an empty cup grabber") {
+    REQUIRE_NOTHROW(py::exec(R"(
+      from arena import *
+
+      def access_storage(cup_grabber: CupGrabber):
+        cup_grabber.storage[CupColor.RED]
+
+      env = Environment()
+      env.create(Bot(x=-1, y=0, mass=1, logic=access_storage, cup_capacity=5))
+      env.step(1)
+    )"));
+  }
+
   SECTION("Create a field of custom dimension") {
     py::exec(R"(
       from arena import *
