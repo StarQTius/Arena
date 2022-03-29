@@ -36,7 +36,7 @@ using namespace units::isq::si::time_references;
 
 namespace {
 
-const auto bot_shape = component::make_circle_shape(10_q_cm);
+const auto bot_shape = component::make_circle_shape(1200_q_mm / (2 * M_PI));
 
 FetcherMap fetchers{{"Environment", [](Environment &retval, entt::entity) { return py::cast(retval); }},
                     {"Entity", [](Environment &, entt::entity retval) { return py::cast(retval); }},

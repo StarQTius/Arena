@@ -6,9 +6,9 @@ using namespace units::isq::si::literals;
 
 namespace {
 
-constexpr auto cup_mass = 200_q_g;
+constexpr auto cup_mass = 10_q_g;
 constexpr auto cup_damping = 100_q_s;
-const auto cup_shape = arena::component::make_circle_shape(3_q_cm);
+const auto cup_shape = arena::component::make_circle_shape(36_q_mm);
 
 } // namespace
 
