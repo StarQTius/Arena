@@ -183,4 +183,30 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
     REQUIRE(environment.registry.get<component::BodyPtr>(bot)->GetPosition().y < 0.5);
     REQUIRE(environment.registry.get<component::BodyPtr>(bot)->GetPosition().y > -0.5);
   }
+
+  SECTION("Change position and angle of body") {
+    py::exec(R"(
+      from arena import *
+
+      def reposition(body: Body):
+        body.set_position((0.1, 0.1))
+        body.set_angle(3)
+
+      env = Environment(width=1, height=1)
+      env.create(Bot(x=0, y=0, mass=1, logic=reposition, cup_capacity=0))
+    )");
+
+    auto &environment = py::globals()["env"].cast<Environment &>();
+    auto &bot = *environment.registry.view<component::PyHost>().begin();
+    auto &body = *environment.registry.get<component::BodyPtr>(bot);
+
+    REQUIRE(body.GetPosition().x == 0_a);
+    REQUIRE(body.GetPosition().y == 0_a);
+
+    py::exec(R"(env.step(1))");
+
+    REQUIRE(body.GetPosition().x == 0.1_a);
+    REQUIRE(body.GetPosition().y == 0.1_a);
+    REQUIRE(body.GetAngle() == 3_a);
+  }
 }

@@ -134,7 +134,12 @@ ARENA_MODULE(arena, module) {
           [](b2Body &self, float value) {
             auto angle = self.GetAngle();
             self.SetLinearVelocity({std::cos(angle) * value, std::sin(angle) * value});
-          });
+          })
+      .def("set_position",
+           [](b2Body &self, py::tuple position) {
+             self.SetTransform({position[0].cast<precision_t>(), position[1].cast<precision_t>()}, self.GetAngle());
+           })
+      .def("set_angle", [](b2Body &self, precision_t angle) { self.SetTransform(self.GetPosition(), angle); });
 
   py::class_<WithEnvironment<component::CupGrabber>>(module, "CupGrabber")
       .def("grab", [](WithEnvironment<component::CupGrabber> &self,
