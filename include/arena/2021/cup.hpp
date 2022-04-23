@@ -36,16 +36,14 @@ namespace component {
 ARENA_C21_INLINE namespace c21 {
 
   struct CupGrabber {
-    std::unordered_map<CupColor, size_t> storage;
+    std::unordered_set<entt::entity> storage;
     size_t storage_size;
 
     bool grab(Environment &environment, entt::entity target) {
       auto &&[body_ptr, cup_color] = environment.registry.try_get<BodyPtr, CupColor>(target);
-      if (body_ptr && cup_color && std::accumulate(storage.begin(), storage.end(), 0u, [](auto lhs, auto rhs) {
-                                     return lhs + rhs.second;
-                                   }) < storage_size) {
-        storage[*cup_color]++;
-        environment.registry.destroy(target);
+      if (body_ptr && storage.size() < storage_size) {
+        storage.insert(target);
+        (*body_ptr)->SetEnabled(false);
         return true;
       } else {
         return false;
@@ -53,9 +51,13 @@ ARENA_C21_INLINE namespace c21 {
     }
 
     bool drop(Environment &environment, const entity::Cup &cup) {
-      if (storage[cup.color] > 0) {
-        storage[cup.color]--;
-        environment.create(cup);
+      auto is_same_color = [&](auto entity) { return environment.registry.get<CupColor>(entity) == cup.color; };
+      auto cup_entity_it = std::find_if(storage.begin(), storage.end(), is_same_color);
+      if (cup_entity_it != storage.end()) {
+        auto &body_ptr = environment.registry.get<BodyPtr>(*cup_entity_it);
+        body_ptr->SetEnabled(true);
+        body_ptr->SetTransform({cup.x.number(), cup.y.number()}, body_ptr->GetAngle());
+        storage.erase(cup_entity_it);
         return true;
       } else {
         return false;

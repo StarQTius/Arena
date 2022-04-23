@@ -81,9 +81,10 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
     )"));
 
     auto &environment = py::globals()["env"].cast<Environment &>();
-    auto view = environment.registry.view<component::CupColor>();
+    auto view = environment.registry.view<component::BodyPtr, component::CupColor>();
+    auto is_enabled = [&](auto entity) { return view.get<component::BodyPtr>(entity)->IsEnabled(); };
 
-    REQUIRE(environment.world.GetBodyCount() == 3);
+    REQUIRE(std::count_if(view.begin(), view.end(), is_enabled) == 1);
     REQUIRE(view.get<component::CupColor>(*view.begin()) == component::CupColor::GREEN);
   }
 
@@ -107,13 +108,15 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
     )");
 
     auto &environment = py::globals()["env"].cast<Environment &>();
+    auto view = environment.registry.view<component::BodyPtr, component::CupColor>();
+    auto is_enabled = [&](auto entity) { return view.get<component::BodyPtr>(entity)->IsEnabled(); };
 
-    REQUIRE(environment.world.GetBodyCount() == 2);
+    REQUIRE(std::count_if(view.begin(), view.end(), is_enabled) == 0);
 
     py::exec(R"(env.step(1))");
-    auto view = environment.registry.view<component::BodyPtr, component::CupColor>();
+    view = environment.registry.view<component::BodyPtr, component::CupColor>();
 
-    REQUIRE(environment.world.GetBodyCount() == 3);
+    REQUIRE(std::count_if(view.begin(), view.end(), is_enabled) == 1);
     REQUIRE(view.get<component::CupColor>(*view.begin()) == component::CupColor::RED);
     REQUIRE(view.get<component::BodyPtr>(*view.begin())->GetPosition().x == 0.5_a);
     REQUIRE(view.get<component::BodyPtr>(*view.begin())->GetPosition().y == 0_a);
@@ -129,8 +132,8 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
         global red_count, green_count
         for entity, _0, _1 in env.cups:
           cup_grabber.grab(entity)
-        red_count = cup_grabber.storage[CupColor.RED]
-        green_count = cup_grabber.storage[CupColor.GREEN]
+        red_count = cup_grabber.get_count(CupColor.RED)
+        green_count = cup_grabber.get_count(CupColor.GREEN)
 
       env = Environment()
       env.create(Bot(x=-1, y=0, mass=1, logic=grab_all, cup_capacity=5))
@@ -143,8 +146,10 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
     )");
 
     auto &environment = py::globals()["env"].cast<Environment &>();
+    auto view = environment.registry.view<component::BodyPtr, component::CupColor>();
+    auto is_enabled = [&](auto entity) { return view.get<component::BodyPtr>(entity)->IsEnabled(); };
 
-    REQUIRE(environment.world.GetBodyCount() == 2);
+    REQUIRE(std::count_if(view.begin(), view.end(), is_enabled) == 0);
     REQUIRE(py::globals()["red_count"].cast<size_t>() == 3);
     REQUIRE(py::globals()["green_count"].cast<size_t>() == 2);
   }
@@ -154,7 +159,7 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
       from arena import *
 
       def access_storage(cup_grabber: CupGrabber):
-        cup_grabber.storage[CupColor.RED]
+        cup_grabber.get_count(CupColor.RED)
 
       env = Environment()
       env.create(Bot(x=-1, y=0, mass=1, logic=access_storage, cup_capacity=5))
@@ -177,7 +182,10 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
 
     auto &environment = py::globals()["env"].cast<Environment &>();
     auto &bot = *environment.registry.view<component::PyHost>().begin();
+    auto view = environment.registry.view<component::BodyPtr, component::CupColor>();
+    auto is_enabled = [&](auto entity) { return view.get<component::BodyPtr>(entity)->IsEnabled(); };
 
+    REQUIRE(std::count_if(view.begin(), view.end(), is_enabled) == 0);
     REQUIRE(environment.registry.get<component::BodyPtr>(bot)->GetPosition().x < 0.5);
     REQUIRE(environment.registry.get<component::BodyPtr>(bot)->GetPosition().x > -0.5);
     REQUIRE(environment.registry.get<component::BodyPtr>(bot)->GetPosition().y < 0.5);

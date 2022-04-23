@@ -3,6 +3,7 @@
 #include <string>
 
 #include <box2d/b2_circle_shape.h>
+#include <ltl/Range/Filter.h>
 #include <ltl/Range/Map.h>
 #include <ltl/tuple_algos.h>
 #include <pybind11/pybind11.h>
@@ -74,6 +75,7 @@ ARENA_MODULE(arena, module) {
           "cups",
           [](Environment &self) {
             auto component_view = self.registry.view<component::BodyPtr, component::CupColor>().each() |
+                                  ltl::filter([](auto &&tuple) { return std::get<1>(tuple)->IsEnabled(); }) |
                                   ltl::map(dereference_tuple_elements_if_needed);
             return py::make_iterator(component_view.begin(), component_view.end());
           },
@@ -146,6 +148,12 @@ ARENA_MODULE(arena, module) {
                       entt::entity target) { return self.value.get().grab(self.environment.get(), target); })
       .def("drop", [](WithEnvironment<component::CupGrabber> &self,
                       const entity::Cup &cup) { return self.value.get().drop(self.environment.get(), cup); })
+      .def("get_count",
+           [](WithEnvironment<component::CupGrabber> &self, component::CupColor color) {
+             return std::count_if(self.value.get().storage.begin(), self.value.get().storage.end(), [&](auto entity) {
+               return self.environment.get().registry.get<component::CupColor>(entity) == color;
+             });
+           })
       .def_property_readonly(
           "storage", [](const WithEnvironment<component::CupGrabber> &self) { return self.value.get().storage; });
 

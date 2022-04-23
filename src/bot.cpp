@@ -24,9 +24,8 @@ entt::entity arena::entity::create(b2World &world, entt::registry &registry, con
   auto self = registry.create();
   registry.emplace<component::BodyPtr>(self, body_ptr);
   registry.emplace<component::PyHost>(self, def.logic);
-  registry.emplace<component::CupGrabber>(
-      self, component::CupGrabber{.storage = {{component::CupColor::RED, 0}, {component::CupColor::GREEN, 0}},
-                                  .storage_size = def.cup_storage_size});
+  registry.emplace<component::CupGrabber>(self,
+                                          component::CupGrabber{.storage = {}, .storage_size = def.cup_storage_size});
 
   return self;
 }
