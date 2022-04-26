@@ -81,7 +81,7 @@ ARENA_MODULE(arena, module) {
           },
           py::return_value_policy::copy, py::keep_alive<0, 1>{});
 
-  py::class_<entt::entity>(module, "Entity");
+  py::enum_<entt::entity>(module, "Entity");
 
   py::class_<PyGameDrawer>(module, "Renderer")
       .def("__enter__",
