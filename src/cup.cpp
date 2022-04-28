@@ -30,3 +30,28 @@ entt::entity arena::entity::create(b2World &world, entt::registry &registry, con
 
   return self;
 }
+
+bool arena::component::CupGrabber::grab(Environment &environment, entt::entity target) {
+  auto &&[body_ptr, cup_color] = environment.registry.try_get<BodyPtr, CupColor>(target);
+  if (body_ptr && storage.size() < storage_size) {
+    storage.insert(target);
+    (*body_ptr)->SetEnabled(false);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool arena::component::CupGrabber::drop(Environment &environment, const entity::Cup &cup) {
+  auto is_same_color = [&](auto entity) { return environment.registry.get<CupColor>(entity) == cup.color; };
+  auto cup_entity_it = std::find_if(storage.begin(), storage.end(), is_same_color);
+  if (cup_entity_it != storage.end()) {
+    auto &body_ptr = environment.registry.get<BodyPtr>(*cup_entity_it);
+    body_ptr->SetEnabled(true);
+    body_ptr->SetTransform({cup.x.number(), cup.y.number()}, body_ptr->GetAngle());
+    storage.erase(cup_entity_it);
+    return true;
+  } else {
+    return false;
+  }
+}
