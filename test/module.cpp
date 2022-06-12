@@ -217,4 +217,22 @@ TEST_CASE("C++/Python binding", "[.integration][binding]") {
     REQUIRE(body.GetPosition().y == 0.1_a);
     REQUIRE(body.GetAngle() == 3_a);
   }
+
+  SECTION("Get a component from an entity") {
+    py::exec(R"(
+      from arena import *
+
+      def noop():
+        pass
+
+      env = Environment()
+      entity = env.create(Bot(x=0.5, y=0.3, mass=1, logic=noop, cup_capacity=0))
+      body = env.get(entity, Body)
+    )");
+
+    auto &body = py::globals()["body"].cast<b2Body &>();
+
+    REQUIRE(body.GetPosition().x == 0.5_a);
+    REQUIRE(body.GetPosition().y == 0.3_a);
+  }
 }

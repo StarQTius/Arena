@@ -66,9 +66,11 @@ ARENA_MODULE(arena, module) {
              return environment_ptr;
            }),
            "width"_a = 3, "height"_a = 2)
-      .def("create", [](Environment &self, const entity::Bot &bot) { self.create(bot, bot_shape); })
-      .def("create", [](Environment &self, const entity::Cup &cup) { self.create(cup); })
+      .def("create", [](Environment &self, const entity::Bot &bot) { return self.create(bot, bot_shape); })
+      .def("create", [](Environment &self, const entity::Cup &cup) { return self.create(cup); })
       .def("step", [](Environment &self, precision_t dt) { self.step(dt * s); })
+      .def("get", [](Environment &self, entt::entity id,
+                     py::object type) { return fetchers.at(type.attr("__name__").cast<std::string>())(self, id); })
       .def_property_readonly(
           "renderer", [](const Environment &self) -> auto & { return self.renderer; })
       .def_property_readonly(
