@@ -1,6 +1,4 @@
 #!/bin/sh
 
-cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Debug -DARENA_BUILD_TESTS=ON \
-&& cmake --build build \
-&& cd build \
-&& ctest $@
+cmake -B build -DCMAKE_BUILD_TYPE=Debug \
+&& cmake --build build --target check

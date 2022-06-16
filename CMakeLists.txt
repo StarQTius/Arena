@@ -1,32 +1,30 @@
 cmake_minimum_required(VERSION 3.21)
 
-message(STATUS "Finding ccache...")
+# Find `ccache` utility if possible
 find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
-  message(STATUS "ccache found")
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-else()
-  message(WARNING "ccache not found")
 endif()
 
+# Get project version from git tags
 execute_process(COMMAND git describe --tags
                 OUTPUT_VARIABLE ARENA_GIT_TAG_VERSION)
 string(REGEX REPLACE ".*v([0-9]+.[0-9]+.[0-9]+).*" "\\1" ARENA_GIT_TAG_VERSION
                      ${ARENA_GIT_TAG_VERSION})
+
 project(
   Eurobot-Arena
   VERSION ${ARENA_GIT_TAG_VERSION}
   LANGUAGES CXX)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(BUILD_SHARED_LIBS OFF)
 set(ARENA_CPP_FLAGS $<$<CXX_COMPILER_ID:GNU>: -Wall -Wextra -Werror
                     -fdiagnostics-color=always -fconcepts-diagnostics-depth=2>)
 
-include(CTest)
+# Fetch dependencies from GitHub
 include(FetchContent)
-
 set(FETCHCONTENT_QUIET OFF)
-set(MEMORYCHECK_SUPPRESSIONS_FILE ${PROJECT_SOURCE_DIR}/test/python.supp)
-
 FetchContent_Declare(
   box2d
   GIT_REPOSITORY https://github.com/erincatto/box2d
@@ -67,40 +65,33 @@ FetchContent_Declare(
   GIT_PROGRESS ON
   GIT_SHALLOW ON)
 
+# Configure dependencies
 FetchContent_MakeAvailable(gsl-lite)
 set(gsl-lite_DIR ${gsl-lite_BINARY_DIR})
 add_library(gsl-lite::gsl-lite ALIAS gsl-lite-v1)
-
-if(ARENA_BUILD_MODULE)
-  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-endif()
-set(BUILD_SHARED_LIBS OFF)
 set(SFML_BUILD_AUDIO OFF)
 set(SFML_BUILD_NETWORK OFF)
 set(UNITS_BUILD_DOC OFF)
 set(UNITS_USE_LIBFMT OFF)
 
+# Hint Python installation location in manylinux
 if(DEFINED ENV{ARENA_MANYLINUX_PYTHON3_INCLUDE_DIR})
-  # Python3 installation hinting for manylinux We expect Python3 not to be
-  # found, but it is okay since we are giving CMake enough hints to find the
-  # necessary resources for building the wheel.
+  # These lines are only needed to help CMake find Python in the manylinux
+  # docker image. We expect Python3 not to be found, but it is okay since we are
+  # giving CMake enough hints to find the necessary resources for building the
+  # wheel.
   set(Python3_INCLUDE_DIR $ENV{ARENA_MANYLINUX_PYTHON3_INCLUDE_DIR})
   find_package(Python3 COMPONENTS Interpreter Development)
   set(Python3_FOUND TRUE)
 else()
-  # Standard Python3 detection
+  # For desktop distribution of Linux, Python is easily found.
   find_package(Python3 COMPONENTS Interpreter Development)
 endif()
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/src)
-add_subdirectory(${PROJECT_SOURCE_DIR}/include)
+add_subdirectory(src)
+add_subdirectory(include)
 
-if(ARENA_BUILD_MODULE)
-  pybind11_add_module(arena)
-  target_link_libraries(arena PRIVATE Arena)
-endif()
-
-if(ARENA_BUILD_TESTS)
-  set(BUILD_TESTING ON)
-  add_subdirectory(${PROJECT_SOURCE_DIR}/test)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+  add_subdirectory(arena EXCLUDE_FROM_ALL)
+  add_subdirectory(test EXCLUDE_FROM_ALL)
 endif()

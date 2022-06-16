@@ -12,20 +12,23 @@ using namespace py::literals;
 using namespace arena;
 using namespace arena::component;
 
-TEST_CASE("PyHost class testing", "[component][PyHost]") {
-  py::scoped_interpreter guard;
-
+TEST_CASE("PyHost class testing", "[PyHost][Base]") {
   Environment environment{[](auto &) {}};
   auto self = environment.registry.create();
 
+  py::exec(R"(
+    _globals = globals()
+    _globals_backup = dict(_globals)
+  )");
+
   SECTION("PyHost callback is called on the entity components") {
+    FetcherMap fetchers{{"int", get_component<int>}, {"float", get_component<float>}};
+
     py::exec(R"(
       value = 0
       def function(a : int, b : float):
         global value
         value = a + b)");
-
-    FetcherMap fetchers{{"int", get_component<int>}, {"float", get_component<float>}};
 
     environment.registry.emplace<PyHost>(self, py::globals()[py::str{"function"}]);
     environment.registry.emplace<int>(self, 8);
@@ -36,4 +39,8 @@ TEST_CASE("PyHost class testing", "[component][PyHost]") {
 
     REQUIRE(py::int_{py::globals()["value"]} == 8 + 16);
   }
+
+  py::exec(R"(
+    _globals = dict(_globals_backup)
+  )");
 }
