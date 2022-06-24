@@ -1,13 +1,14 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <string>
 #include <unordered_map>
 
 #include <entt/entity/entity.hpp>
-#include <entt/entity/registry.hpp>
 #include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
 
 #include <arena/concept.hpp>
 #include <arena/environment.hpp>

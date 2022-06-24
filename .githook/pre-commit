@@ -1,0 +1,31 @@
+#!/bin/bash
+
+COLOR=96
+STAGGED_FILES=$(git diff --cached --name-only)
+TOP_LEVEL=$(git rev-parse --show-toplevel)
+
+echo -e "\e[1;${COLOR}m-- GIT HOOK : format source files with clang-format --\e[1;0m"
+for FILE in ${STAGGED_FILES}; do
+  if [ -f "$FILE" ] && ([[ $FILE == *.cpp ]] || [[ $FILE == *.hpp ]]); then
+    clang-format-12 -style=file -i $FILE
+    git add $FILE
+  fi
+done
+
+echo -e "\e[1;${COLOR}m-- GIT HOOK : cmake lists with cmake-format --\e[1;0m"
+for FILE in ${STAGGED_FILES}; do
+  if [ -f "$FILE" ] && ([[ $FILE == */CMakeLists.txt ]] || [[ $FILE == CMakeLists.txt ]] || [[ $FILE == *.cmake ]]); then
+    cmake-format -i $FILE
+    git add $FILE
+  fi
+done
+
+echo -e "\e[1;${COLOR}m-- GIT HOOK : check inclusions with IWYU --\e[1;0m"
+cmake -B build -DFETCHCONTENT_FULLY_DISCONNECTED=OFF
+if [ $? -eq 0 ]; then
+  cmake --build build --target iwyu
+  STATUS=$?
+else
+  STATUS=0
+fi
+if [ $STATUS -ne 0 ]; then exit 1; fi

@@ -1,0 +1,39 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	hooksPath = .githook
+[submodule "lib/pybind11"]
+	url = https://github.com/pybind/pybind11
+	active = true
+[submodule "lib/entt"]
+	url = git@github.com:skypjack/entt.git
+	active = true
+[submodule "lib/Little-Type-Library"]
+	url = https://github.com/qnope/Little-Type-Library
+	active = true
+[submodule "lib/Catch2"]
+	url = https://github.com/catchorg/Catch2
+	active = true
+[submodule "lib/units"]
+	url = https://github.com/mpusz/units
+	active = true
+[submodule "lib/box2d"]
+	url = https://github.com/erincatto/box2d
+	active = true
+[submodule "lib/fmt"]
+	url = https://github.com/fmtlib/fmt
+	active = true
+[submodule "lib/gsl-lite"]
+	url = https://github.com/gsl-lite/gsl-lite
+	active = true
+[submodule "src/Box2D-SFML2-Debug-Draw"]
+	url = https://github.com/MrPlow442/Box2D-SFML2-Debug-Draw
+	active = true
+[remote "origin"]
+	url = git@github.com:StarQTius/Arena.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master

@@ -1,9 +1,19 @@
 #include <arena/draw.hpp>
 
+#include <array>
+#include <utility>
 #include <vector>
 
+#include <box2d/b2_draw.h>
+#include <box2d/b2_math.h>
+#include <box2d/b2_types.h>
 #include <ltl/Range/Map.h>
 #include <ltl/operator.h>
+#include <pybind11/cast.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
+
+#include <arena/physics.hpp>
 
 namespace py = pybind11;
 

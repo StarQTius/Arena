@@ -1,11 +1,10 @@
 #pragma once
 
-#include <box2d/b2_body.h>
-#include <box2d/b2_chain_shape.h>
 #include <box2d/b2_world.h>
+#include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 
-#include <arena/component/body.hpp>
+#include <arena/physics.hpp>
 
 namespace arena {
 namespace entity {

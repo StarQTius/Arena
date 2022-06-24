@@ -1,22 +1,40 @@
+#include <algorithm>
+#include <array>
 #include <cmath>
-#include <stdexcept>
+#include <functional>
+#include <iterator>
+#include <memory>
 #include <string>
+#include <tuple>
+#include <type_traits>
+#include <unordered_set>
+#include <utility>
 
-#include <box2d/b2_circle_shape.h>
+#include <box2d/b2_body.h>
+#include <box2d/b2_math.h>
+#include <entt/entity/entity.hpp>
+#include <entt/entity/registry.hpp>
+#include <entt/entity/view.hpp>
 #include <ltl/Range/Filter.h>
 #include <ltl/Range/Map.h>
-#include <ltl/tuple_algos.h>
+#include <pybind11/attr.h>
+#include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <pybind11/pytypes.h>
 #include <units/isq/si/length.h>
+#include <units/isq/si/mass.h>
+#include <units/isq/si/time.h>
 
 #include <arena/2021/cup.hpp>
 #include <arena/binding/fetcher.hpp>
 #include <arena/component/body.hpp>
 #include <arena/component/host.hpp>
+#include <arena/concept.hpp>
+#include <arena/draw.hpp>
 #include <arena/entity/bot.hpp>
 #include <arena/entity/field.hpp>
 #include <arena/environment.hpp>
+#include <arena/physics.hpp>
 
 namespace py = pybind11;
 
@@ -35,7 +53,7 @@ const auto bot_shape = component::make_circle_shape(1200_q_mm / (2 * M_PI));
 FetcherMap fetchers{{"Environment", [](Environment &retval, entt::entity) { return py::cast(retval); }},
                     {"Entity", [](Environment &, entt::entity retval) { return py::cast(retval); }},
                     {"Body", get_component<component::BodyPtr>},
-                    {"C21_CupGrabber", get_component_with_environment<component::CupGrabber>}};
+                    {"C21_CupGrabber", get_component_with_environment<component::c21::CupGrabber>}};
 
 void upkeep(Environment &environment) {
   for (auto &&[self, py_host] : environment.registry.view<component::PyHost>().each())
@@ -53,7 +71,7 @@ PYBIND11_MODULE(_details, module) {
            }),
            "width"_a = 3, "height"_a = 2)
       .def("create", [](Environment &self, const entity::Bot &bot) { return self.create(bot, bot_shape); })
-      .def("create", [](Environment &self, const entity::Cup &cup) { return self.create(cup); })
+      .def("create", [](Environment &self, const entity::c21::Cup &cup) { return self.create(cup); })
       .def("step", [](Environment &self, precision_t dt) { self.step(dt * s); })
       .def("get", [](Environment &self, entt::entity id,
                      py::object type) { return fetchers.at(type.attr("__name__").cast<std::string>())(self, id); })
@@ -62,7 +80,7 @@ PYBIND11_MODULE(_details, module) {
       .def_property_readonly(
           "cups",
           [](Environment &self) {
-            auto component_view = self.registry.view<component::BodyPtr, component::CupColor>().each() |
+            auto component_view = self.registry.view<component::BodyPtr, component::c21::CupColor>().each() |
                                   ltl::filter([](auto &&tuple) { return std::get<1>(tuple)->IsEnabled(); }) |
                                   ltl::map(dereference_tuple_elements_if_needed);
             return py::make_iterator(component_view.begin(), component_view.end());
@@ -131,19 +149,19 @@ PYBIND11_MODULE(_details, module) {
            })
       .def("set_angle", [](b2Body &self, precision_t angle) { self.SetTransform(self.GetPosition(), angle); });
 
-  py::class_<WithEnvironment<component::CupGrabber>>(module, "C21_CupGrabber")
-      .def("grab", [](WithEnvironment<component::CupGrabber> &self,
+  py::class_<WithEnvironment<component::c21::CupGrabber>>(module, "C21_CupGrabber")
+      .def("grab", [](WithEnvironment<component::c21::CupGrabber> &self,
                       entt::entity target) { return self.value.get().grab(self.environment.get(), target); })
-      .def("drop", [](WithEnvironment<component::CupGrabber> &self,
-                      const entity::Cup &cup) { return self.value.get().drop(self.environment.get(), cup); })
+      .def("drop", [](WithEnvironment<component::c21::CupGrabber> &self,
+                      const entity::c21::Cup &cup) { return self.value.get().drop(self.environment.get(), cup); })
       .def("get_count",
-           [](WithEnvironment<component::CupGrabber> &self, component::CupColor color) {
+           [](WithEnvironment<component::c21::CupGrabber> &self, component::c21::CupColor color) {
              return std::count_if(self.value.get().storage.begin(), self.value.get().storage.end(), [&](auto entity) {
-               return self.environment.get().registry.get<component::CupColor>(entity) == color;
+               return self.environment.get().registry.get<component::c21::CupColor>(entity) == color;
              });
            })
       .def_property_readonly(
-          "storage", [](const WithEnvironment<component::CupGrabber> &self) { return self.value.get().storage; });
+          "storage", [](const WithEnvironment<component::c21::CupGrabber> &self) { return self.value.get().storage; });
 
   //
   // Entities
@@ -155,9 +173,9 @@ PYBIND11_MODULE(_details, module) {
            }),
            "x"_a, "y"_a, "mass"_a, "logic"_a, "cup_capacity"_a);
 
-  py::class_<entity::Cup>(module, "C21_Cup")
-      .def(py::init([](precision_t x, precision_t y, component::CupColor color) {
-             return entity::Cup{x * m, y * m, color};
+  py::class_<entity::c21::Cup>(module, "C21_Cup")
+      .def(py::init([](precision_t x, precision_t y, component::c21::CupColor color) {
+             return entity::c21::Cup{x * m, y * m, color};
            }),
            "x"_a, "y"_a, "color"_a);
 
@@ -165,7 +183,7 @@ PYBIND11_MODULE(_details, module) {
   // Miscellaneous
   //
 
-  py::enum_<component::CupColor>(module, "C21_CupColor")
-      .value("RED", component::CupColor::RED)
-      .value("GREEN", component::CupColor::GREEN);
+  py::enum_<component::c21::CupColor>(module, "C21_CupColor")
+      .value("RED", component::c21::CupColor::RED)
+      .value("GREEN", component::c21::CupColor::GREEN);
 }

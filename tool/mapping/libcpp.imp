@@ -1,0 +1,4 @@
+[
+  { include: ["<bits/this_thread_sleep.h>", "private", "<thread>", "public"]},
+  { include: ["<ratio>", "public", "<thread>", "public"]},
+]

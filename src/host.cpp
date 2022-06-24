@@ -1,10 +1,20 @@
 #include <arena/component/host.hpp>
 
-#include <unordered_map>
+#include <array>
+#include <iterator>
 
 #include <ltl/Range/Map.h>
+#include <ltl/Range/Zip.h>
 #include <ltl/Range/enumerate.h>
+#include <ltl/functional.h>
+#include <ltl/ltl.h>
 #include <ltl/operator.h>
+#include <pybind11/cast.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
+
+#include <arena/binding/fetcher.hpp>
+#include <arena/environment.hpp>
 
 namespace py = pybind11;
 

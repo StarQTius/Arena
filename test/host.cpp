@@ -1,10 +1,20 @@
-#include <arena/component/host.hpp>
-#include <arena/environment.hpp>
-
 #include <catch2/catch_test_macros.hpp>
 
+#include <array>
+#include <string>
+#include <type_traits>
+
+#include <arena/binding/fetcher.hpp>
+#include <arena/concept.hpp>
+#include <entt/entity/registry.hpp>
+#include <entt/entity/view.hpp>
 #include <pybind11/cast.h>
-#include <pybind11/embed.h>
+#include <pybind11/eval.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
+
+#include <arena/component/host.hpp>
+#include <arena/environment.hpp>
 
 namespace py = pybind11;
 using namespace py::literals;
@@ -37,7 +47,7 @@ TEST_CASE("PyHost class testing", "[PyHost][Base]") {
     environment.registry.view<PyHost>().each(
         [&](auto self, auto &pyhost) { pyhost.invoke(environment, self, fetchers); });
 
-    REQUIRE(py::int_{py::globals()["value"]} == 8 + 16);
+    REQUIRE(py::globals()["value"].cast<float>() == 8 + 16);
   }
 
   py::exec(R"(

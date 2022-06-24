@@ -1,12 +1,13 @@
 #pragma once
 
 #include <chrono>
-#include <optional>
+#include <functional>
 #include <thread>
 #include <utility>
 
 #include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
+#include <units/isq/si/time.h>
 
 #include <arena/draw.hpp>
 #include <arena/physics.hpp>

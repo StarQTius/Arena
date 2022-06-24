@@ -1,24 +1,34 @@
-#include <arena/2021/cup.hpp>
-#include <arena/entity/bot.hpp>
-#include <arena/entity/field.hpp>
-
-#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include <array>
+#include <memory>
+#include <string>
 #include <tuple>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
+#include <box2d/b2_body.h>
 #include <box2d/b2_circle_shape.h>
+#include <box2d/b2_math.h>
 #include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
+#include <entt/entity/view.hpp>
 #include <ltl/Range/Value.h>
-#include <pybind11/embed.h>
+#include <pybind11/cast.h>
+#include <pybind11/eval.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
 #include <units/isq/si/length.h>
+#include <units/isq/si/mass.h>
 #include <units/isq/si/time.h>
 
+#include <arena/2021/cup.hpp>
 #include <arena/component/body.hpp>
-#include <arena/component/host.hpp>
+#include <arena/entity/bot.hpp>
+#include <arena/entity/field.hpp>
 #include <arena/environment.hpp>
+#include <arena/physics.hpp>
 
 namespace py = pybind11;
 

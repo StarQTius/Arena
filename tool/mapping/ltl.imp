@@ -1,0 +1,6 @@
+[
+  { include: ['"ltl/Range/Range.h"', "private", "<ltl/Range/Map.h>", "public"]},
+  { include: ['"ltl/Range/BaseIterator.h"', "private", "<ltl/Range/Map.h>", "public"]},
+  { include: ['"ltl/Range/Range.h"', "private", "<ltl/Range/Value.h>", "public"]},
+  { include: ['"ltl/Range/BaseIterator.h"', "private", "<ltl/Range/Value.h>", "public"]},
+]

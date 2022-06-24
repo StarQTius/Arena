@@ -1,7 +1,15 @@
 #include <arena/entity/field.hpp>
 
+#include <type_traits>
+
+#include <box2d/b2_body.h>
+#include <box2d/b2_chain_shape.h>
+#include <box2d/b2_math.h>
+#include <box2d/b2_world.h>
+#include <entt/entity/registry.hpp>
+#include <units/isq/si/length.h>
+
 #include <arena/component/body.hpp>
-#include <units/quantity_cast.h>
 
 entt::entity arena::entity::create(b2World &world, entt::registry &registry, const arena::entity::Field &def) {
   using namespace units::isq;

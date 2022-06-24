@@ -6,6 +6,13 @@ if(CCACHE_FOUND)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 endif()
 
+# Set the configuration file
+file(
+  WRITE .git/config
+  "[include]
+    path = ../.gitconfig
+")
+
 # Get project version from git tags
 execute_process(COMMAND git describe --tags
                 OUTPUT_VARIABLE ARENA_GIT_TAG_VERSION)
@@ -16,6 +23,8 @@ project(
   Eurobot-Arena
   VERSION ${ARENA_GIT_TAG_VERSION}
   LANGUAGES CXX)
+
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/tool)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(BUILD_SHARED_LIBS OFF)
@@ -51,6 +60,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   Little-Type-Library
   GIT_REPOSITORY https://github.com/qnope/Little-Type-Library
+  GIT_TAG Benchmarks
   GIT_PROGRESS ON
   GIT_SHALLOW ON)
 FetchContent_Declare(

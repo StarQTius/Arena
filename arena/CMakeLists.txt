@@ -1,5 +1,7 @@
 FetchContent_MakeAvailable(pybind11)
 
+include(Arena)
+
 set(TEMPLATE_FILES __init__.py sail_the_world/__init__.py)
 
 foreach(TEMPLATE_FILE IN LISTS TEMPLATE_FILES)
@@ -13,3 +15,5 @@ set_target_properties(_details PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
                                           CXX_VISIBILITY_PRESET hidden)
 
 add_custom_target(module DEPENDS _details)
+
+add_iwyu_target(_details.cpp Arena)

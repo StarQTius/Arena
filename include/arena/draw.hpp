@@ -2,7 +2,8 @@
 
 #include <box2d/b2_draw.h>
 #include <box2d/b2_math.h>
-#include <pybind11/pybind11.h>
+#include <box2d/b2_types.h>
+#include <pybind11/pytypes.h>
 
 #include <arena/physics.hpp>
 

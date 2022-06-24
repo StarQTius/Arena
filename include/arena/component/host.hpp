@@ -1,13 +1,11 @@
 #pragma once
 
-#include <concepts>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include <entt/entity/entity.hpp>
-#include <entt/entity/registry.hpp>
-#include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
 
 #include <arena/binding/fetcher.hpp>
 #include <arena/environment.hpp>

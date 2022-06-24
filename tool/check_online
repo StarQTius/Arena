@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cmake -B build -DCMAKE_BUILD_TYPE=Debug -DFETCHCONTENT_FULLY_DISCONNECTED=OFF \
+&& cmake --build build --target check

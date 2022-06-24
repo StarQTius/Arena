@@ -1,29 +1,37 @@
-#include <arena/2021/cup.hpp>
-#include <arena/entity/bot.hpp>
-#include <arena/entity/field.hpp>
-
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-#include <tuple>
-#include <vector>
+#include <array>
+#include <memory>
+#include <string>
+#include <type_traits>
+#include <utility>
 
+#include <box2d/b2_body.h>
 #include <box2d/b2_circle_shape.h>
+#include <box2d/b2_math.h>
 #include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
+#include <entt/entity/view.hpp>
 #include <ltl/Range/Value.h>
-#include <pybind11/embed.h>
+#include <pybind11/cast.h>
+#include <pybind11/eval.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
 #include <units/isq/si/length.h>
+#include <units/isq/si/mass.h>
 #include <units/isq/si/time.h>
 
+#include <arena/2021/cup.hpp>
 #include <arena/component/body.hpp>
 #include <arena/component/host.hpp>
+#include <arena/entity/bot.hpp>
 #include <arena/environment.hpp>
 
 namespace py = pybind11;
 
 TEST_CASE("Cup interaction with contained bodies", "[Cup][STW]") {
-  using namespace arena;
+  using arena::Environment;
   using namespace units::isq::si::literals;
 
   Environment environment{[](Environment &) {}};
@@ -36,6 +44,8 @@ TEST_CASE("Cup interaction with contained bodies", "[Cup][STW]") {
   SECTION("Cup can be moved on collision") {
     using namespace arena::entity;
     using namespace arena::component;
+    using namespace arena::entity::c21;
+    using namespace arena::component::c21;
     namespace py = pybind11;
 
     py::exec(R"(

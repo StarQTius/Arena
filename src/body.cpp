@@ -1,7 +1,10 @@
 #include <arena/component/body.hpp>
 
 #include <box2d/b2_circle_shape.h>
-#include <units/quantity_cast.h>
+#include <box2d/b2_math.h>
+#include <units/isq/si/length.h>
+
+#include <arena/physics.hpp>
 
 b2CircleShape arena::component::make_circle_shape(distance_t radius) {
   using namespace units::isq;

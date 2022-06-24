@@ -1,5 +1,8 @@
 #include <arena/physics.hpp>
 
+#include <box2d/b2_shape.h>
+#include <units/isq/si/length.h>
+
 arena::box2d_density_t arena::compute_shape_density(const b2Shape &shape, mass_t mass) {
   b2MassData mass_data;
   shape.ComputeMass(&mass_data, 1);

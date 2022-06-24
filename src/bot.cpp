@@ -1,10 +1,18 @@
 #include <arena/entity/bot.hpp>
 
-#include <units/quantity_cast.h>
+#include <type_traits>
+
+#include <box2d/b2_body.h>
+#include <box2d/b2_math.h>
+#include <box2d/b2_shape.h>
+#include <box2d/b2_world.h>
+#include <entt/entity/registry.hpp>
+#include <units/isq/si/length.h>
 
 #include <arena/2021/cup.hpp>
 #include <arena/component/body.hpp>
 #include <arena/component/host.hpp>
+#include <arena/physics.hpp>
 
 //
 // Definitions
@@ -21,11 +29,11 @@ entt::entity arena::entity::create(b2World &world, entt::registry &registry, con
   auto *body_ptr = world.CreateBody(&body_def);
   body_ptr->CreateFixture(&shape, compute_shape_density(shape, def.mass).number());
 
-  auto self = registry.create();
+  entt::entity self = registry.create();
   registry.emplace<component::BodyPtr>(self, body_ptr);
   registry.emplace<component::PyHost>(self, def.logic);
-  registry.emplace<component::CupGrabber>(self,
-                                          component::CupGrabber{.storage = {}, .storage_size = def.cup_storage_size});
+  registry.emplace<component::c21::CupGrabber>(
+      self, component::c21::CupGrabber{.storage = {}, .storage_size = def.cup_storage_size});
 
   return self;
 }
