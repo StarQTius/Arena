@@ -21,11 +21,5 @@ for FILE in ${STAGGED_FILES}; do
 done
 
 echo -e "\e[1;${COLOR}m-- GIT HOOK : check inclusions with IWYU --\e[1;0m"
-cmake -B build -DFETCHCONTENT_FULLY_DISCONNECTED=OFF
-if [ $? -eq 0 ]; then
-  cmake --build build --target iwyu
-  STATUS=$?
-else
-  STATUS=0
-fi
-if [ $STATUS -ne 0 ]; then exit 1; fi
+cmake -B build -DFETCHCONTENT_FULLY_DISCONNECTED=ON && cmake --build build --target iwyu
+if [ $? -ne 0 ]; then exit 1; fi
