@@ -10,7 +10,7 @@ endif()
 file(
   WRITE .git/config
   "[include]
-    path = ../.gitconfig
+    path = ../.github/config
 ")
 
 # Get project version from git tags
