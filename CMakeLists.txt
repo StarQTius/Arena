@@ -44,17 +44,19 @@ FetchContent_Declare(
 FetchContent_Declare(
   Catch2
   GIT_REPOSITORY https://github.com/catchorg/Catch2
-  GIT_TAG devel
+  GIT_TAG v3.0.1
   GIT_PROGRESS ON
   GIT_SHALLOW ON)
 FetchContent_Declare(
   entt
   GIT_REPOSITORY https://github.com/skypjack/entt
+  GIT_TAG v3.10.1
   GIT_PROGRESS ON
   GIT_SHALLOW ON)
 FetchContent_Declare(
   gsl-lite
   GIT_REPOSITORY https://github.com/gsl-lite/gsl-lite
+  GIT_TAG v0.40.0
   GIT_PROGRESS ON
   GIT_SHALLOW ON)
 FetchContent_Declare(
@@ -66,6 +68,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   pybind11
   GIT_REPOSITORY https://github.com/pybind/pybind11
+  GIT_TAG v2.9.2
   GIT_PROGRESS ON
   GIT_SHALLOW ON)
 FetchContent_Declare(
