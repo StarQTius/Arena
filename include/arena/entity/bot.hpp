@@ -2,7 +2,6 @@
 
 #include <cstddef>
 
-#include <box2d/b2_shape.h>
 #include <box2d/b2_world.h>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
@@ -20,6 +19,7 @@ struct Bot {
   std::size_t cup_storage_size;
 };
 
-entt::entity create(b2World &, entt::registry &, const Bot &, const b2Shape &);
+entt::entity create(b2World &, entt::registry &, const Bot &);
+
 } // namespace entity
 } // namespace arena

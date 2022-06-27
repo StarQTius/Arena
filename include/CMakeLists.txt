@@ -1,1 +1,10 @@
+include(Arena)
+
 target_include_directories(Arena PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
+set(STANDALONE_HEADERS binding/fetcher.hpp concept.hpp environment.hpp
+                       physics.hpp)
+
+foreach(HEADER IN LISTS STANDALONE_HEADERS)
+  add_iwyu_target(arena/${HEADER} Arena)
+endforeach()

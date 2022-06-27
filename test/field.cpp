@@ -9,7 +9,6 @@
 #include <vector>
 
 #include <box2d/b2_body.h>
-#include <box2d/b2_circle_shape.h>
 #include <box2d/b2_math.h>
 #include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
@@ -54,7 +53,6 @@ TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
         pass
     )");
 
-    auto hitbox = make_circle_shape(10_q_cm);
     std::vector<std::tuple<distance_t, distance_t, b2Vec2>> init_parameters{
         {1_q_m, 0_q_m, {1, 0}}, {-1_q_m, 0_q_m, {-1, 0}}, {0_q_m, 1_q_m, {0, 1}},   {0_q_m, -1_q_m, {0, -1}},
         {4_q_m, 4_q_m, {1, 1}}, {4_q_m, -4_q_m, {1, -1}}, {-4_q_m, 4_q_m, {-1, 1}}, {-4_q_m, -4_q_m, {-1, -1}}};
@@ -62,8 +60,7 @@ TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
     for (auto &&[x, y, velocity_vector] : init_parameters) {
       auto bot_self = create(
           environment.world, environment.registry,
-          entity::Bot{.x = x, .y = y, .mass = 1_q_kg, .logic = pybind11::globals()["noop"], .cup_storage_size = 0},
-          hitbox);
+          entity::Bot{.x = x, .y = y, .mass = 1_q_kg, .logic = pybind11::globals()["noop"], .cup_storage_size = 0});
       environment.registry.emplace<b2Vec2>(bot_self, velocity_vector);
     }
 

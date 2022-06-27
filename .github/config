@@ -3,7 +3,7 @@
 	filemode = true
 	bare = false
 	logallrefupdates = true
-	hooksPath = .githook
+	hooksPath = .github/hook
 [submodule "lib/pybind11"]
 	url = https://github.com/pybind/pybind11
 	active = true

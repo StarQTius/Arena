@@ -49,5 +49,5 @@ add_custom_target(demo COMMAND ctest -L demo)
 set_tests_properties(demo_tests PROPERTIES LABELS demo)
 
 foreach(TEST_FILE IN LISTS TEST_LIST)
-  add_iwyu_target(${TEST_FILE} Arena)
+  add_iwyu_target(${TEST_FILE} run_tests)
 endforeach()

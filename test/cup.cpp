@@ -8,7 +8,6 @@
 #include <utility>
 
 #include <box2d/b2_body.h>
-#include <box2d/b2_circle_shape.h>
 #include <box2d/b2_math.h>
 #include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
@@ -63,8 +62,7 @@ TEST_CASE("Cup interaction with contained bodies", "[Cup][STW]") {
         create(environment.world, environment.registry, Cup{.x = 10_q_cm, .y = -5_q_cm, .color = CupColor::GREEN});
     auto bot_self = create(
         environment.world, environment.registry,
-        Bot{.x = -30_q_cm, .y = 0_q_cm, .mass = 1_q_kg, .logic = pybind11::globals()["noop"], .cup_storage_size = 0},
-        hitbox);
+        Bot{.x = -30_q_cm, .y = 0_q_cm, .mass = 1_q_kg, .logic = pybind11::globals()["noop"], .cup_storage_size = 0});
 
     environment.registry.emplace<b2Vec2>(middle_cup_self, 0.1, 0);
     environment.registry.emplace<b2Vec2>(upper_cup_self, 0.1, 0.05);

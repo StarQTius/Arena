@@ -36,19 +36,21 @@
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
 
+#include "utility.hpp"
+
 namespace py = pybind11;
 
 using namespace arena;
 using namespace py::literals;
-using namespace std::literals::string_literals;
 using namespace units::isq::si::literals;
+using namespace std::literals::string_literals;
 using namespace units::isq::si::length_references;
 using namespace units::isq::si::mass_references;
 using namespace units::isq::si::time_references;
 
-namespace {
+#define MODULE_NAME "arena"
 
-const auto bot_shape = component::make_circle_shape(1200_q_mm / (2 * M_PI));
+namespace {
 
 FetcherMap fetchers{{"Environment", [](Environment &retval, entt::entity) { return py::cast(retval); }},
                     {"Entity", [](Environment &, entt::entity retval) { return py::cast(retval); }},
@@ -63,6 +65,9 @@ void upkeep(Environment &environment) {
 } // namespace
 
 PYBIND11_MODULE(_details, module) {
+  module.def("create", DISAMBIGUATE_MEMBER(create, Environment &, const entity::Bot &))
+      .def("create", DISAMBIGUATE_MEMBER(create, Environment &, const entity::c21::Cup &));
+
   py::class_<Environment, std::shared_ptr<Environment>>(module, "Environment")
       .def(py::init([](precision_t width, precision_t height) {
              auto environment_ptr = std::make_shared<Environment>(upkeep);
@@ -70,8 +75,11 @@ PYBIND11_MODULE(_details, module) {
              return environment_ptr;
            }),
            "width"_a = 3, "height"_a = 2)
-      .def("create", [](Environment &self, const entity::Bot &bot) { return self.create(bot, bot_shape); })
-      .def("create", [](Environment &self, const entity::c21::Cup &cup) { return self.create(cup); })
+      .def("create",
+           [](Environment &self, py::args args, py::kwargs kwargs) {
+             auto create_pyfunction = py::module_::import(MODULE_NAME).attr("create");
+             return create_pyfunction(self, *args, **kwargs);
+           })
       .def("step", [](Environment &self, precision_t dt) { self.step(dt * s); })
       .def("get", [](Environment &self, entt::entity id,
                      py::object type) { return fetchers.at(type.attr("__name__").cast<std::string>())(self, id); })
