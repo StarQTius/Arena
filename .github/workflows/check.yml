@@ -4,12 +4,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - uses: actions/cache@v3
         with:
-          path: ${{github.workspace}}/build
-          key: build
+          path: ~/build/_deps
+          key: build-_deps-${{ steps.date.outputs.date }}
+          restore-keys: |
+            build-_deps
       - run: pip3 install pytest
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow
-      - run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10
-      - run: cmake --build build --target check iwyu
+      - run: cmake -B ~/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10
+      - run: cmake --build ~/build --target check iwyu
