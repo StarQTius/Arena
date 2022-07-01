@@ -1,6 +1,6 @@
 [
   { symbol: ["pybind11", "private", "<pybind11/pybind11.h>", "public"]},
-  { include: ['"pybind11/detail/common.h"', "private", "<pybind11/pybind11.h>", "public"]},
-  { include: ['"pybind11/detail/descr.h"', "private", "<pybind11/pybind11.h>", "public"]},
-  { include: ['"pybind11/detail/type_caster_base.h"', "private", "<pybind11/pybind11.h>", "public"]},
+  { include: ["<pybind11/detail/common.h>", "private", "<pybind11/pybind11.h>", "public"]},
+  { include: ["<pybind11/detail/descr.h>", "private", "<pybind11/pybind11.h>", "public"]},
+  { include: ["<pybind11/detail/type_caster_base.h>", "private", "<pybind11/pybind11.h>", "public"]},
 ]
