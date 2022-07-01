@@ -8,11 +8,13 @@ jobs:
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - uses: actions/cache@v3
         with:
-          path: ~/build/_deps
+          path: |
+            ~/.cache/pip
+            ~/build/_deps
           key: build-_deps-${{ steps.date.outputs.date }}
           restore-keys: |
             build-_deps
-      - run: pip3 install pytest
+      - run: pip3 install pytest numpy
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow
       - run: cmake -B ~/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10
