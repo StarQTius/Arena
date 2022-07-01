@@ -40,12 +40,17 @@ struct Environment {
     renderer.SetFlags(renderer.e_shapeBit);
   }
 
+  Environment(const Environment &) = delete;
+  Environment &operator=(const Environment &) = delete;
+  Environment(Environment &&) = delete;
+  Environment &operator=(Environment &&) = delete;
+
   template <typename... Args> auto create(Args &&...args) {
     using ::create;
     return create(world, registry, std::forward<Args>(args)...);
   }
 
-  void step(box2d_time_t timestep) {
+  void step(duration_t timestep) {
     upkeep(*this);
     world.Step(timestep.number(), velocity_iterations, position_iterations);
     if (renderer) {

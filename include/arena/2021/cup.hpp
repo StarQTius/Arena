@@ -23,7 +23,7 @@ namespace entity {
 namespace c21 {
 
 struct Cup {
-  box2d_distance_t x, y;
+  length_t x, y;
   component::c21::CupColor color;
 };
 

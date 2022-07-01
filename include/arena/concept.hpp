@@ -7,6 +7,8 @@
 
 namespace arena {
 
+template <typename> inline constexpr bool always_false = false;
+
 // Satisfied when the provided type is an instance of 'std::unique_ptr'
 template <typename T>
 concept IsUniquePtr = requires(T x) {

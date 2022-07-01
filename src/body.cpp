@@ -6,7 +6,7 @@
 
 #include <arena/physics.hpp>
 
-b2CircleShape arena::component::make_circle_shape(distance_t radius) {
+b2CircleShape arena::component::make_circle_shape(length_t radius) {
   using namespace units::isq;
 
   b2CircleShape shape;

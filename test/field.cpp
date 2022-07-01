@@ -24,6 +24,7 @@
 
 #include <arena/2021/cup.hpp>
 #include <arena/component/body.hpp>
+#include <arena/concept.hpp>
 #include <arena/entity/bot.hpp>
 #include <arena/entity/field.hpp>
 #include <arena/environment.hpp>
@@ -53,7 +54,7 @@ TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
         pass
     )");
 
-    std::vector<std::tuple<distance_t, distance_t, b2Vec2>> init_parameters{
+    std::vector<std::tuple<length_t, length_t, b2Vec2>> init_parameters{
         {1_q_m, 0_q_m, {1, 0}}, {-1_q_m, 0_q_m, {-1, 0}}, {0_q_m, 1_q_m, {0, 1}},   {0_q_m, -1_q_m, {0, -1}},
         {4_q_m, 4_q_m, {1, 1}}, {4_q_m, -4_q_m, {1, -1}}, {-4_q_m, 4_q_m, {-1, 1}}, {-4_q_m, -4_q_m, {-1, -1}}};
 

@@ -8,8 +8,6 @@
 
 #include <arena/physics.hpp>
 
-// IWYU pragma: no_include "arena/arena.hpp"
-
 namespace arena {
 namespace component {
 
@@ -21,7 +19,7 @@ inline auto delete_body = [](b2Body *body_ptr) { body_ptr->GetWorld()->DestroyBo
 using BodyPtr = std::unique_ptr<b2Body, decltype(delete_body)>;
 
 // Convenience function to create Box2D shapes
-b2CircleShape make_circle_shape(distance_t);
+b2CircleShape make_circle_shape(length_t);
 
 } // namespace component
 } // namespace arena

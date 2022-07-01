@@ -1,17 +1,12 @@
-#include <algorithm>
 #include <array>
 #include <cmath>
 #include <functional>
-#include <iterator>
-#include <memory>
 #include <string>
 #include <tuple>
 #include <type_traits>
-#include <unordered_set>
 #include <utility>
 
 #include <box2d/b2_body.h>
-#include <box2d/b2_math.h>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/entity/view.hpp>
@@ -36,53 +31,58 @@
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
 
+#include "box2d.hpp"
+#include "common.hpp"
+#include "physics.hpp"
+#include "python.hpp"
 #include "utility.hpp"
+#include "with_units.hpp"
 
 namespace py = pybind11;
 
 using namespace arena;
 using namespace py::literals;
-using namespace units::isq::si::literals;
 using namespace std::literals::string_literals;
+using namespace units::isq::si::literals;
 using namespace units::isq::si::length_references;
 using namespace units::isq::si::mass_references;
 using namespace units::isq::si::time_references;
 
-#define MODULE_NAME "arena"
-
 namespace {
-
-FetcherMap fetchers{{"Environment", [](Environment &retval, entt::entity) { return py::cast(retval); }},
-                    {"Entity", [](Environment &, entt::entity retval) { return py::cast(retval); }},
-                    {"Body", get_component<component::BodyPtr>},
-                    {"C21_CupGrabber", get_component_with_environment<component::c21::CupGrabber>}};
 
 void upkeep(Environment &environment) {
   for (auto &&[self, py_host] : environment.registry.view<component::PyHost>().each())
-    py_host.invoke(environment, self, fetchers);
+    py_host.invoke(environment, self, get_fetchers());
 }
+
+entt::entity create_from_pyargs(Environment &self, py::args args, py::kwargs kwargs) {
+  auto create_pyfunction = py::module_::import(ARENA_MODULE_NAME).attr("create");
+  return create_pyfunction(self, *args, **kwargs).cast<entt::entity>();
+}
+
+//! \brief Create a new environment
+//! The new environment is allocated dynamically because it cannot be copied or moved from.
+Environment *create_environment(length_t width, length_t height) {
+  auto *retval = new Environment{upkeep};
+  retval->create(entity::Field{.width = width, .height = height});
+  return retval;
+};
 
 } // namespace
 
-PYBIND11_MODULE(_details, module) {
-  module.def("create", DISAMBIGUATE_MEMBER(create, Environment &, const entity::Bot &))
+void initialize_base(py::module_ &pymodule) {
+  register_fetcher("Environment", [](Environment &retval, entt::entity) { return py::cast(retval); });
+  register_fetcher("Entity", [](Environment &, entt::entity retval) { return py::cast(retval); });
+  register_fetcher("Body", get_component<component::BodyPtr>);
+
+  pymodule.def("create", DISAMBIGUATE_MEMBER(create, Environment &, const entity::Bot &))
       .def("create", DISAMBIGUATE_MEMBER(create, Environment &, const entity::c21::Cup &));
 
-  py::class_<Environment, std::shared_ptr<Environment>>(module, "Environment")
-      .def(py::init([](precision_t width, precision_t height) {
-             auto environment_ptr = std::make_shared<Environment>(upkeep);
-             environment_ptr->create(entity::Field{.width = width * m, .height = height * m});
-             return environment_ptr;
-           }),
-           "width"_a = 3, "height"_a = 2)
-      .def("create",
-           [](Environment &self, py::args args, py::kwargs kwargs) {
-             auto create_pyfunction = py::module_::import(MODULE_NAME).attr("create");
-             return create_pyfunction(self, *args, **kwargs);
-           })
-      .def("step", [](Environment &self, precision_t dt) { self.step(dt * s); })
-      .def("get", [](Environment &self, entt::entity id,
-                     py::object type) { return fetchers.at(type.attr("__name__").cast<std::string>())(self, id); })
+  py::class_<Environment>(pymodule, "Environment")
+      .def(py::init(with_units<Environment(length_t, length_t)>(create_environment)), "width"_a = 3, "height"_a = 2)
+      .def("create", create_from_pyargs)
+      .def("step", with_units<void(duration_t)>(&Environment::step))
+      .def("get", fetch_component)
       .def_property_readonly(
           "renderer", [](const Environment &self) -> auto & { return self.renderer; })
       .def_property_readonly(
@@ -95,9 +95,9 @@ PYBIND11_MODULE(_details, module) {
           },
           py::return_value_policy::copy, py::keep_alive<0, 1>{});
 
-  py::enum_<entt::entity>(module, "Entity");
+  py::enum_<entt::entity>(pymodule, "Entity");
 
-  py::class_<PyGameDrawer>(module, "Renderer")
+  py::class_<PyGameDrawer>(pymodule, "Renderer")
       .def("__enter__",
            [](PyGameDrawer &self) {
              auto pygame_pymodule = py::module::import("pygame");
@@ -118,80 +118,31 @@ PYBIND11_MODULE(_details, module) {
         quit_pyfunction();
       });
 
-  //
-  // Components
-  //
+  py::class_<b2Body, ObserverPtr<b2Body>>(pymodule, "Body")
+      .def_property_readonly("position", with_box2d_units<length_vec()>(&b2Body::GetPosition))
+      .def_property_readonly("angle", with_box2d_units<angle_t()>(&b2Body::GetAngle))
+      .def_property("velocity", with_box2d_units<speed_vec()>(&b2Body::GetLinearVelocity),
+                    with_box2d_units<void(speed_vec)>(&b2Body::SetLinearVelocity))
+      .def_property("angular_velocity", with_box2d_units<angular_speed_t()>(&b2Body::GetAngularVelocity),
+                    with_box2d_units<void(angular_speed_t)>(&b2Body::SetAngularVelocity))
+      .def_property("forward_velocity", noop<b2Body>,
+                    with_units<void(b2Body &, speed_t)>([](b2Body &self, speed_t speed) {
+                      auto angle = self.GetAngle();
+                      self.SetLinearVelocity({std::cos(angle) * speed.number(), std::sin(angle) * speed.number()});
+                    }))
+      .def("set_position", with_units<void(b2Body &, length_vec)>([](b2Body &self, length_vec position) {
+             self.SetTransform(to_box2d(position), self.GetAngle());
+           }))
+      .def("set_angle", with_units<void(b2Body &, angle_t)>([](b2Body &self, angle_t angle) {
+             self.SetTransform(self.GetPosition(), to_box2d(angle));
+           }));
 
-  py::class_<b2Body, ObserverPtr<b2Body>>(module, "Body")
-      .def_property_readonly("position",
-                             [](const b2Body &self) {
-                               auto &velocity = self.GetPosition();
-                               return py::make_tuple(velocity.x, velocity.y);
-                             })
-      .def_property_readonly("angle", [](const b2Body &self) { return self.GetAngle(); })
-      .def_property(
-          "velocity",
-          [](const b2Body &self) {
-            auto &velocity = self.GetLinearVelocity();
-            return py::make_tuple(velocity.x, velocity.y);
-          },
-          [](b2Body &self, py::tuple value) {
-            self.SetLinearVelocity({py::cast<float>(value[0]), py::cast<float>(value[1])});
-          })
-      .def_property(
-          "angular_velocity",
-          [](const b2Body &self) {
-            auto velocity = self.GetAngularVelocity();
-            return velocity;
-          },
-          [](b2Body &self, float value) { self.SetAngularVelocity(value); })
-      .def_property(
-          "forward_velocity", [](const b2Body &) { return py::none{}; },
-          [](b2Body &self, float value) {
-            auto angle = self.GetAngle();
-            self.SetLinearVelocity({std::cos(angle) * value, std::sin(angle) * value});
-          })
-      .def("set_position",
-           [](b2Body &self, py::tuple position) {
-             self.SetTransform({position[0].cast<precision_t>(), position[1].cast<precision_t>()}, self.GetAngle());
-           })
-      .def("set_angle", [](b2Body &self, precision_t angle) { self.SetTransform(self.GetPosition(), angle); });
+  py::class_<entity::Bot>(pymodule, "Bot")
+      .def(py::init(ctor_with_units<entity::Bot, length_t, length_t, mass_t, pybind11::function, size_t>()), "x"_a,
+           "y"_a, "mass"_a, "logic"_a, "cup_capacity"_a);
+}
 
-  py::class_<WithEnvironment<component::c21::CupGrabber>>(module, "C21_CupGrabber")
-      .def("grab", [](WithEnvironment<component::c21::CupGrabber> &self,
-                      entt::entity target) { return self.value.get().grab(self.environment.get(), target); })
-      .def("drop", [](WithEnvironment<component::c21::CupGrabber> &self,
-                      const entity::c21::Cup &cup) { return self.value.get().drop(self.environment.get(), cup); })
-      .def("get_count",
-           [](WithEnvironment<component::c21::CupGrabber> &self, component::c21::CupColor color) {
-             return std::count_if(self.value.get().storage.begin(), self.value.get().storage.end(), [&](auto entity) {
-               return self.environment.get().registry.get<component::c21::CupColor>(entity) == color;
-             });
-           })
-      .def_property_readonly(
-          "storage", [](const WithEnvironment<component::c21::CupGrabber> &self) { return self.value.get().storage; });
-
-  //
-  // Entities
-  //
-
-  py::class_<entity::Bot>(module, "Bot")
-      .def(py::init([](precision_t x, precision_t y, precision_t mass, pybind11::function logic, size_t cup_capacity) {
-             return entity::Bot{x * m, y * m, mass * kg, logic, cup_capacity};
-           }),
-           "x"_a, "y"_a, "mass"_a, "logic"_a, "cup_capacity"_a);
-
-  py::class_<entity::c21::Cup>(module, "C21_Cup")
-      .def(py::init([](precision_t x, precision_t y, component::c21::CupColor color) {
-             return entity::c21::Cup{x * m, y * m, color};
-           }),
-           "x"_a, "y"_a, "color"_a);
-
-  //
-  // Miscellaneous
-  //
-
-  py::enum_<component::c21::CupColor>(module, "C21_CupColor")
-      .value("RED", component::c21::CupColor::RED)
-      .value("GREEN", component::c21::CupColor::GREEN);
+PYBIND11_MODULE(_details, pymodule) {
+  initialize_base(pymodule);
+  initialize_c21(pymodule);
 }

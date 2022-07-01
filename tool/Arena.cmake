@@ -1,3 +1,5 @@
+FetchContent_MakeAvailable(units)
+
 if(NOT TARGET iwyu)
   find_program(IWYU_PROGRAM include-what-you-use)
   if(NOT IWYU_PROGRAM)
@@ -11,7 +13,8 @@ if(NOT TARGET iwyu)
         --mapping_file=${PROJECT_SOURCE_DIR}/tool/mapping/pybind11.imp -Xiwyu
         --mapping_file=${PROJECT_SOURCE_DIR}/tool/mapping/entt.imp -Xiwyu
         --mapping_file=${PROJECT_SOURCE_DIR}/tool/mapping/libcpp.imp -Xiwyu
-        --mapping_file=${PROJECT_SOURCE_DIR}/tool/mapping/ltl.imp
+        --mapping_file=${PROJECT_SOURCE_DIR}/tool/mapping/ltl.imp -Xiwyu
+        --prefix_header_includes=keep -include units/isq/si/prefixes.h
         CACHE INTERNAL "IWYU command run for each IWYU target")
   endif()
 
@@ -31,7 +34,7 @@ function(add_iwyu_target FILE_PATH DEPENDENCY)
         for INCLUDE_PATH in
         $<TARGET_PROPERTY:${DEPENDENCY},INCLUDE_DIRECTORIES>\\\; do
         INCLUDE_PATH_OPTION=\"$$INCLUDE_PATH_OPTION -I$$INCLUDE_PATH\"\\\;
-        done\\\; ${IWYU_COMMAND} $$INCLUDE_PATH_OPTION
+        done\\\; ${IWYU_COMMAND} $$INCLUDE_PATH_OPTION $$COMPILE_DEF_OPTION
         ${CMAKE_CURRENT_SOURCE_DIR}/${FILE_PATH} 2> iwyu_log \\\; if [ $$? -ne 1
         ]\\\; then exit 0\\\; else cat iwyu_log\\\; exit 1\\\; fi
       COMMAND_EXPAND_LISTS

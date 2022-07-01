@@ -9,7 +9,6 @@
 #include <box2d/b2_math.h>
 #include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
-#include <units/isq/dimensions/time.h>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
 #include <units/isq/si/time.h>
@@ -37,8 +36,8 @@ entt::entity arena::entity::c21::create(b2World &world, entt::registry &registry
 
   auto *body_ptr = world.CreateBody(&body_def);
   body_ptr->CreateFixture(&cup_shape, compute_shape_density(cup_shape, cup_mass).number());
-  body_ptr->SetLinearDamping(box2d_time_t{cup_damping}.number());
-  body_ptr->SetAngularDamping(box2d_time_t{cup_damping}.number());
+  body_ptr->SetLinearDamping(duration_t{cup_damping}.number());
+  body_ptr->SetAngularDamping(duration_t{cup_damping}.number());
 
   auto self = registry.create();
   registry.emplace<component::BodyPtr>(self, body_ptr);

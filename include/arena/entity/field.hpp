@@ -10,7 +10,7 @@ namespace arena {
 namespace entity {
 
 struct Field {
-  distance_t width, height;
+  length_t width, height;
 };
 
 entt::entity create(b2World &, entt::registry &, const Field &);

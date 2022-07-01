@@ -13,7 +13,7 @@ namespace arena {
 namespace entity {
 
 struct Bot {
-  distance_t x, y;
+  length_t x, y;
   mass_t mass;
   pybind11::function logic;
   std::size_t cup_storage_size;
