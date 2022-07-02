@@ -3,6 +3,7 @@
 #include <arena/physics.hpp>
 #include <box2d/b2_math.h>
 
+#include "forward.hpp"
 #include "physics.hpp" // IWYU pragma: keep
 
 //! \brief Convert quantities to Box2D objects

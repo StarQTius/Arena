@@ -11,6 +11,8 @@ set(SOURCES_LIST
     host.cpp
     physics.cpp)
 
+set(STANDALONE_HEADERS forward.hpp)
+
 add_library(Arena STATIC ${SOURCES_LIST})
 target_link_libraries(Arena PUBLIC box2d EnTT::EnTT pybind11::pybind11
                                    mp-units::mp-units LTL)
@@ -21,4 +23,7 @@ set_target_properties(Arena PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
 
 foreach(SOURCE_FILE IN LISTS SOURCES_LIST)
   add_iwyu_target(${SOURCE_FILE} Arena)
+endforeach()
+foreach(HEADER IN LISTS STANDALONE_HEADERS)
+  add_iwyu_target(${HEADER} Arena)
 endforeach()

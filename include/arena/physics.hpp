@@ -32,17 +32,17 @@ auto box2d_number(auto &&x) {
 
   using T = std::remove_cvref_t<decltype(x)>;
   if constexpr (Length<T>) {
-    return quantity_cast<si::metre>(FWD(x)).number();
+    return quantity_cast<si::metre>(x).number();
   } else if constexpr (Mass<T>) {
-    return quantity_cast<si::kilogram>(FWD(x)).number();
+    return quantity_cast<si::kilogram>(x).number();
   } else if constexpr (Time<T>) {
-    return quantity_cast<si::second>(FWD(x)).number();
+    return quantity_cast<si::second>(x).number();
   } else if constexpr (Angle<T>) {
-    return quantity_cast<radian>(FWD(x)).number();
+    return quantity_cast<radian>(x).number();
   } else if constexpr (Speed<T>) {
-    return quantity_cast<si::metre_per_second>(FWD(x)).number();
+    return quantity_cast<si::metre_per_second>(x).number();
   } else if constexpr (QuantityEquivalentTo<angular_speed_t, T>) {
-    return quantity_cast<decltype(rad / s)::unit>(FWD(x)).number();
+    return quantity_cast<decltype(rad / s)::unit>(x).number();
   } else {
     static_assert(always_false<T>, "Unsupported dimension for Box2D");
   }

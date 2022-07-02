@@ -2,17 +2,12 @@
 #include <cmath>
 #include <functional>
 #include <string>
-#include <tuple>
 #include <type_traits>
-#include <utility>
 
 #include <box2d/b2_body.h>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/entity/view.hpp>
-#include <ltl/Range/Filter.h>
-#include <ltl/Range/Map.h>
-#include <pybind11/attr.h>
 #include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
@@ -84,16 +79,7 @@ void initialize_base(py::module_ &pymodule) {
       .def("step", with_units<void(duration_t)>(&Environment::step))
       .def("get", fetch_component)
       .def_property_readonly(
-          "renderer", [](const Environment &self) -> auto & { return self.renderer; })
-      .def_property_readonly(
-          "cups",
-          [](Environment &self) {
-            auto component_view = self.registry.view<component::BodyPtr, component::c21::CupColor>().each() |
-                                  ltl::filter([](auto &&tuple) { return std::get<1>(tuple)->IsEnabled(); }) |
-                                  ltl::map(dereference_tuple_elements_if_needed);
-            return py::make_iterator(component_view.begin(), component_view.end());
-          },
-          py::return_value_policy::copy, py::keep_alive<0, 1>{});
+          "renderer", [](const Environment &self) -> auto & { return self.renderer; });
 
   py::enum_<entt::entity>(pymodule, "Entity");
 

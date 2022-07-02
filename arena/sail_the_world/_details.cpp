@@ -7,6 +7,9 @@
 
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
+#include <entt/entity/view.hpp>
+#include <ltl/Range/Filter.h>
+#include <ltl/Range/Map.h>
 #include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
@@ -16,6 +19,7 @@
 
 #include <arena/2021/cup.hpp>
 #include <arena/binding/fetcher.hpp>
+#include <arena/component/body.hpp>
 #include <arena/concept.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
@@ -36,6 +40,16 @@ void initialize_c21(py::module_ &pymodule) {
 
   register_fetcher("C21_CupGrabber", get_component_with_environment<component::c21::CupGrabber>);
   register_fetcher("C21_CupColor", get_component_with_environment<component::c21::CupColor>);
+
+  pymodule.def(
+      "C21_cups",
+      [](Environment &self) {
+        auto component_view = self.registry.view<component::BodyPtr, component::c21::CupColor>().each() |
+                              ltl::filter([](auto &&tuple) { return std::get<1>(tuple)->IsEnabled(); }) |
+                              ltl::map(dereference_tuple_elements_if_needed);
+        return py::make_iterator(component_view.begin(), component_view.end());
+      },
+      py::return_value_policy::reference_internal);
 
   py::class_<WithEnvironment<component::c21::CupGrabber>>(pymodule, "C21_CupGrabber")
       .def("grab", [](WithEnvironment<component::c21::CupGrabber> &self,

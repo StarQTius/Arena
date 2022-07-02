@@ -9,6 +9,7 @@
 #include <units/isq/si/speed.h>
 #include <units/isq/si/time.h>
 
+#include "forward.hpp"
 #include "physics.hpp" // IWYU pragma: keep
 
 //! \brief Satisfied when `T` is an instance of `pybind11::array_t`

@@ -14,7 +14,7 @@ def test_create_a_cup_and_move_it_with_a_bot():
 
   body = env.get(id, Body)
 
-  for cup in env.cups:
+  for cup in cups(env):
     assert body.position[0] > 1
     assert body.position[1] == pytest.approx(0)
 
@@ -23,7 +23,7 @@ def test_filter_cups_range():
     return (body_a.position[0] - body_b.position[0]) ** 2 + (body_a.position[1] - body_b.position[1]) ** 2
 
   def grab(env: Environment, body: Body, cup_grabber: CupGrabber):
-    inrange_cups = filter(lambda x: distance_squared(body, x[1]) < 4, env.cups)
+    inrange_cups = filter(lambda x: distance_squared(body, x[1]) < 4, cups(env))
     cup_grabber.grab(next(inrange_cups)[0])
 
   env = Environment()
@@ -34,14 +34,14 @@ def test_filter_cups_range():
   with pytest.raises(Exception):
     env.step(1)
 
-  assert sum(map(lambda _ : 1, env.cups)) == 1
-  assert next(env.cups)[2] == CupColor.GREEN
+  assert sum(map(lambda _ : 1, cups(env))) == 1
+  assert next(cups(env))[2] == CupColor.GREEN
 
 def test_grab_and_drop():
   def grab_n_drop(env: Environment, body: Body, cup_grabber: CupGrabber):
     nonlocal flag
     if not flag:
-      cup_grabber.grab(next(env.cups)[0])
+      cup_grabber.grab(next(cups(env))[0])
     else:
       cup_grabber.drop(Cup(x=0.5, y=0, color=CupColor.RED))
     flag = True
@@ -53,13 +53,13 @@ def test_grab_and_drop():
   env.create(Cup(x=0, y=0, color=CupColor.RED))
   env.step(1)
 
-  assert sum(map(lambda _ : 1, env.cups)) == 0
+  assert sum(map(lambda _ : 1, cups(env))) == 0
 
   env.step(1)
 
-  assert sum(map(lambda _ : 1, env.cups)) == 1
+  assert sum(map(lambda _ : 1, cups(env))) == 1
 
-  _, body, color = next(env.cups)
+  _, body, color = next(cups(env))
 
   assert body.position[0] == 0.5
   assert body.position[1] == 0
@@ -68,7 +68,7 @@ def test_grab_and_drop():
 def test_access_cup_grabber_storage():
   def grab_all(env: Environment, cup_grabber: CupGrabber):
     nonlocal red_count, green_count
-    for entity, _0, _1 in env.cups:
+    for entity, _0, _1 in cups(env):
       cup_grabber.grab(entity)
     red_count = cup_grabber.get_count(CupColor.RED)
     green_count = cup_grabber.get_count(CupColor.GREEN)
@@ -85,7 +85,7 @@ def test_access_cup_grabber_storage():
   env.create(Cup(x=0.8, y=0, color=CupColor.RED))
   env.step(1)
 
-  assert sum(map(lambda _ : 1, env.cups)) == 0
+  assert sum(map(lambda _ : 1, cups(env))) == 0
   assert red_count == 3
   assert green_count == 2
 
@@ -107,6 +107,6 @@ def test_create_a_field_of_custom_dimension():
   for _ in range(5):
     env.step(1)
 
-  assert sum(map(lambda _ : 1, env.cups)) == 0
+  assert sum(map(lambda _ : 1, cups(env))) == 0
   assert -0.5 < body.position[0] < 0.5
   assert -0.5 < body.position[1] < 0.5
