@@ -1,3 +1,5 @@
+#pragma once
+
 //! \brief Wrap a callable `f` into a Box2D unit adaptator function in order to bind it more easily
 //! This function solve the following problem : let's say you want to bind a Box2D member function. However, it will
 //! probably use `b2Vec2` and `float` to denote scalar quantity with units. Therefore, you must perform unit conversion

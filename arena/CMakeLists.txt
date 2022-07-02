@@ -16,6 +16,7 @@ set_target_properties(_details PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
                                           CXX_VISIBILITY_PRESET hidden)
 target_compile_features(_details PUBLIC cxx_std_20)
 target_compile_options(_details PRIVATE ${ARENA_CPP_FLAGS} -Wno-deprecated-copy)
+target_include_directories(_details PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
 add_custom_target(module DEPENDS _details)
 
@@ -24,8 +25,7 @@ foreach(SOURCE_FILE IN LISTS MODULE_SOURCES)
   add_iwyu_target(${SOURCE_FILE} _details)
 endforeach()
 
-set(HEADERS box2d.hpp forward.hpp physics.hpp python.hpp utility.hpp
-            with_units.hpp)
+set(HEADERS box2d.hpp physics.hpp python.hpp utility.hpp with_units.hpp)
 foreach(HEADER IN LISTS HEADERS)
   add_iwyu_target(${HEADER} _details)
 endforeach()
