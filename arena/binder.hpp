@@ -1,8 +1,10 @@
 #pragma once
 
 #include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
 
 #include "python.hpp"
+#include "utility.hpp"
 #include <forward.hpp>
 
 //! \brief Satisfied when `T` can be called
@@ -11,6 +13,14 @@ concept Invocable = requires(T x) {
   std::function{x};
 }
 || std::is_member_function_pointer_v<T>;
+
+template <typename Mf>
+concept Getter = !std::is_void_v<std::invoke_result<Mf, get_class_t<Mf> &>>;
+
+template <typename Mf>
+concept Setter = Getter<Mf> && std::assignable_from < std::invoke_result < Mf,
+        get_class_t<Mf>
+& >, std::invoke_result<Mf, get_class_t<Mf> &> > ;
 
 //! \brief Satisfied when `T` is an instance of `pybind11:class_`
 template <typename T>
@@ -110,18 +120,30 @@ template <typename... Ts> decltype(auto) operator|(PybindClass auto &&pybind_cla
 //! \brief Define a method `name` bound to `f` for a class binding
 auto def(const char *name, Invocable auto &&f, auto &&...extras) {
   return def_t<std::decay_t<decltype(f)>, std::decay_t<decltype(extras)>...>{
-      .name = name, .f = FWD(f), .extras = std::tuple{FWD(extras)...}};
+      .name = name, .f = FWD(f), .extras = {FWD(extras)...}};
 }
 
 //! \brief Define a constructor bound to `f` for a class binding
 auto ctor(Invocable auto &&f, auto &&...extras) {
-  return ctor_t<std::decay_t<decltype(f)>, std::decay_t<decltype(extras)>...>{.f = FWD(f),
-                                                                              .extras = std::tuple{FWD(extras)...}};
+  return ctor_t<std::decay_t<decltype(f)>, std::decay_t<decltype(extras)>...>{.f = FWD(f), .extras = {FWD(extras)...}};
 }
 
 //! \brief Define a property `name` for a class binding whose getter is bound to `read` and is setter is bound to
 //! `write`
 auto property(const char *name, Invocable auto &&read, Invocable auto &&write, auto &&...extras) {
   return property_t<std::decay_t<decltype(read)>, std::decay_t<decltype(write)>, std::decay_t<decltype(extras)>...>{
-      .name = name, .read = FWD(read), .write = FWD(write), .extras = std::tuple{FWD(extras)...}};
+      .name = name, .read = FWD(read), .write = FWD(write), .extras = {FWD(extras)...}};
+}
+template <typename C> auto property(const char *name, auto C::*fm, auto &&...extras) requires Getter<decltype(fm)> {
+  using fm_t = decltype(fm);
+  using fm_return_t = std::invoke_result<fm_t, C &>;
+
+  auto read = [fm](C &self) -> decltype(auto) { return (self.*fm)(); };
+
+  if constexpr (Setter<fm_t>) {
+    auto write = [fm](C &self, const fm_return_t &rhs) { (self.*fm)() = rhs; };
+    return property(name, std::move(read), std::move(write), FWD(extras)...);
+  } else {
+    return property(name, std::move(read), noop<C &, pybind11::object>, FWD(extras)...);
+  }
 }

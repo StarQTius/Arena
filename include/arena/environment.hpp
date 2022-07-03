@@ -31,13 +31,13 @@ struct Environment {
 
   b2World world;
   entt::registry registry;
-  PyGameDrawer renderer;
+  PyGameDrawer m_renderer;
   std::function<void(Environment &)> upkeep;
 
   explicit Environment(std::invocable<Environment &> auto &&upkeep)
-      : world{{0, 0}}, renderer{renderer_scale}, upkeep{std::forward<decltype(upkeep)>(upkeep)} {
-    world.SetDebugDraw(&renderer);
-    renderer.SetFlags(renderer.e_shapeBit);
+      : world{{0, 0}}, m_renderer{renderer_scale}, upkeep{std::forward<decltype(upkeep)>(upkeep)} {
+    world.SetDebugDraw(&m_renderer);
+    m_renderer.SetFlags(m_renderer.e_shapeBit);
   }
 
   Environment(const Environment &) = delete;
@@ -53,13 +53,15 @@ struct Environment {
   void step(duration_t timestep) {
     upkeep(*this);
     world.Step(timestep.number(), velocity_iterations, position_iterations);
-    if (renderer) {
+    if (m_renderer) {
       world.DebugDraw();
-      renderer.show();
+      m_renderer.show();
       std::this_thread::sleep_for(units::quantity_cast<units::isq::si::second>(timestep).number() *
                                   std::chrono::seconds{1});
     }
   }
+
+  PyGameDrawer &renderer() { return m_renderer; };
 };
 
 } // namespace arena
