@@ -64,6 +64,26 @@ Environment *create_environment(length_t width, length_t height) {
   return retval;
 };
 
+PyGameDrawer &enter_drawer(PyGameDrawer &self) {
+  auto pygame_pymodule = py::module::import("pygame");
+  auto init_pyfunction = pygame_pymodule.attr("init");
+
+  auto display_pymodule = pygame_pymodule.attr("display");
+  auto set_mode_pyfunction = display_pymodule.attr("set_mode");
+
+  init_pyfunction();
+  self.bind_screen(set_mode_pyfunction(py::make_tuple(800, 500)));
+  return self;
+}
+
+void exit_drawer(PyGameDrawer &self, py::object, py::object, py::object) {
+  auto pygame_pymodule = py::module::import("pygame");
+  auto quit_pyfunction = pygame_pymodule.attr("quit");
+
+  self.unbind_screen();
+  quit_pyfunction();
+}
+
 } // namespace
 
 void initialize_base(py::module_ &pymodule) {
@@ -83,26 +103,12 @@ void initialize_base(py::module_ &pymodule) {
       | property("renderer", &Environment::renderer);            //
 
   py::enum_<entt::entity>(pymodule, "Entity");
-  py::class_<PyGameDrawer>(pymodule, "Renderer")
-      .def("__enter__",
-           [](PyGameDrawer &self) {
-             auto pygame_pymodule = py::module::import("pygame");
-             auto init_pyfunction = pygame_pymodule.attr("init");
-
-             auto display_pymodule = pygame_pymodule.attr("display");
-             auto set_mode_pyfunction = display_pymodule.attr("set_mode");
-
-             init_pyfunction();
-             self.bind_screen(set_mode_pyfunction(py::make_tuple(800, 500)));
-             return self;
-           })
-      .def("__exit__", [](PyGameDrawer &self, py::object, py::object, py::object) {
-        auto pygame_pymodule = py::module::import("pygame");
-        auto quit_pyfunction = pygame_pymodule.attr("quit");
-
-        self.unbind_screen();
-        quit_pyfunction();
-      });
+  py::class_<PyGameDrawer>(pymodule, "Renderer") | R"(
+      Manage a rendering context
+      It is implemented as a context manager. When entering the context, a window will appear that renders the
+      evolution of the simulated state the manager is associated with.)" //
+      | def("__enter__", enter_drawer)                                   //
+      | def("__exit__", exit_drawer);                                    //
 
   py::class_<b2Body, ObserverPtr<b2Body>>(pymodule, "Body")
       .def_property_readonly("position", with_box2d_units<length_vec()>(&b2Body::GetPosition))
