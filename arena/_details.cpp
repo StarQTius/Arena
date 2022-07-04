@@ -75,10 +75,12 @@ void initialize_base(py::module_ &pymodule) {
       .def("create", DISAMBIGUATE_MEMBER(create, Environment &, const entity::c21::Cup &));
 
   py::class_<Environment>(pymodule, "Environment") | R"(
-          Contains a simulated state
-        )" |
-      ctor(&create_environment, "width"_a = 3, "height"_a = 2) | def("create", create_from_pyargs) |
-      def("step", &Environment::step) | def("get", fetch_component) | property("renderer", &Environment::renderer);
+      Contains a simulated state)"                               //
+      | ctor(&create_environment, "width"_a = 3, "height"_a = 2) //
+      | def("create", create_from_pyargs)                        //
+      | def("step", &Environment::step)                          //
+      | def("get", fetch_component)                              //
+      | property("renderer", &Environment::renderer);            //
 
   py::enum_<entt::entity>(pymodule, "Entity");
   py::class_<PyGameDrawer>(pymodule, "Renderer")
