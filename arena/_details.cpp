@@ -30,7 +30,6 @@
 #include "box2d.hpp"
 #include "common.hpp"
 #include "physics.hpp"
-#include "python.hpp"
 #include "utility.hpp"
 #include "with_units.hpp"
 
@@ -84,6 +83,15 @@ void exit_drawer(PyGameDrawer &self, py::object, py::object, py::object) {
   quit_pyfunction();
 }
 
+void set_forward_velocity(b2Body &self, speed_t speed) {
+  auto angle = self.GetAngle();
+  self.SetLinearVelocity({std::cos(angle) * speed.number(), std::sin(angle) * speed.number()});
+}
+
+void set_position(b2Body &self, length_vec position) { self.SetTransform(to_box2d(position), self.GetAngle()); }
+
+void set_angle(b2Body &self, angle_t angle) { self.SetTransform(self.GetPosition(), to_box2d(angle)); }
+
 } // namespace
 
 void initialize_base(py::module_ &pymodule) {
@@ -91,8 +99,9 @@ void initialize_base(py::module_ &pymodule) {
   register_fetcher("Entity", [](Environment &, entt::entity retval) { return py::cast(retval); });
   register_fetcher("Body", get_component<component::BodyPtr>);
 
-  pymodule.def("create", DISAMBIGUATE_MEMBER(create, Environment &, const entity::Bot &))
-      .def("create", DISAMBIGUATE_MEMBER(create, Environment &, const entity::c21::Cup &));
+  pymodule                                                                                   //
+      | def("create", DISAMBIGUATE_MEMBER(create, Environment &, entity::Bot))               //
+      | def("create", DISAMBIGUATE_MEMBER(create, Environment &, const entity::c21::Cup &)); //
 
   py::class_<Environment>(pymodule, "Environment") | R"(
       Contains a simulated state)"                               //
@@ -110,24 +119,16 @@ void initialize_base(py::module_ &pymodule) {
       | def("__enter__", enter_drawer)                                   //
       | def("__exit__", exit_drawer);                                    //
 
-  py::class_<b2Body, ObserverPtr<b2Body>>(pymodule, "Body")
-      .def_property_readonly("position", with_box2d_units<length_vec()>(&b2Body::GetPosition))
-      .def_property_readonly("angle", with_box2d_units<angle_t()>(&b2Body::GetAngle))
-      .def_property("velocity", with_box2d_units<speed_vec()>(&b2Body::GetLinearVelocity),
-                    with_box2d_units<void(speed_vec)>(&b2Body::SetLinearVelocity))
-      .def_property("angular_velocity", with_box2d_units<angular_speed_t()>(&b2Body::GetAngularVelocity),
-                    with_box2d_units<void(angular_speed_t)>(&b2Body::SetAngularVelocity))
-      .def_property("forward_velocity", noop<b2Body>,
-                    with_units<void(b2Body &, speed_t)>([](b2Body &self, speed_t speed) {
-                      auto angle = self.GetAngle();
-                      self.SetLinearVelocity({std::cos(angle) * speed.number(), std::sin(angle) * speed.number()});
-                    }))
-      .def("set_position", with_units<void(b2Body &, length_vec)>([](b2Body &self, length_vec position) {
-             self.SetTransform(to_box2d(position), self.GetAngle());
-           }))
-      .def("set_angle", with_units<void(b2Body &, angle_t)>([](b2Body &self, angle_t angle) {
-             self.SetTransform(self.GetPosition(), to_box2d(angle));
-           }));
+  py::class_<b2Body, ObserverPtr<b2Body>>(pymodule, "Body") | R"(
+      Represents a physical body in a simulated state)"                                                               //
+      | box2d_property<length_vec>("position", &b2Body::GetPosition)                                                  //
+      | box2d_property<angle_t>("angle", &b2Body::GetAngle)                                                           //
+      | box2d_property<speed_vec>("velocity", &b2Body::GetLinearVelocity, &b2Body::SetLinearVelocity)                 //
+      | box2d_property<angular_speed_t>("angular_velocity", &b2Body::GetAngularVelocity, &b2Body::SetAngularVelocity) //
+      | property(
+            "forward_velocity", []() {}, set_forward_velocity) //
+      | def("set_position", set_position)                      //
+      | def("set_angle", set_angle);                           //
 
   py::class_<entity::Bot>(pymodule, "Bot")
       .def(py::init(ctor_with_units<entity::Bot, length_t, length_t, mass_t, pybind11::function, size_t>()), "x"_a,

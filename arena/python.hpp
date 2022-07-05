@@ -79,3 +79,7 @@ template <typename To, typename From> decltype(auto) from_numpy(From &&x) {
     return FWD(x);
   }
 }
+
+template <typename T> using from_numpy_t = decltype(from_numpy(std::declval<T>()));
+
+template <typename T> using to_numpy_t = decltype(to_numpy(std::declval<T>()));

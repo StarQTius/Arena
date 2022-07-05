@@ -35,3 +35,7 @@ template <typename To> decltype(auto) from_box2d(auto &&x) {
     return FWD(x);
   }
 }
+
+template <typename To, typename From> using from_box2d_t = decltype(from_box2d<To>(std::declval<From>()));
+
+template <typename From> using to_box2d_t = decltype(to_box2d(std::declval<From>()));
