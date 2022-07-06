@@ -81,6 +81,23 @@ template <typename... Ts> decltype(auto) operator|(PybindClass auto &&pybind_cla
   return FWD(pybind_class);
 }
 
+template <typename Tuple_T, typename... Args> struct choose_ctor_t {
+  Tuple_T *args;
+  std::tuple<Args...> extras;
+};
+
+template <typename... Args, typename... Ts>
+decltype(auto) operator|(PybindClass auto &&pybind_class, choose_ctor_t<std::tuple<Args...>, Ts...> &&parameters) {
+  auto impl = [&]<typename C, auto... Is>(pybind11::class_<C> &, std::index_sequence<Is...>) {
+    pybind_class.def(pybind11::init(with_units([](Args... args) { return C{FWD(args)...}; })),
+                     std::move(std::get<Is>(parameters.extras))...);
+  };
+
+  impl(pybind_class, std::make_index_sequence<sizeof...(Ts)>{});
+
+  return FWD(pybind_class);
+}
+
 //! \brief Holds property definition data
 template <typename Read_F, typename Write_F, typename... Ts> struct property_t {
   const char *name;
@@ -110,6 +127,11 @@ auto def(const char *name, Invocable auto &&f, auto &&...extras) {
 //! \brief Define a constructor bound to `f` for a class binding
 auto ctor(Invocable auto &&f, auto &&...extras) {
   return ctor_t<std::decay_t<decltype(f)>, std::decay_t<decltype(extras)>...>{.f = FWD(f), .extras = {FWD(extras)...}};
+}
+
+template <typename... Args> auto ctor(auto &&...extras) {
+  return choose_ctor_t<std::tuple<Args...>, std::decay_t<decltype(extras)>...>{.args = (std::tuple<Args...> *)nullptr,
+                                                                               .extras = std::tuple{FWD(extras)...}};
 }
 
 //! \brief Define a property `name` for a class binding whose getter is bound to `read` and is setter is bound to

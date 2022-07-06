@@ -1,6 +1,5 @@
 #include <array>
 #include <cmath>
-#include <functional>
 #include <string>
 #include <type_traits>
 
@@ -31,7 +30,6 @@
 #include "common.hpp"
 #include "physics.hpp"
 #include "utility.hpp"
-#include "with_units.hpp"
 
 namespace py = pybind11;
 
@@ -130,9 +128,9 @@ void initialize_base(py::module_ &pymodule) {
       | def("set_position", set_position)                      //
       | def("set_angle", set_angle);                           //
 
-  py::class_<entity::Bot>(pymodule, "Bot")
-      .def(py::init(ctor_with_units<entity::Bot, length_t, length_t, mass_t, pybind11::function, size_t>()), "x"_a,
-           "y"_a, "mass"_a, "logic"_a, "cup_capacity"_a);
+  py::class_<entity::Bot>(pymodule, "Bot") | R"(
+      Contains data for creating a bot entity.)"                                                                     //
+      | ctor<length_t, length_t, mass_t, py::function, size_t>("x"_a, "y"_a, "mass"_a, "logic"_a, "cup_capacity"_a); //
 }
 
 PYBIND11_MODULE(_details, pymodule) {
