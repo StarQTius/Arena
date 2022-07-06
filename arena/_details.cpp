@@ -93,6 +93,8 @@ void set_angle(b2Body &self, angle_t angle) { self.SetTransform(self.GetPosition
 } // namespace
 
 void initialize_base(py::module_ &pymodule) {
+  using rvp = pybind11::return_value_policy;
+
   register_fetcher("Environment", [](Environment &retval, entt::entity) { return py::cast(retval); });
   register_fetcher("Entity", [](Environment &, entt::entity retval) { return py::cast(retval); });
   register_fetcher("Body", get_component<component::BodyPtr>);
@@ -106,10 +108,11 @@ void initialize_base(py::module_ &pymodule) {
       | ctor(&create_environment, "width"_a = 3, "height"_a = 2) //
       | def("create", create_from_pyargs)                        //
       | def("step", &Environment::step)                          //
-      | def("get", fetch_component)                              //
+      | def("get", fetch_component, rvp::reference_internal)     //
       | property("renderer", &Environment::renderer);            //
 
   py::enum_<entt::entity>(pymodule, "Entity");
+
   py::class_<PyGameDrawer>(pymodule, "Renderer") | R"(
       Manage a rendering context
       It is implemented as a context manager. When entering the context, a window will appear that renders the
@@ -119,14 +122,15 @@ void initialize_base(py::module_ &pymodule) {
 
   py::class_<b2Body, ObserverPtr<b2Body>>(pymodule, "Body") | R"(
       Represents a physical body in a simulated state)"                                                               //
-      | box2d_property<length_vec>("position", &b2Body::GetPosition)                                                  //
-      | box2d_property<angle_t>("angle", &b2Body::GetAngle)                                                           //
-      | box2d_property<speed_vec>("velocity", &b2Body::GetLinearVelocity, &b2Body::SetLinearVelocity)                 //
-      | box2d_property<angular_speed_t>("angular_velocity", &b2Body::GetAngularVelocity, &b2Body::SetAngularVelocity) //
+      | box2d_property<length_vec>("position", &b2Body::GetPosition, rvp::automatic)                                  //
+      | box2d_property<angle_t>("angle", &b2Body::GetAngle, rvp::automatic)                                           //
+      | box2d_property<speed_vec>("velocity", &b2Body::GetLinearVelocity, &b2Body::SetLinearVelocity, rvp::automatic) //
+      | box2d_property<angular_speed_t>("angular_velocity", &b2Body::GetAngularVelocity, &b2Body::SetAngularVelocity,
+                                        rvp::automatic) //
       | property(
-            "forward_velocity", []() {}, set_forward_velocity) //
-      | def("set_position", set_position)                      //
-      | def("set_angle", set_angle);                           //
+            "forward_velocity", []() {}, set_forward_velocity, rvp::automatic) //
+      | def("set_position", set_position)                                      //
+      | def("set_angle", set_angle);                                           //
 
   py::class_<entity::Bot>(pymodule, "Bot") | R"(
       Contains data for creating a bot entity.)"                                                                     //
