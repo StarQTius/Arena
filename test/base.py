@@ -6,7 +6,7 @@ def test_get_component_from_an_entity():
     pass
 
   env = Environment()
-  entity = env.create(Bot(x=0.5, y=0.3, mass=1, logic=noop, cup_capacity=0))
+  entity = env.create(Bot(x=0.5, y=0.3, mass=1, logic=noop))
   body = env.get(entity, Body)
 
   assert body.position[0] == pytest.approx(0.5)
@@ -17,7 +17,7 @@ def test_create_a_bot_and_drive_it():
     body.velocity = (1, 0.5)
 
   env = Environment()
-  entity = env.create(Bot(x=0, y=0, mass=1, logic=logic, cup_capacity=0))
+  entity = env.create(Bot(x=0, y=0, mass=1, logic=logic))
   for _ in range(10):
     env.step(1 / 10)
 
@@ -32,7 +32,7 @@ def test_change_position_and_angle_of_body():
     body.set_angle(3)
 
   env = Environment(width=1, height=1)
-  id = env.create(Bot(x=0, y=0, mass=1, logic=reposition, cup_capacity=0))
+  id = env.create(Bot(x=0, y=0, mass=1, logic=reposition))
 
   body = env.get(id, Body)
 

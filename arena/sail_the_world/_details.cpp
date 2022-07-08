@@ -61,9 +61,17 @@ void initialize_c21(py::module_ &pymodule) {
                })
           .def_property_readonly("storage",
                                  [](const ComponentRef<component::c21::CupGrabber> &self) { return self->storage; }) |
-      static_def("__get", [](Environment &environment, entt::entity entity) {
-        return ComponentRef<component::c21::CupGrabber>{environment, entity};
-      });
+      static_def("__get",
+                 [](Environment &environment, entt::entity entity) {
+                   return ComponentRef<component::c21::CupGrabber>{environment, entity};
+                 }) |
+      def("__attach", [](ComponentRef<component::c21::CupGrabber> &self, Environment &environment,
+                         entt::entity entity) { self.attach(environment, entity); }) |
+      ctor(
+          [](std::size_t capacity) {
+            return ComponentRef{component::c21::CupGrabber{.storage = {}, .capacity = capacity}};
+          },
+          "capacity"_a);
 
   py::class_<entity::c21::Cup>(pymodule, "C21_Cup")
           .def(py::init([](precision_t x, precision_t y, component::c21::CupColor color) {

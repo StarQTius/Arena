@@ -27,7 +27,7 @@ template <typename T>
 concept PybindClass = requires(T x) {
   {
     pybind11::class_ { x }
-    } -> std::convertible_to<T>;
+    } -> std::convertible_to<std::decay_t<T>>;
 };
 
 //! \brief Satisfied when `T` is a binding to which function can be bound to with a function `def`

@@ -10,7 +10,6 @@
 #include <entt/entity/registry.hpp>
 #include <units/isq/si/length.h>
 
-#include <arena/2021/cup.hpp>
 #include <arena/component/body.hpp>
 #include <arena/component/host.hpp>
 #include <arena/physics.hpp>
@@ -41,8 +40,6 @@ entt::entity arena::entity::create(b2World &world, entt::registry &registry, con
   entt::entity self = registry.create();
   registry.emplace<component::BodyPtr>(self, body_ptr);
   registry.emplace<component::PyHost>(self, def.logic);
-  registry.emplace<component::c21::CupGrabber>(
-      self, component::c21::CupGrabber{.storage = {}, .storage_size = def.cup_storage_size});
 
   return self;
 }

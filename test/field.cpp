@@ -58,9 +58,8 @@ TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
         {4_q_m, 4_q_m, {1, 1}}, {4_q_m, -4_q_m, {1, -1}}, {-4_q_m, 4_q_m, {-1, 1}}, {-4_q_m, -4_q_m, {-1, -1}}};
 
     for (auto &&[x, y, velocity_vector] : init_parameters) {
-      auto bot_self = create(
-          environment.world, environment.registry,
-          entity::Bot{.x = x, .y = y, .mass = 1_q_kg, .logic = pybind11::globals()["noop"], .cup_storage_size = 0});
+      auto bot_self = create(environment.world, environment.registry,
+                             entity::Bot{.x = x, .y = y, .mass = 1_q_kg, .logic = pybind11::globals()["noop"]});
       environment.registry.emplace<b2Vec2>(bot_self, velocity_vector);
     }
 

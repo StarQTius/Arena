@@ -16,13 +16,14 @@ template <typename T> using ObserverPtr = std::unique_ptr<T, decltype([](T *) {}
 
 template <typename T> class ComponentRef {
 public:
-  explicit ComponentRef(std::convertible_to<T> auto &&component) : m_state{new T{FWD(component)}} {}
+  explicit ComponentRef(std::convertible_to<T> auto &&component)
+      : m_state{std::in_place_index<0>, new T{FWD(component)}} {}
   explicit ComponentRef(Environment &environment, entt::entity entity)
       : m_state{std::in_place_index<1>, environment, entity} {}
 
   void attach(Environment &environment, entt::entity entity) {
     emplace(environment, entity, std::move(*std::get<0>(m_state)));
-    m_state.emplace<1>(environment, entity);
+    m_state.template emplace<1>(environment, entity);
   }
 
   Environment &environment() { return std::get<1>(m_state).first; }
@@ -41,11 +42,13 @@ public:
 
 private:
   static void emplace(Environment &environment, entt::entity entity, std::convertible_to<T> auto &&component) {
-    environment.registry.emplace_or_replace(entity, FWD(component));
+    environment.registry.emplace_or_replace<T>(entity, FWD(component));
   }
 
   std::variant<std::unique_ptr<T>, std::pair<Environment &, entt::entity>> m_state;
 };
+
+template <typename T> ComponentRef(T &&) -> ComponentRef<T>;
 
 inline pybind11::object get_pycomponent(Environment &environment, entt::entity entity, pybind11::object pytype) {
   return pytype.attr("__get")(environment, entity);
@@ -53,6 +56,11 @@ inline pybind11::object get_pycomponent(Environment &environment, entt::entity e
 
 inline pybind11::object create_pyentity(Environment &environment, pybind11::object pyentity_data) {
   return pyentity_data.attr("__create")(environment);
+}
+
+inline pybind11::object attach_pycomponent(Environment &environment, entt::entity entity,
+                                           pybind11::object pycomponent) {
+  return pycomponent.attr("__attach")(environment, entity);
 }
 
 } // namespace arena

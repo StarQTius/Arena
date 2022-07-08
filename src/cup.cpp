@@ -48,7 +48,7 @@ entt::entity arena::entity::c21::create(b2World &world, entt::registry &registry
 
 bool arena::component::c21::CupGrabber::grab(Environment &environment, entt::entity target) {
   auto &&[body_ptr, cup_color] = environment.registry.try_get<BodyPtr, CupColor>(target);
-  if (body_ptr && storage.size() < storage_size) {
+  if (body_ptr && storage.size() < capacity) {
     storage.insert(target);
     (*body_ptr)->SetEnabled(false);
     return true;

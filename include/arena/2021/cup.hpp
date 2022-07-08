@@ -37,7 +37,7 @@ namespace c21 {
 
 struct CupGrabber {
   std::unordered_set<entt::entity> storage;
-  size_t storage_size;
+  size_t capacity;
 
   bool grab(Environment &environment, entt::entity target);
   bool drop(Environment &environment, const entity::c21::Cup &cup);

@@ -94,6 +94,7 @@ void initialize_base(py::module_ &pymodule) {
       | def("create", create_pyentity)                           //
       | def("step", &Environment::step)                          //
       | def("get", get_pycomponent, rvp::reference_internal)     //
+      | def("attach", attach_pycomponent)                        //
       | property("renderer", &Environment::renderer)             //
       | static_def(
             "__get", [](Environment & environment, entt::entity) -> auto & { return environment; }, rvp::reference); //
@@ -126,7 +127,7 @@ void initialize_base(py::module_ &pymodule) {
 
   py::class_<entity::Bot>(pymodule, "Bot") | R"(
       Contains data for creating a bot entity.)"                                                                     //
-      | ctor<length_t, length_t, mass_t, py::function, size_t>("x"_a, "y"_a, "mass"_a, "logic"_a, "cup_capacity"_a)  //
+      | ctor<length_t, length_t, mass_t, py::function>("x"_a, "y"_a, "mass"_a, "logic"_a)                            //
       | def("__create", [](const entity::Bot &self, Environment &environment) { return environment.create(self); }); //
 }
 
