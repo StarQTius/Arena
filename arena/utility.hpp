@@ -29,4 +29,4 @@ template <typename T> struct remove_rvalue_reference<T &&> { using type = T; };
 
 template <typename T> using remove_rvalue_reference_t = typename remove_rvalue_reference<T>::type;
 
-template <typename T> T copy_rvalue(T &&x) { return x; }
+template <typename T> T copy_rvalue(T &&x) { return FWD(x); }
