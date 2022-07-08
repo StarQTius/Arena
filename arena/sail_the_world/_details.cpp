@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <functional>
 #include <iterator>
 #include <string>
 #include <type_traits>
@@ -49,23 +48,21 @@ void initialize_c21(py::module_ &pymodule) {
       },
       py::return_value_policy::reference_internal);
 
-  py::class_<WithEnvironment<component::c21::CupGrabber>>(pymodule, "C21_CupGrabber")
-          .def("grab", [](WithEnvironment<component::c21::CupGrabber> &self,
-                          entt::entity target) { return self.value.get().grab(self.environment.get(), target); })
-          .def("drop", [](WithEnvironment<component::c21::CupGrabber> &self,
-                          const entity::c21::Cup &cup) { return self.value.get().drop(self.environment.get(), cup); })
+  py::class_<ComponentRef<component::c21::CupGrabber>>(pymodule, "C21_CupGrabber")
+          .def("grab", [](ComponentRef<component::c21::CupGrabber> &self,
+                          entt::entity target) { return self->grab(self.environment(), target); })
+          .def("drop", [](ComponentRef<component::c21::CupGrabber> &self,
+                          const entity::c21::Cup &cup) { return self->drop(self.environment(), cup); })
           .def("get_count",
-               [](WithEnvironment<component::c21::CupGrabber> &self, component::c21::CupColor color) {
-                 return std::count_if(
-                     self.value.get().storage.begin(), self.value.get().storage.end(), [&](auto entity) {
-                       return self.environment.get().registry.get<component::c21::CupColor>(entity) == color;
-                     });
+               [](ComponentRef<component::c21::CupGrabber> &self, component::c21::CupColor color) {
+                 return std::count_if(self->storage.begin(), self->storage.end(), [&](auto entity) {
+                   return self.environment().registry.get<component::c21::CupColor>(entity) == color;
+                 });
                })
-          .def_property_readonly(
-              "storage",
-              [](const WithEnvironment<component::c21::CupGrabber> &self) { return self.value.get().storage; }) |
+          .def_property_readonly("storage",
+                                 [](const ComponentRef<component::c21::CupGrabber> &self) { return self->storage; }) |
       static_def("__get", [](Environment &environment, entt::entity entity) {
-        return WithEnvironment{environment, environment.registry.get<component::c21::CupGrabber>(entity)};
+        return ComponentRef<component::c21::CupGrabber>{environment, entity};
       });
 
   py::class_<entity::c21::Cup>(pymodule, "C21_Cup")
