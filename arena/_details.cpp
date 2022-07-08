@@ -45,7 +45,7 @@ namespace {
 
 void upkeep(Environment &environment) {
   for (auto &&[self, py_host] : environment.registry.view<component::PyHost>().each())
-    py_host.invoke(environment, self, get_fetchers());
+    py_host.invoke(environment, self);
 }
 
 entt::entity create_from_pyargs(Environment &self, py::args args, py::kwargs kwargs) {
@@ -95,10 +95,6 @@ void set_angle(b2Body &self, angle_t angle) { self.SetTransform(self.GetPosition
 void initialize_base(py::module_ &pymodule) {
   using rvp = pybind11::return_value_policy;
 
-  register_fetcher("Environment", [](Environment &retval, entt::entity) { return py::cast(retval); });
-  register_fetcher("Entity", [](Environment &, entt::entity retval) { return py::cast(retval); });
-  register_fetcher("Body", get_component<component::BodyPtr>);
-
   pymodule                                                                                   //
       | def("create", DISAMBIGUATE_MEMBER(create, Environment &, entity::Bot))               //
       | def("create", DISAMBIGUATE_MEMBER(create, Environment &, const entity::c21::Cup &)); //
@@ -108,8 +104,10 @@ void initialize_base(py::module_ &pymodule) {
       | ctor(&create_environment, "width"_a = 3, "height"_a = 2) //
       | def("create", create_from_pyargs)                        //
       | def("step", &Environment::step)                          //
-      | def("get", fetch_component, rvp::reference_internal)     //
-      | property("renderer", &Environment::renderer);            //
+      | def("get", get_pycomponent, rvp::reference_internal)     //
+      | property("renderer", &Environment::renderer)             //
+      | static_def(
+            "__get", [](Environment & environment, entt::entity) -> auto & { return environment; }, rvp::reference); //
 
   py::enum_<entt::entity>(pymodule, "Entity");
 
@@ -130,7 +128,12 @@ void initialize_base(py::module_ &pymodule) {
       | property(
             "forward_velocity", []() {}, set_forward_velocity, rvp::automatic) //
       | def("set_position", set_position)                                      //
-      | def("set_angle", set_angle);                                           //
+      | def("set_angle", set_angle)                                            //
+      | static_def(
+            "__get", [](Environment & environment, entt::entity entity) -> auto & {
+              return *environment.registry.get<component::BodyPtr>(entity);
+            },
+            rvp::reference); //
 
   py::class_<entity::Bot>(pymodule, "Bot") | R"(
       Contains data for creating a bot entity.)"                                                                     //

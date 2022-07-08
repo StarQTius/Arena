@@ -24,6 +24,7 @@
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
 
+#include "../binder.hpp"
 #include "../common.hpp"
 
 namespace py = pybind11;
@@ -38,9 +39,6 @@ void initialize_c21(py::module_ &pymodule) {
   using namespace units::isq::si::mass_references;
   using namespace units::isq::si::time_references;
 
-  register_fetcher("C21_CupGrabber", get_component_with_environment<component::c21::CupGrabber>);
-  register_fetcher("C21_CupColor", get_component_with_environment<component::c21::CupColor>);
-
   pymodule.def(
       "C21_cups",
       [](Environment &self) {
@@ -52,18 +50,23 @@ void initialize_c21(py::module_ &pymodule) {
       py::return_value_policy::reference_internal);
 
   py::class_<WithEnvironment<component::c21::CupGrabber>>(pymodule, "C21_CupGrabber")
-      .def("grab", [](WithEnvironment<component::c21::CupGrabber> &self,
-                      entt::entity target) { return self.value.get().grab(self.environment.get(), target); })
-      .def("drop", [](WithEnvironment<component::c21::CupGrabber> &self,
-                      const entity::c21::Cup &cup) { return self.value.get().drop(self.environment.get(), cup); })
-      .def("get_count",
-           [](WithEnvironment<component::c21::CupGrabber> &self, component::c21::CupColor color) {
-             return std::count_if(self.value.get().storage.begin(), self.value.get().storage.end(), [&](auto entity) {
-               return self.environment.get().registry.get<component::c21::CupColor>(entity) == color;
-             });
-           })
-      .def_property_readonly(
-          "storage", [](const WithEnvironment<component::c21::CupGrabber> &self) { return self.value.get().storage; });
+          .def("grab", [](WithEnvironment<component::c21::CupGrabber> &self,
+                          entt::entity target) { return self.value.get().grab(self.environment.get(), target); })
+          .def("drop", [](WithEnvironment<component::c21::CupGrabber> &self,
+                          const entity::c21::Cup &cup) { return self.value.get().drop(self.environment.get(), cup); })
+          .def("get_count",
+               [](WithEnvironment<component::c21::CupGrabber> &self, component::c21::CupColor color) {
+                 return std::count_if(
+                     self.value.get().storage.begin(), self.value.get().storage.end(), [&](auto entity) {
+                       return self.environment.get().registry.get<component::c21::CupColor>(entity) == color;
+                     });
+               })
+          .def_property_readonly(
+              "storage",
+              [](const WithEnvironment<component::c21::CupGrabber> &self) { return self.value.get().storage; }) |
+      static_def("__get", [](Environment &environment, entt::entity entity) {
+        return WithEnvironment{environment, environment.registry.get<component::c21::CupGrabber>(entity)};
+      });
 
   py::class_<entity::c21::Cup>(pymodule, "C21_Cup")
       .def(py::init([](precision_t x, precision_t y, component::c21::CupColor color) {

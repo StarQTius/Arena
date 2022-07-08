@@ -1,13 +1,11 @@
 #pragma once
 
-#include <string>
 #include <utility>
 #include <vector>
 
 #include <entt/entity/entity.hpp>
 #include <pybind11/pytypes.h>
 
-#include <arena/binding/fetcher.hpp>
 #include <arena/environment.hpp>
 
 namespace arena {
@@ -25,13 +23,13 @@ public:
       : m_pytypes{get_annotations(pycallback)}, m_pycallback{std::move(pycallback)} {}
 
   // Call the stored invocable on the entity component
-  void invoke(Environment &, entt::entity, const FetcherMap &);
+  void invoke(Environment &, entt::entity);
 
 private:
   // Get the annotations (type hints) of a Python function arguments
-  static std::vector<std::string> get_annotations(const pybind11::function &);
+  static std::vector<pybind11::object> get_annotations(const pybind11::function &);
 
-  std::vector<std::string> m_pytypes;
+  std::vector<pybind11::object> m_pytypes;
   pybind11::function m_pycallback;
 };
 

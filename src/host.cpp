@@ -26,12 +26,11 @@ namespace py = pybind11;
 // PyHost internals
 //
 
-static auto get_components_as_pyobjects(const auto &pytypes, const arena::FetcherMap &fetchers,
-                                        arena::Environment &environment, entt::entity self) {
-  auto get_component_by_pytype = [&](const auto &pytype) { return fetchers.at(pytype)(environment, self); };
+static auto get_components_as_pyobjects(const auto &pytypes, arena::Environment &environment, entt::entity self) {
+  auto get = [&](const auto &pytype) { return get_pycomponent(environment, self, pytype); };
   py::list component_pylist{size(pytypes)};
 
-  for (auto &&[i, pyobject] : ltl::enumerate(pytypes | ltl::map(get_component_by_pytype)))
+  for (auto &&[i, pyobject] : ltl::enumerate(pytypes | ltl::map(get)))
     component_pylist[i] = pyobject;
 
   return component_pylist;
@@ -41,17 +40,17 @@ static auto get_components_as_pyobjects(const auto &pytypes, const arena::Fetche
 // PyHost definitions
 //
 
-void arena::component::PyHost::invoke(Environment &environment, entt::entity self, const FetcherMap &fetchers) {
-  m_pycallback(*get_components_as_pyobjects(m_pytypes, fetchers, environment, self));
+void arena::component::PyHost::invoke(Environment &environment, entt::entity self) {
+  m_pycallback(*get_components_as_pyobjects(m_pytypes, environment, self));
 }
 
-std::vector<std::string> arena::component::PyHost::get_annotations(const py::function &pycallback) {
+std::vector<py::object> arena::component::PyHost::get_annotations(const py::function &pycallback) {
   auto inspect_pymodule = py::module::import("inspect");
   auto signature_pyfunction = inspect_pymodule.attr("signature");
   auto parameter_pylist = py::dict{signature_pyfunction(pycallback).attr("parameters")};
 
-  auto fetch_pytype = [](auto, auto &parameter_pyobject) -> std::string {
-    return py::str(parameter_pyobject.attr("annotation").attr("__name__"));
+  auto fetch_pytype = [](auto, auto &parameter_pyobject) -> py::object {
+    return parameter_pyobject.attr("annotation");
   };
   return parameter_pylist | ltl::map(ltl::unzip(fetch_pytype)) | ltl::to_vector;
 }

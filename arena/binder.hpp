@@ -63,6 +63,23 @@ template <typename... Ts> decltype(auto) operator|(BindableTo auto &&binding, de
   return FWD(binding);
 }
 
+template <typename F, typename... Ts> struct static_def_t {
+  const char *name;
+  F f;
+  std::tuple<Ts...> extras;
+};
+
+template <typename... Ts> decltype(auto) operator|(BindableTo auto &&binding, static_def_t<Ts...> &&parameters) {
+  auto impl = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+    binding.def_static(parameters.name, with_units(std::move(parameters.f)),
+                       std::move(std::get<Is>(parameters.extras))...);
+  };
+
+  impl(std::make_index_sequence<sizeof...(Ts) - 1>{});
+
+  return FWD(binding);
+}
+
 //! \brief Holds constructor definition data
 template <typename F, typename... Ts> struct ctor_t {
   F f;
@@ -120,6 +137,11 @@ template <typename... Ts> decltype(auto) operator|(PybindClass auto &&pybind_cla
 
 //! \brief Define a method `name` bound to `f` for a class binding
 auto def(const char *name, Invocable auto &&f, auto &&...extras) {
+  return def_t<std::decay_t<decltype(f)>, std::decay_t<decltype(extras)>...>{
+      .name = name, .f = FWD(f), .extras = {FWD(extras)...}};
+}
+
+auto static_def(const char *name, Invocable auto &&f, auto &&...extras) {
   return def_t<std::decay_t<decltype(f)>, std::decay_t<decltype(extras)>...>{
       .name = name, .f = FWD(f), .extras = {FWD(extras)...}};
 }
