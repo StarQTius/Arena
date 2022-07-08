@@ -69,10 +69,12 @@ void initialize_c21(py::module_ &pymodule) {
       });
 
   py::class_<entity::c21::Cup>(pymodule, "C21_Cup")
-      .def(py::init([](precision_t x, precision_t y, component::c21::CupColor color) {
-             return entity::c21::Cup{x * m, y * m, color};
-           }),
-           "x"_a, "y"_a, "color"_a);
+          .def(py::init([](precision_t x, precision_t y, component::c21::CupColor color) {
+                 return entity::c21::Cup{x * m, y * m, color};
+               }),
+               "x"_a, "y"_a, "color"_a) |
+      def("__create",
+          [](const entity::c21::Cup &self, Environment &environment) { return environment.create(self); }); //
 
   py::enum_<component::c21::CupColor>(pymodule, "C21_CupColor")
       .value("RED", component::c21::CupColor::RED)

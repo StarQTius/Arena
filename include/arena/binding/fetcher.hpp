@@ -25,4 +25,8 @@ inline pybind11::object get_pycomponent(Environment &environment, entt::entity e
   return pytype.attr("__get")(environment, entity);
 }
 
+inline pybind11::object create_pyentity(Environment &environment, pybind11::object pyentity_data) {
+  return pyentity_data.attr("__create")(environment);
+}
+
 } // namespace arena

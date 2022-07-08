@@ -14,7 +14,6 @@
 #include <units/isq/si/mass.h>
 #include <units/isq/si/time.h>
 
-#include <arena/2021/cup.hpp>
 #include <arena/binding/fetcher.hpp>
 #include <arena/component/body.hpp>
 #include <arena/component/host.hpp>
@@ -29,7 +28,6 @@
 #include "box2d.hpp"
 #include "common.hpp"
 #include "physics.hpp"
-#include "utility.hpp"
 
 namespace py = pybind11;
 
@@ -46,11 +44,6 @@ namespace {
 void upkeep(Environment &environment) {
   for (auto &&[self, py_host] : environment.registry.view<component::PyHost>().each())
     py_host.invoke(environment, self);
-}
-
-entt::entity create_from_pyargs(Environment &self, py::args args, py::kwargs kwargs) {
-  auto create_pyfunction = py::module_::import(ARENA_MODULE_NAME).attr("create");
-  return create_pyfunction(self, *args, **kwargs).cast<entt::entity>();
 }
 
 //! \brief Create a new environment
@@ -95,14 +88,10 @@ void set_angle(b2Body &self, angle_t angle) { self.SetTransform(self.GetPosition
 void initialize_base(py::module_ &pymodule) {
   using rvp = pybind11::return_value_policy;
 
-  pymodule                                                                                   //
-      | def("create", DISAMBIGUATE_MEMBER(create, Environment &, entity::Bot))               //
-      | def("create", DISAMBIGUATE_MEMBER(create, Environment &, const entity::c21::Cup &)); //
-
   py::class_<Environment>(pymodule, "Environment") | R"(
       Contains a simulated state)"                               //
       | ctor(&create_environment, "width"_a = 3, "height"_a = 2) //
-      | def("create", create_from_pyargs)                        //
+      | def("create", create_pyentity)                           //
       | def("step", &Environment::step)                          //
       | def("get", get_pycomponent, rvp::reference_internal)     //
       | property("renderer", &Environment::renderer)             //
@@ -137,7 +126,8 @@ void initialize_base(py::module_ &pymodule) {
 
   py::class_<entity::Bot>(pymodule, "Bot") | R"(
       Contains data for creating a bot entity.)"                                                                     //
-      | ctor<length_t, length_t, mass_t, py::function, size_t>("x"_a, "y"_a, "mass"_a, "logic"_a, "cup_capacity"_a); //
+      | ctor<length_t, length_t, mass_t, py::function, size_t>("x"_a, "y"_a, "mass"_a, "logic"_a, "cup_capacity"_a)  //
+      | def("__create", [](const entity::Bot &self, Environment &environment) { return environment.create(self); }); //
 }
 
 PYBIND11_MODULE(_details, pymodule) {

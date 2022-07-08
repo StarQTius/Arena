@@ -3,4 +3,4 @@ import os
 
 sys.path.append(os.path.dirname(__file__))
 
-from _details import Environment, Entity, Renderer, Body, Bot, create
+from _details import Environment, Entity, Renderer, Body, Bot
