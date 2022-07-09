@@ -5,6 +5,7 @@
 
 #include "utility.hpp"
 #include "with_units.hpp"
+#include <arena/environment.hpp>
 #include <forward.hpp>
 
 //! \brief Satisfied when `T` can be called
@@ -188,3 +189,17 @@ template <typename Cast_T> auto box2d_property(const char *name, Invocable auto 
   return property(
       name, normalize_box2d<Cast_T()>(FWD(read)), [](pybind11::object) {}, FWD(extras)...);
 }
+
+namespace kind {
+
+template <typename Entity_T> auto entity(pybind11::module_ &pymodule, const char *name, Invocable auto &&create) {
+  return pybind11::class_<Entity_T>(pymodule, name).def("__create", FWD(create));
+}
+
+template <typename Entity_T> auto entity(pybind11::module_ &pymodule, const char *name) {
+  auto create = [](const Entity_T &self, arena::Environment &environment) { return environment.create(self); };
+
+  return entity<Entity_T>(pymodule, name, create);
+}
+
+} // namespace kind

@@ -125,10 +125,9 @@ void initialize_base(py::module_ &pymodule) {
             },
             rvp::reference); //
 
-  py::class_<entity::Bot>(pymodule, "Bot") | R"(
-      Contains data for creating a bot entity.)"                                                                     //
-      | ctor<length_t, length_t, mass_t, py::function>("x"_a, "y"_a, "mass"_a, "logic"_a)                            //
-      | def("__create", [](const entity::Bot &self, Environment &environment) { return environment.create(self); }); //
+  kind::entity<entity::Bot>(pymodule, "Bot") | R"(
+      Contains data for creating a bot entity.)"                                           //
+      | ctor<length_t, length_t, mass_t, py::function>("x"_a, "y"_a, "mass"_a, "logic"_a); //
 }
 
 PYBIND11_MODULE(_details, pymodule) {
