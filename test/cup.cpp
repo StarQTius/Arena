@@ -2,7 +2,6 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <array>
-#include <memory>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -68,13 +67,13 @@ TEST_CASE("Cup interaction with contained bodies", "[Cup][STW]") {
     environment.registry.emplace<b2Vec2>(bot_self, 0.5, 0);
 
     for ([[maybe_unused]] auto x : ltl::valueRange(0, 100)) {
-      for (auto &&[self, body_ptr, py_host, velocity] : environment.registry.view<BodyPtr, PyHost, b2Vec2>().each())
+      for (auto &&[self, body_ptr, py_host, velocity] : environment.registry.view<b2Body *, PyHost, b2Vec2>().each())
         body_ptr->SetLinearVelocity(velocity);
       environment.world.Step((1.0_q_s / 20).number(), 8, 3);
     }
 
     for (auto &&[self, body_ptr, color, initial_position] :
-         environment.registry.view<BodyPtr, CupColor, b2Vec2>().each()) {
+         environment.registry.view<b2Body *, CupColor, b2Vec2>().each()) {
       REQUIRE(body_ptr->GetPosition().x != Catch::Approx(initial_position.x));
       REQUIRE(body_ptr->GetPosition().y != Catch::Approx(initial_position.y));
     }

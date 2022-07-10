@@ -15,7 +15,6 @@
 #include <units/isq/si/time.h>
 
 #include <arena/binding/fetcher.hpp>
-#include <arena/component/body.hpp>
 #include <arena/component/host.hpp>
 #include <arena/concept.hpp>
 #include <arena/draw.hpp>
@@ -108,7 +107,7 @@ void initialize_base(py::module_ &pymodule) {
       | def("__enter__", enter_drawer)                                   //
       | def("__exit__", exit_drawer);                                    //
 
-  py::class_<b2Body, ObserverPtr<b2Body>>(pymodule, "Body") | R"(
+  py::class_<b2Body, arena::ObserverPtr<b2Body>>(pymodule, "Body") | R"(
       Represents a physical body in a simulated state)"                                                               //
       | box2d_property<length_vec>("position", &b2Body::GetPosition, rvp::automatic)                                  //
       | box2d_property<angle_t>("angle", &b2Body::GetAngle, rvp::automatic)                                           //
@@ -121,7 +120,7 @@ void initialize_base(py::module_ &pymodule) {
       | def("set_angle", set_angle)                                            //
       | static_def(
             "__get", [](Environment & environment, entt::entity entity) -> auto & {
-              return *environment.registry.get<component::BodyPtr>(entity);
+              return *environment.registry.get<b2Body *>(entity);
             },
             rvp::reference); //
 

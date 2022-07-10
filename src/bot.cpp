@@ -38,7 +38,7 @@ entt::entity arena::entity::create(b2World &world, entt::registry &registry, con
   body_ptr->CreateFixture(&bot_shape, compute_shape_density(bot_shape, def.mass).number());
 
   entt::entity self = registry.create();
-  registry.emplace<component::BodyPtr>(self, body_ptr);
+  registry.emplace<b2Body *>(self, body_ptr);
   registry.emplace<component::PyHost>(self, def.logic);
 
   return self;

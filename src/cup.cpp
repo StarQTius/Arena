@@ -1,7 +1,6 @@
 #include <arena/2021/cup.hpp>
 
 #include <algorithm>
-#include <memory>
 #include <type_traits>
 
 #include <box2d/b2_body.h>
@@ -40,14 +39,14 @@ entt::entity arena::entity::c21::create(b2World &world, entt::registry &registry
   body_ptr->SetAngularDamping(duration_t{cup_damping}.number());
 
   auto self = registry.create();
-  registry.emplace<component::BodyPtr>(self, body_ptr);
+  registry.emplace<b2Body *>(self, body_ptr);
   registry.emplace<component::c21::CupColor>(self, def.color);
 
   return self;
 }
 
 bool arena::component::c21::CupGrabber::grab(Environment &environment, entt::entity target) {
-  auto &&[body_ptr, cup_color] = environment.registry.try_get<BodyPtr, CupColor>(target);
+  auto &&[body_ptr, cup_color] = environment.registry.try_get<b2Body *, CupColor>(target);
   if (body_ptr && storage.size() < capacity) {
     storage.insert(target);
     (*body_ptr)->SetEnabled(false);
@@ -61,7 +60,7 @@ bool arena::component::c21::CupGrabber::drop(Environment &environment, const ent
   auto is_same_color = [&](auto entity) { return environment.registry.get<CupColor>(entity) == cup.color; };
   auto cup_entity_it = std::find_if(storage.begin(), storage.end(), is_same_color);
   if (cup_entity_it != storage.end()) {
-    auto &body_ptr = environment.registry.get<BodyPtr>(*cup_entity_it);
+    auto &body_ptr = environment.registry.get<b2Body *>(*cup_entity_it);
     body_ptr->SetEnabled(true);
     body_ptr->SetTransform({cup.x.number(), cup.y.number()}, body_ptr->GetAngle());
     storage.erase(cup_entity_it);

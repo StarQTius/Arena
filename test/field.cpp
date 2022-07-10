@@ -1,7 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <array>
-#include <memory>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -22,7 +21,6 @@
 #include <units/isq/si/time.h>
 
 #include <arena/2021/cup.hpp>
-#include <arena/component/body.hpp>
 #include <arena/concept.hpp>
 #include <arena/entity/bot.hpp>
 #include <arena/entity/field.hpp>
@@ -64,12 +62,12 @@ TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
     }
 
     for ([[maybe_unused]] auto x : ltl::valueRange(0, 100)) {
-      for (auto &&[self, body_ptr, velocity] : environment.registry.view<BodyPtr, b2Vec2>().each())
+      for (auto &&[self, body_ptr, velocity] : environment.registry.view<b2Body *, b2Vec2>().each())
         body_ptr->SetLinearVelocity(velocity);
       environment.world.Step((1._q_s / 20).number(), 8, 3);
     }
 
-    for (auto &&[entity, body_ptr] : environment.registry.view<BodyPtr>().each()) {
+    for (auto &&[entity, body_ptr] : environment.registry.view<b2Body *>().each()) {
       REQUIRE(body_ptr->GetPosition().x >= -5);
       REQUIRE(body_ptr->GetPosition().x <= 5);
       REQUIRE(body_ptr->GetPosition().y >= -5);

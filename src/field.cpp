@@ -9,8 +9,6 @@
 #include <entt/entity/registry.hpp>
 #include <units/isq/si/length.h>
 
-#include <arena/component/body.hpp>
-
 entt::entity arena::entity::create(b2World &world, entt::registry &registry, const arena::entity::Field &def) {
   using namespace units::isq;
 
@@ -28,7 +26,7 @@ entt::entity arena::entity::create(b2World &world, entt::registry &registry, con
   body_ptr->CreateFixture(&boundaries, 0);
 
   auto self = registry.create();
-  registry.emplace<component::BodyPtr>(self, body_ptr);
+  registry.emplace<b2Body *>(self, body_ptr);
 
   return self;
 }
