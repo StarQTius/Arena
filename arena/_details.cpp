@@ -24,6 +24,7 @@
 #include <arena/physics.hpp>
 
 #include "binder.hpp"
+#include "binder/def.hpp"
 #include "box2d.hpp"
 #include "common.hpp"
 #include "physics.hpp"

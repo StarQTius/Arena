@@ -24,8 +24,15 @@ foreach(SOURCE_FILE IN LISTS MODULE_SOURCES)
   add_iwyu_target(${SOURCE_FILE} _details)
 endforeach()
 
-set(HEADERS box2d.hpp binder.hpp physics.hpp python.hpp utility.hpp
-            with_units.hpp)
-foreach(HEADER IN LISTS HEADERS)
+set(STANDALONE_HEADERS
+    box2d.hpp
+    binder.hpp
+    binder/def.hpp
+    binder/traits.hpp
+    physics.hpp
+    python.hpp
+    utility.hpp
+    with_units.hpp)
+foreach(HEADER IN LISTS STANDALONE_HEADERS)
   add_iwyu_target(${HEADER} _details)
 endforeach()

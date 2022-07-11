@@ -9,71 +9,16 @@
 #include <arena/binding/fetcher.hpp>
 #include <arena/environment.hpp>
 
+#include "binder/def.hpp"
 #include "utility.hpp"
 #include "with_units.hpp"
 #include <forward.hpp>
-
-template <typename Mf>
-concept Getter = !std::is_void_v<std::invoke_result<Mf, get_class_t<Mf> &>> && Invocable<Mf>;
-
-template <typename Mf>
-concept Setter = Getter<Mf> && std::assignable_from < std::invoke_result < Mf,
-        get_class_t<Mf>
-& >, std::invoke_result<Mf, get_class_t<Mf> &> > ;
-
-//! \brief Satisfied when `T` is an instance of `pybind11:class_`
-template <typename T>
-concept PybindClass = requires(T x) {
-  {
-    pybind11::class_ { FWD(x) }
-    } -> std::convertible_to<std::decay_t<T>>;
-};
-
-//! \brief Satisfied when `T` is a binding to which function can be bound to with a function `def`
-template <typename T>
-concept BindableTo = requires(T x) {
-  {
-    x.def("", [](T &) {})
-    } -> std::convertible_to<T>;
-};
 
 //! \brief Add a docstring to a class binding
 template <typename... Ts> decltype(auto) operator|(PybindClass auto &&pybind_class, std::string_view doc) {
   pybind_class.doc() = doc;
 
   return FWD(pybind_class);
-}
-
-//! \brief Holds method definition data
-template <typename F, typename... Ts> struct def_t {
-  const char *name;
-  F f;
-  std::tuple<Ts...> extras;
-};
-
-//! \brief Define a method or function for a binding with a `def` member function
-template <typename... Ts> decltype(auto) operator|(BindableTo auto &&binding, def_t<Ts...> &&parameters) {
-  auto impl = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-    binding.def(parameters.name, with_units(std::move(parameters.f)), std::move(std::get<Is>(parameters.extras))...);
-  };
-
-  impl(std::make_index_sequence<sizeof...(Ts) - 1>{});
-
-  return FWD(binding);
-}
-
-template <typename D, typename F, typename... Ts>
-decltype(auto) operator|(pybind11::class_<D> &&binding, def_t<F, Ts...> &&parameters) requires(
-    std::derived_from<D, arena::ComponentRef_base<D>> &&
-    !std::same_as<std::remove_cvref_t<typename signature_info<F>::template free_arg_t<0>>, D>) {
-  auto impl = [&]<std::size_t... Is, typename... Args>(std::index_sequence<Is...>) {
-    binding.def(parameters.name, with_units(D::make_wrapper(std::move(parameters.f))),
-                std::move(std::get<Is>(parameters.extras))...);
-  };
-
-  impl(std::make_index_sequence<sizeof...(Ts)>{});
-
-  return std::move(binding);
 }
 
 template <typename F, typename... Ts> struct static_def_t {
@@ -195,12 +140,6 @@ decltype(auto) operator|(pybind11::class_<D> &&binding, readonly_property_t<Read
   impl(std::make_index_sequence<sizeof...(Ts) - 1>{});
 
   return std::move(binding);
-}
-
-//! \brief Define a method `name` bound to `f` for a class binding
-auto def(const char *name, Invocable auto &&f, auto &&...extras) {
-  return def_t<std::decay_t<decltype(f)>, std::decay_t<decltype(extras)>...>{
-      .name = name, .f = FWD(f), .extras = {FWD(extras)...}};
 }
 
 auto static_def(const char *name, Invocable auto &&f, auto &&...extras) {

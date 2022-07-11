@@ -22,6 +22,7 @@
 #include <arena/physics.hpp>
 
 #include "../binder.hpp"
+#include "../binder/def.hpp"
 #include "../common.hpp"
 
 namespace py = pybind11;
