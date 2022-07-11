@@ -2,13 +2,12 @@
 
 #include <pybind11/pybind11.h>
 
-#include <arena/binding/fetcher.hpp> // IWYU pragma: keep
-
+#include "../traits/invocable.hpp" // IWYU pragma: keep
 #include "../utility.hpp"
 #include <forward.hpp>
 
 template <typename Mf>
-concept Getter = !std::is_void_v<std::invoke_result<Mf, get_class_t<Mf> &>> && Invocable<Mf>;
+concept Getter = !std::is_void_v<std::invoke_result<Mf, get_class_t<Mf> &>> && WithSignature<Mf>;
 
 template <typename Mf>
 concept Setter = Getter<Mf> && std::assignable_from < std::invoke_result < Mf,

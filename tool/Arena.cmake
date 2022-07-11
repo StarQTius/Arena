@@ -39,7 +39,8 @@ function(add_iwyu_target FILE_PATH DEPENDENCY)
         for INCLUDE_PATH in
         $<TARGET_PROPERTY:${DEPENDENCY},INCLUDE_DIRECTORIES>\\\; do
         INCLUDE_PATH_OPTION=\"$$INCLUDE_PATH_OPTION -isystem$$INCLUDE_PATH\"\\\;
-        done\\\; ${IWYU_COMMAND} $$INCLUDE_PATH_OPTION $$COMPILE_DEF_OPTION
+        done\\\; ${IWYU_COMMAND} -I${CMAKE_CURRENT_SOURCE_DIR}
+        $$INCLUDE_PATH_OPTION $$COMPILE_DEF_OPTION
         ${CMAKE_CURRENT_SOURCE_DIR}/${FILE_PATH} 2> iwyu_log \\\; if [ $$? -ne 1
         ]\\\; then exit 0\\\; else cat iwyu_log\\\; exit 1\\\; fi
       COMMAND_EXPAND_LISTS

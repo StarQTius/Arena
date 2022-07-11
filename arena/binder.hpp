@@ -2,14 +2,16 @@
 
 #include <variant>
 
-#include <box2d/b2_world_callbacks.h>
+#include <box2d/b2_body.h>
 #include <entt/entity/entity.hpp>
 #include <pybind11/pybind11.h>
 
-#include <arena/binding/fetcher.hpp>
 #include <arena/environment.hpp>
 
 #include "binder/def.hpp"
+#include "binder/traits.hpp" // IWYU pragma: keep
+#include "component_ref.hpp" // IWYU pragma: export
+#include "traits/invocable.hpp"
 #include "utility.hpp"
 #include "with_units.hpp"
 #include <forward.hpp>
@@ -84,7 +86,7 @@ template <typename Read_F, typename Write_F, typename... Ts> struct property_t {
 //! \brief Define a property for a class binding
 template <typename... Ts>
 decltype(auto) operator|(PybindClass auto &&pybind_class, property_t<Ts...> &&parameters) requires(
-    !std::same_as<decltype(pybind_class), pybind11::class_<arena::InternalComponentRef<b2Body *>> &&>) {
+    !std::same_as<decltype(pybind_class), pybind11::class_<InternalComponentRef<b2Body *>> &&>) {
   auto impl = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
     pybind_class.def_property(parameters.name, with_units(std::move(parameters.read)),
                               with_units(std::move(parameters.write)), std::move(std::get<Is>(parameters.extras))...);
@@ -97,7 +99,7 @@ decltype(auto) operator|(PybindClass auto &&pybind_class, property_t<Ts...> &&pa
 
 template <typename D, typename Read_F, typename Write_F, typename... Ts>
 decltype(auto) operator|(pybind11::class_<D> &&binding, property_t<Read_F, Write_F, Ts...> &&parameters) requires(
-    std::derived_from<D, arena::ComponentRef_base<D>> &&
+    std::derived_from<D, ComponentRef_base<D>> &&
     !std::constructible_from<D, typename signature_info<Read_F>::template free_arg_t<0>>) {
   auto impl = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
     binding.def_property(parameters.name, with_units(D::make_wrapper(std::move(parameters.read))),
@@ -130,7 +132,7 @@ decltype(auto) operator|(PybindClass auto &&pybind_class, readonly_property_t<Ts
 
 template <typename D, typename Read_F, typename... Ts>
 decltype(auto) operator|(pybind11::class_<D> &&binding, readonly_property_t<Read_F, Ts...> &&parameters) requires(
-    std::derived_from<D, arena::ComponentRef_base<D>> &&
+    std::derived_from<D, ComponentRef_base<D>> &&
     !std::constructible_from<D, typename signature_info<Read_F>::template free_arg_t<0>>) {
   auto impl = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
     binding.def_property_readonly(parameters.name, with_units(D::make_wrapper(std::move(parameters.read))),
@@ -142,13 +144,13 @@ decltype(auto) operator|(pybind11::class_<D> &&binding, readonly_property_t<Read
   return std::move(binding);
 }
 
-auto static_def(const char *name, Invocable auto &&f, auto &&...extras) {
+auto static_def(const char *name, WithSignature auto &&f, auto &&...extras) {
   return static_def_t<std::decay_t<decltype(f)>, std::decay_t<decltype(extras)>...>{
       .name = name, .f = FWD(f), .extras = {FWD(extras)...}};
 }
 
 //! \brief Define a constructor bound to `f` for a class binding
-auto ctor(Invocable auto &&f, auto &&...extras) {
+auto ctor(WithSignature auto &&f, auto &&...extras) {
   return ctor_t<std::decay_t<decltype(f)>, std::decay_t<decltype(extras)>...>{.f = FWD(f), .extras = {FWD(extras)...}};
 }
 
@@ -159,12 +161,12 @@ template <typename... Args> auto ctor(auto &&...extras) {
 
 //! \brief Define a property `name` for a class binding whose getter is bound to `read` and is setter is bound to
 //! `write`
-auto property(const char *name, Invocable auto &&read, Invocable auto &&write, auto &&...extras) {
+auto property(const char *name, WithSignature auto &&read, WithSignature auto &&write, auto &&...extras) {
   return property_t<std::decay_t<decltype(read)>, std::decay_t<decltype(write)>, std::decay_t<decltype(extras)>...>{
       .name = name, .read = FWD(read), .write = FWD(write), .extras = {FWD(extras)...}};
 }
 
-auto property(const char *name, Invocable auto &&read, auto &&...extras) {
+auto property(const char *name, WithSignature auto &&read, auto &&...extras) {
   return readonly_property_t<std::decay_t<decltype(read)>, std::decay_t<decltype(extras)>...>{
       .name = name, .read = FWD(read), .extras = {FWD(extras)...}};
 }
@@ -192,18 +194,18 @@ template <std::copy_constructible T, typename C> auto property(const char *name,
 }
 
 template <typename Cast_T>
-auto box2d_property(const char *name, Invocable auto &&read, Invocable auto &&write, auto &&...extras) {
+auto box2d_property(const char *name, WithSignature auto &&read, WithSignature auto &&write, auto &&...extras) {
   return property(name, normalize_box2d<Cast_T()>(FWD(read)), normalize_box2d<void(Cast_T)>(FWD(write)),
                   FWD(extras)...);
 }
 
-template <typename Cast_T> auto box2d_property(const char *name, Invocable auto &&read, auto &&...extras) {
+template <typename Cast_T> auto box2d_property(const char *name, WithSignature auto &&read, auto &&...extras) {
   return property(name, normalize_box2d<Cast_T()>(FWD(read)), FWD(extras)...);
 }
 
 namespace kind {
 
-template <typename Entity_T> auto entity(pybind11::module_ &pymodule, const char *name, Invocable auto &&create) {
+template <typename Entity_T> auto entity(pybind11::module_ &pymodule, const char *name, WithSignature auto &&create) {
   return pybind11::class_<Entity_T>(pymodule, name) | def("__create", FWD(create));
 }
 
@@ -214,31 +216,31 @@ template <typename Entity_T> auto entity(pybind11::module_ &pymodule, const char
 }
 
 template <typename Component_T>
-auto component(pybind11::module_ &pymodule, const char *name, Invocable auto &&attach, Invocable auto &&get) {
-  return pybind11::class_<arena::ComponentRef<Component_T>>(pymodule, name) | def("__attach", FWD(attach)) |
+auto component(pybind11::module_ &pymodule, const char *name, WithSignature auto &&attach, WithSignature auto &&get) {
+  return pybind11::class_<ComponentRef<Component_T>>(pymodule, name) | def("__attach", FWD(attach)) |
          static_def("__get", FWD(get), pybind11::return_value_policy::reference_internal);
 }
 
 template <typename Component_T> auto component(pybind11::module_ &pymodule, const char *name) {
-  auto attach = [](arena::ComponentRef<Component_T> &self, arena::Environment &environment, entt::entity entity) {
+  auto attach = [](ComponentRef<Component_T> &self, arena::Environment &environment, entt::entity entity) {
     self.attach(environment, entity);
   };
   auto get = [](arena::Environment &environment, entt::entity entity) {
-    return arena::ComponentRef<Component_T>{environment, entity};
+    return ComponentRef<Component_T>{environment, entity};
   };
 
   return component<Component_T>(pymodule, name, attach, get);
 }
 
 template <typename Component_T>
-auto internal_component(pybind11::module_ &pymodule, const char *name, Invocable auto &&get) {
-  return pybind11::class_<arena::InternalComponentRef<Component_T *>>(pymodule, name) |
+auto internal_component(pybind11::module_ &pymodule, const char *name, WithSignature auto &&get) {
+  return pybind11::class_<InternalComponentRef<Component_T *>>(pymodule, name) |
          static_def("__get", FWD(get), pybind11::return_value_policy::reference_internal);
 }
 
 template <typename Component_T> auto internal_component(pybind11::module_ &pymodule, const char *name) {
   auto get = [](arena::Environment &environment, entt::entity entity) {
-    return arena::InternalComponentRef<Component_T *>{environment, entity};
+    return InternalComponentRef<Component_T *>{environment, entity};
   };
 
   return internal_component<Component_T>(pymodule, name, get);

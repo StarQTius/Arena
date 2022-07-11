@@ -16,7 +16,6 @@
 #include <units/isq/si/time.h>
 
 #include <arena/2021/cup.hpp>
-#include <arena/binding/fetcher.hpp>
 #include <arena/concept.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>

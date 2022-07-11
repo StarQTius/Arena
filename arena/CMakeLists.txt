@@ -29,8 +29,13 @@ set(STANDALONE_HEADERS
     binder.hpp
     binder/def.hpp
     binder/traits.hpp
+    component_ref.hpp
     physics.hpp
     python.hpp
+    traits/common.hpp
+    traits/crtp.hpp
+    traits/invocable.hpp
+    traits/template.hpp
     utility.hpp
     with_units.hpp)
 foreach(HEADER IN LISTS STANDALONE_HEADERS)

@@ -88,14 +88,16 @@ void set_angle(b2Body &self, angle_t angle) { self.SetTransform(self.GetPosition
 void initialize_base(py::module_ &pymodule) {
   using rvp = pybind11::return_value_policy;
 
+  static_assert(WithSignature<decltype(create_environment)>);
+
   py::class_<Environment>(pymodule, "Environment") | R"(
-      Contains a simulated state)"                               //
-      | ctor(&create_environment, "width"_a = 3, "height"_a = 2) //
-      | def("create", create_pyentity)                           //
-      | def("step", &Environment::step)                          //
-      | def("get", get_pycomponent, rvp::reference_internal)     //
-      | def("attach", attach_pycomponent)                        //
-      | property("renderer", &Environment::renderer)             //
+      Contains a simulated state)"                              //
+      | ctor(create_environment, "width"_a = 3, "height"_a = 2) //
+      | def("create", create_pyentity)                          //
+      | def("step", &Environment::step)                         //
+      | def("get", get_pycomponent, rvp::reference_internal)    //
+      | def("attach", attach_pycomponent)                       //
+      | property("renderer", &Environment::renderer)            //
       | static_def(
             "__get", [](Environment & environment, entt::entity) -> auto & { return environment; }, rvp::reference); //
 
