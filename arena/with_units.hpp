@@ -1,5 +1,7 @@
 #pragma once
 
+#include <arena/binding/fetcher.hpp>
+
 #include "box2d.hpp"
 #include "python.hpp"
 #include "utility.hpp"
@@ -10,7 +12,7 @@
 //! them to the wrapped function (and vice-versa for the return value).
 auto with_units(auto &&f) {
   auto impl_for_function = [&]<typename R, typename... Args>(std::function<R(Args...)> *) {
-    auto RETURN = [f = FWD(f)](remove_rvalue_reference_t<to_numpy_t<Args>>... args) -> decltype(auto) {
+    auto retval = [f = FWD(f)](remove_rvalue_reference_t<to_numpy_t<Args>>... args) -> decltype(auto) {
       if constexpr (std::is_void_v<R>) {
         std::invoke(f, from_numpy<Args>(FWD(args))...);
       } else {
@@ -18,15 +20,12 @@ auto with_units(auto &&f) {
       }
     };
 
-    return RETURN;
-  };
-
-  auto impl_for_member_function = [&]<typename R, typename... Args, typename C>(R(C::*)(Args...)) {
-    return impl_for_function((std::function<R(C &, Args...)> *)nullptr);
+    return retval;
   };
 
   if constexpr (std::is_member_function_pointer_v<std::decay_t<decltype(f)>>) {
-    return impl_for_member_function(f);
+    using free_signature_t = get_free_signature_t<std::decay_t<decltype(f)>>;
+    return impl_for_function((std::function<free_signature_t> *)nullptr);
   } else {
     return impl_for_function((decltype(std::function{f}) *)nullptr);
   }

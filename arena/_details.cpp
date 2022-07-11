@@ -107,7 +107,7 @@ void initialize_base(py::module_ &pymodule) {
       | def("__enter__", enter_drawer)                                   //
       | def("__exit__", exit_drawer);                                    //
 
-  py::class_<b2Body, arena::ObserverPtr<b2Body>>(pymodule, "Body") | R"(
+  kind::internal_component<b2Body>(pymodule, "Body") | R"(
       Represents a physical body in a simulated state)"                                                               //
       | box2d_property<length_vec>("position", &b2Body::GetPosition, rvp::automatic)                                  //
       | box2d_property<angle_t>("angle", &b2Body::GetAngle, rvp::automatic)                                           //
@@ -115,14 +115,9 @@ void initialize_base(py::module_ &pymodule) {
       | box2d_property<angular_speed_t>("angular_velocity", &b2Body::GetAngularVelocity, &b2Body::SetAngularVelocity,
                                         rvp::automatic) //
       | property(
-            "forward_velocity", []() {}, set_forward_velocity, rvp::automatic) //
-      | def("set_position", set_position)                                      //
-      | def("set_angle", set_angle)                                            //
-      | static_def(
-            "__get", [](Environment & environment, entt::entity entity) -> auto & {
-              return *environment.registry.get<b2Body *>(entity);
-            },
-            rvp::reference); //
+            "forward_velocity", [](b2Body &) {}, set_forward_velocity, rvp::automatic) //
+      | def("set_position", set_position)                                              //
+      | def("set_angle", set_angle);                                                   //
 
   kind::entity<entity::Bot>(pymodule, "Bot") | R"(
       Contains data for creating a bot entity.)"                                           //

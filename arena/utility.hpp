@@ -19,6 +19,7 @@
 template <typename> struct get_class;
 
 template <typename F, typename C> struct get_class<F C::*> { using type = C; };
+template <typename F, typename C> struct get_class<F C::*const> { using type = const C; };
 
 template <typename Mf>
 requires std::is_member_function_pointer_v<Mf>

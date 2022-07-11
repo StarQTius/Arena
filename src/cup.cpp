@@ -69,3 +69,8 @@ bool arena::component::c21::CupGrabber::drop(Environment &environment, const ent
     return false;
   }
 }
+
+std::size_t arena::component::c21::CupGrabber::get_count(Environment &environment, CupColor color) const {
+  return std::ranges::count_if(storage,
+                               [&](auto entity) { return environment.registry.get<CupColor>(entity) == color; });
+}
