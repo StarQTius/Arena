@@ -82,6 +82,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(gsl-lite)
 set(gsl-lite_DIR ${gsl-lite_BINARY_DIR})
 add_library(gsl-lite::gsl-lite ALIAS gsl-lite-v1)
+set(LTL_CODE_COVERAGE OFF)
 set(SFML_BUILD_AUDIO OFF)
 set(SFML_BUILD_NETWORK OFF)
 set(UNITS_BUILD_DOC OFF)

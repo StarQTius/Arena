@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <variant>
 
 #include <forward.hpp>
 
@@ -80,11 +79,14 @@ concept CallableWithSignature = requires(F f) {
   std::function{FWD(f)};
 };
 
+template <typename Mf>
+concept MemberFunction = std::is_member_function_pointer_v<std::decay_t<Mf>>;
+
 template <typename F>
-concept WithSignature = CallableWithSignature<F> || std::is_member_function_pointer_v<std::decay_t<F>>;
+concept WithSignature = CallableWithSignature<F> || MemberFunction<F>;
 
 template <typename F, std::size_t I, typename T>
-concept Accepting = WithSignature<F> && I < arity_v<F> && std::constructible_from<arg_t<I, std::decay_t<F>>, T>;
+concept Accepting = WithSignature<F> && I < arity_v<F> && std::convertible_to<T, arg_t<I, std::decay_t<F>>>;
 
 template <WithSignature F> auto *signature_ptr(F &&) { return (signature_t<std::decay_t<F>>)nullptr; }
 

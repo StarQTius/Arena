@@ -23,8 +23,14 @@
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
 
-#include "binder.hpp"
+#include "binder/component.hpp"
+#include "binder/ctor.hpp"
 #include "binder/def.hpp"
+#include "binder/doc.hpp"
+#include "binder/entity.hpp"
+#include "binder/internal_component.hpp"
+#include "binder/property.hpp"
+#include "binder/static_def.hpp"
 #include "box2d.hpp"
 #include "common.hpp"
 #include "physics.hpp"
@@ -47,7 +53,8 @@ void upkeep(Environment &environment) {
 }
 
 //! \brief Create a new environment
-//! The new environment is allocated dynamically because it cannot be copied or moved from.
+//! The new environment is allocated dynamically because it cannot be copied or
+//! moved from.
 Environment *create_environment(length_t width, length_t height) {
   auto *retval = new Environment{upkeep};
   retval->create(entity::Field{.width = width, .height = height});
@@ -88,8 +95,6 @@ void set_angle(b2Body &self, angle_t angle) { self.SetTransform(self.GetPosition
 void initialize_base(py::module_ &pymodule) {
   using rvp = pybind11::return_value_policy;
 
-  static_assert(WithSignature<decltype(create_environment)>);
-
   py::class_<Environment>(pymodule, "Environment") | R"(
       Contains a simulated state)"                              //
       | ctor(create_environment, "width"_a = 3, "height"_a = 2) //
@@ -99,7 +104,8 @@ void initialize_base(py::module_ &pymodule) {
       | def("attach", attach_pycomponent)                       //
       | property("renderer", &Environment::renderer)            //
       | static_def(
-            "__get", [](Environment & environment, entt::entity) -> auto & { return environment; }, rvp::reference); //
+            "__get", [](Environment & environment, entt::entity) -> auto & { return environment; },
+            rvp::reference); //
 
   py::enum_<entt::entity>(pymodule, "Entity");
 

@@ -10,6 +10,7 @@
 #include "traits/crtp.hpp" // IWYU pragma: keep
 #include "traits/invocable.hpp"
 #include "traits/template.hpp"
+#include "traits/type.hpp" // IWYU pragma: keep
 #include <forward.hpp>
 
 template <typename D> class ComponentRef_base {
@@ -47,7 +48,7 @@ public:
   const auto *operator->() const { return &operator*(); }
 
   template <Accepting<0, component_t &> F> static auto make_wrapper(F &&f) {
-    auto impl = [&]<typename R, typename T, typename... Args>(R(*)(T, Args...)) {
+    auto impl = [&]<typename R, typename T, typename... Args>(R (*)(T, Args...)) {
       return [f = std::move(f)](D &self, Args... args) { return std::invoke(f, *self, FWD(args)...); };
     };
 
@@ -56,7 +57,7 @@ public:
 
   template <typename F>
   requires(Accepting<F, 0, component_t &> &&Accepting<F, 1, arena::Environment &>) static auto make_wrapper(F &&f) {
-    auto impl = [&]<typename R, typename T1, typename T2, typename... Args>(R(*)(T1, T2, Args...)) {
+    auto impl = [&]<typename R, typename T1, typename T2, typename... Args>(R (*)(T1, T2, Args...)) {
       return
           [f = std::move(f)](D &self, Args... args) { return std::invoke(f, *self, self.environment(), FWD(args)...); };
     };
@@ -87,7 +88,7 @@ template <typename T> class ComponentRef : public ComponentRef_base<ComponentRef
 public:
   explicit ComponentRef(std::convertible_to<T> auto &&component)
       : m_state{std::in_place_index<0>, new T{FWD(component)}} {}
-  explicit ComponentRef(auto &&...args) requires std::constructible_from<T, decltype(args)...>
+  explicit ComponentRef(auto &&...args) requires ListInitializableFrom<T, decltype(args)...>
       : m_state{std::in_place_index<0>, new T{FWD(args)...}} {}
   explicit ComponentRef(arena::Environment &environment, entt::entity entity)
       : m_state{std::in_place_index<1>, environment, entity} {}

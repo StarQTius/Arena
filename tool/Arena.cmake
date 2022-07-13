@@ -34,6 +34,9 @@ function(add_iwyu_target FILE_PATH DEPENDENCY)
     add_custom_command(
       OUTPUT ${CMAKE_BINARY_DIR}/${TARGET_NAME}.iwyu
       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${FILE_PATH}
+              ${PROJECT_SOURCE_DIR}/tool/mapping/entt.imp
+              ${PROJECT_SOURCE_DIR}/tool/mapping/libcpp.imp
+              ${PROJECT_SOURCE_DIR}/tool/mapping/pybind11.imp
       COMMAND touch ${CMAKE_BINARY_DIR}/${TARGET_NAME}.iwyu
       COMMAND
         for INCLUDE_PATH in

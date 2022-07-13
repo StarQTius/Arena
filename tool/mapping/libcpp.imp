@@ -1,4 +1,6 @@
 [
   { include: ["<bits/this_thread_sleep.h>", "private", "<thread>", "public"]},
-  { include: ["<ratio>", "public", "<thread>", "public"]},
+  { include: ["<bits/chrono.h>", "private", "<chrono>", "public"]},
+  { include: ["<ratio>", "public", "<chrono>", "public"]},
+  { symbol: ["std::tuple", "private", "<tuple>", "public"]},
 ]

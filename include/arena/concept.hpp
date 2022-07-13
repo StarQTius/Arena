@@ -27,8 +27,9 @@ inline auto dereference_if_needed = []<typename T>(T &&x) -> decltype(auto) {
 
 inline auto dereference_tuple_elements_if_needed = []<typename T>(T &&t) {
   auto impl = [](auto &&...xs) {
-    return []<typename... Args>(Args && ...args) { return std::tuple<Args...>{args...}; }
-    (dereference_if_needed(static_cast<decltype(xs)>(xs))...);
+    return []<typename... Args>(Args &&...args) {
+      return std::tuple<Args...>{args...};
+    }(dereference_if_needed(static_cast<decltype(xs)>(xs))...);
   };
 
   return std::apply(impl, std::forward<T>(t));

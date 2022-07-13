@@ -20,9 +20,17 @@
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
 
-#include "../binder.hpp"
+#include "../binder/component.hpp"
+#include "../binder/ctor.hpp"
 #include "../binder/def.hpp"
+#include "../binder/doc.hpp"
+#include "../binder/entity.hpp"
+#include "../binder/internal_component.hpp"
+#include "../binder/property.hpp"
+#include "../binder/static_def.hpp"
+#include "../box2d.hpp"
 #include "../common.hpp"
+#include "../physics.hpp"
 
 namespace py = pybind11;
 

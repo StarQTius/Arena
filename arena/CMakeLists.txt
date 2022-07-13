@@ -25,10 +25,17 @@ foreach(SOURCE_FILE IN LISTS MODULE_SOURCES)
 endforeach()
 
 set(STANDALONE_HEADERS
-    box2d.hpp
-    binder.hpp
+    binder/component.hpp
+    binder/ctor.hpp
     binder/def.hpp
+    binder/doc.hpp
+    binder/entity.hpp
+    binder/internal_component.hpp
+    binder/property.hpp
+    binder/static_def.hpp
     binder/traits.hpp
+    box2d.hpp
+    common.hpp
     component_ref.hpp
     physics.hpp
     python.hpp
@@ -36,6 +43,7 @@ set(STANDALONE_HEADERS
     traits/crtp.hpp
     traits/invocable.hpp
     traits/template.hpp
+    traits/type.hpp
     utility.hpp
     with_units.hpp)
 foreach(HEADER IN LISTS STANDALONE_HEADERS)

@@ -19,7 +19,7 @@ template <typename F, typename Tuple_T> struct def_t {
 template <typename F, typename Tuple_T> def_t(const char *, F, Tuple_T) -> def_t<F, Tuple_T>;
 
 template <WithSignature F, InstanceOf<std::tuple> Tuple_T>
-decltype(auto) operator|(BindableTo auto &&binding, def_t<F, Tuple_T> &&parameters) {
+decltype(auto) operator|(Binding auto &&binding, def_t<F, Tuple_T> &&parameters) {
   auto impl = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
     binding.def(parameters.name, with_units(std::move(parameters.f)), std::get<Is>(std::move(parameters.extras))...);
   };

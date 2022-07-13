@@ -7,7 +7,7 @@ TOP_LEVEL=$(git rev-parse --show-toplevel)
 echo -e "\e[1;${COLOR}m-- GIT HOOK : format source files with clang-format --\e[1;0m"
 for FILE in ${STAGGED_FILES}; do
   if [ -f "$FILE" ] && ([[ $FILE == *.cpp ]] || [[ $FILE == *.hpp ]]); then
-    clang-format-12 -style=file -i $FILE
+    clang-format-14 -style=file -i $FILE
     git add $FILE
   fi
 done
