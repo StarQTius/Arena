@@ -8,7 +8,6 @@
 #include <arena/environment.hpp>
 
 #include "traits/crtp.hpp" // IWYU pragma: keep
-#include "traits/invocable.hpp"
 #include "traits/template.hpp"
 #include "traits/type.hpp" // IWYU pragma: keep
 #include <forward.hpp>
@@ -46,28 +45,6 @@ public:
   auto *operator->() { return &operator*(); }
 
   const auto *operator->() const { return &operator*(); }
-
-  template <Accepting<0, component_t &> F> static auto make_wrapper(F &&f) {
-    auto impl = [&]<typename R, typename T, typename... Args>(R (*)(T, Args...)) {
-      return [f = std::move(f)](D &self, Args... args) { return std::invoke(f, *self, FWD(args)...); };
-    };
-
-    return impl(signature_ptr(f));
-  }
-
-  template <typename F>
-  requires(Accepting<F, 0, component_t &> &&Accepting<F, 1, arena::Environment &>) static auto make_wrapper(F &&f) {
-    auto impl = [&]<typename R, typename T1, typename T2, typename... Args>(R (*)(T1, T2, Args...)) {
-      return
-          [f = std::move(f)](D &self, Args... args) { return std::invoke(f, *self, self.environment(), FWD(args)...); };
-    };
-
-    return impl(signature_ptr(f));
-  }
-
-  template <WithSignature Mf>
-  requires std::is_member_function_pointer_v<Mf>
-  static auto make_wrapper(Mf mf) { return make_wrapper(make_free_function(mf)); }
 };
 
 template <typename T> class InternalComponentRef : public ComponentRef_base<InternalComponentRef<T>> {

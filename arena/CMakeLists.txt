@@ -31,6 +31,7 @@ set(STANDALONE_HEADERS
     binder/doc.hpp
     binder/entity.hpp
     binder/internal_component.hpp
+    binder/normalize.hpp
     binder/property.hpp
     binder/static_def.hpp
     binder/traits.hpp
@@ -44,8 +45,7 @@ set(STANDALONE_HEADERS
     traits/invocable.hpp
     traits/template.hpp
     traits/type.hpp
-    utility.hpp
-    with_units.hpp)
+    utility.hpp)
 foreach(HEADER IN LISTS STANDALONE_HEADERS)
   add_iwyu_target(${HEADER} _details)
 endforeach()

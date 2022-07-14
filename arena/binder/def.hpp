@@ -1,10 +1,6 @@
 #pragma once
 
-#include <pybind11/pybind11.h>
-
-#include "../component_ref.hpp"
-#include "../traits/invocable.hpp"
-#include "../with_units.hpp"
+#include "normalize.hpp"
 #include "traits.hpp" // IWYU pragma: keep
 #include <forward.hpp>
 
@@ -20,26 +16,13 @@ template <typename F, typename Tuple_T> def_t(const char *, F, Tuple_T) -> def_t
 
 template <WithSignature F, InstanceOf<std::tuple> Tuple_T>
 decltype(auto) operator|(Binding auto &&binding, def_t<F, Tuple_T> &&parameters) {
-  auto impl = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-    binding.def(parameters.name, with_units(std::move(parameters.f)), std::get<Is>(std::move(parameters.extras))...);
+  auto impl = [&](auto &&...extras) {
+    binding.def(parameters.name, detail::normalize(binding, std::move(parameters.f)), std::move(extras)...);
   };
 
-  impl(std::make_index_sequence<std::tuple_size_v<Tuple_T>>{});
+  std::apply(impl, std::move(parameters.extras));
 
   return FWD(binding);
-}
-
-template <CuriouslyRecurring<ComponentRef_base> D, WithSignature F, InstanceOf<std::tuple> Tuple_T>
-requires Accepting < free_signature_t<F>,
-0, component_t<D> & > decltype(auto) operator|(pybind11::class_<D> &&binding, def_t<F, Tuple_T> &&parameters) {
-  auto impl = [&]<std::size_t... Is, typename... Args>(std::index_sequence<Is...>) {
-    binding.def(parameters.name, with_units(D::make_wrapper(std::move(parameters.f))),
-                std::move(std::get<Is>(parameters.extras))...);
-  };
-
-  impl(std::make_index_sequence<std::tuple_size_v<Tuple_T>>{});
-
-  return std::move(binding);
 }
 
 } // namespace detail

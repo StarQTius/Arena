@@ -64,15 +64,15 @@ template <std::size_t I, typename F> using free_arg_t = typename signature_info<
 template <typename F> constexpr auto arity_v = signature_info<F>::arity;
 template <typename F> constexpr auto free_arity_v = signature_info<F>::free_arity;
 
-template <typename...> struct append_args;
-template <typename R, typename... Args, typename T> struct append_args<R (*)(Args...), T> {
+template <typename...> struct prepend_args;
+template <typename R, typename... Args, typename T> struct prepend_args<R (*)(Args...), T> {
   using type = R (*)(T, Args...);
 };
-template <typename R, typename C, typename... Args, typename T> struct append_args<R (C::*)(Args...), T> {
+template <typename R, typename C, typename... Args, typename T> struct prepend_args<R (C::*)(Args...), T> {
   using type = R (C::*)(T, Args...);
 };
 
-template <typename F, typename... Ts> using append_args_t = typename append_args<F, Ts...>::type;
+template <typename F, typename... Ts> using prepend_args_t = typename prepend_args<F, Ts...>::type;
 
 template <typename F>
 concept CallableWithSignature = requires(F f) {

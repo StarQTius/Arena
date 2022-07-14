@@ -6,7 +6,7 @@
 
 #include "../traits/invocable.hpp"
 #include "../traits/type.hpp" // IWYU pragma: keep
-#include "../with_units.hpp"
+#include "normalize.hpp"
 #include <forward.hpp>
 
 namespace detail {
@@ -22,7 +22,7 @@ template <typename T, WithSignature F, typename Tuple_T>
 requires(std::convertible_to<return_t<F>, T> || std::convertible_to<return_t<F>, T *>) decltype(auto)
 operator|(pybind11::class_<T> &&binding, ctor_t<F, Tuple_T> &&parameters) {
   auto impl = [&](auto &&...extras) {
-    binding.def(pybind11::init(with_units(std::move(parameters.f))), std::move(extras)...);
+    binding.def(pybind11::init(detail::normalize(binding, std::move(parameters.f))), std::move(extras)...);
   };
 
   std::apply(impl, std::move(parameters.extras));
@@ -40,7 +40,8 @@ template <typename T, typename Tuple_T, typename... Args>
 requires ListInitializableFrom<T, Args...>
 decltype(auto) operator|(pybind11::class_<T> &&binding, choose_ctor_t<Tuple_T, Args...> &&parameters) {
   auto impl = [&](auto &&...extras) {
-    binding.def(pybind11::init(with_units([](Args... args) { return T{FWD(args)...}; })), std::move(extras)...);
+    binding.def(pybind11::init(detail::normalize(binding, [](Args... args) { return T{FWD(args)...}; })),
+                std::move(extras)...);
   };
 
   std::apply(impl, std::move(parameters.extras));

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../with_units.hpp"
+#include "normalize.hpp"
 #include "traits.hpp" // IWYU pragma: keep
 #include <forward.hpp>
 
@@ -17,7 +17,7 @@ template <typename F, typename Tuple_T> static_def_t(const char *, F, Tuple_T) -
 template <WithSignature F, typename Tuple_T>
 decltype(auto) operator|(Binding auto &&binding, static_def_t<F, Tuple_T> &&parameters) {
   auto impl = [&](auto &&...extras) {
-    binding.def_static(parameters.name, with_units(std::move(parameters.f)), std::move(extras)...);
+    binding.def_static(parameters.name, detail::normalize(std::move(parameters.f)), std::move(extras)...);
   };
 
   std::apply(impl, std::move(parameters.extras));

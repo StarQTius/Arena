@@ -2,9 +2,8 @@
 
 #include <pybind11/pybind11.h>
 
-#include "../component_ref.hpp"
 #include "../traits/invocable.hpp"
-#include "../with_units.hpp"
+#include "normalize.hpp"
 #include "traits.hpp" // IWYU pragma: keep
 #include <forward.hpp>
 
@@ -23,21 +22,8 @@ property_t(const char *, Read_F, Write_F, Tuple_T) -> property_t<Read_F, Write_F
 template <typename T, WithSignature Read_F, WithSignature Write_F, typename... Ts>
 decltype(auto) operator|(pybind11::class_<T> &&binding, property_t<Read_F, Write_F, Ts...> &&parameters) {
   auto impl = [&](auto &&...extras) {
-    binding.def_property(parameters.name, with_units(std::move(parameters.read)),
-                         with_units(std::move(parameters.write)), std::move(extras)...);
-  };
-
-  std::apply(impl, std::move(parameters.extras));
-
-  return std::move(binding);
-}
-
-template <CuriouslyRecurring<ComponentRef_base> D, WithSignature Read_F, WithSignature Write_F, typename... Ts>
-requires(!Accepting<Read_F, 0, D &> && !Accepting<Write_F, 0, D &>) decltype(auto)
-operator|(pybind11::class_<D> &&binding, property_t<Read_F, Write_F, Ts...> &&parameters) {
-  auto impl = [&](auto &&...extras) {
-    binding.def_property(parameters.name, with_units(D::make_wrapper(std::move(parameters.read))),
-                         with_units(D::make_wrapper(std::move(parameters.write))), std::move(extras)...);
+    binding.def_property(parameters.name, detail::normalize(binding, std::move(parameters.read)),
+                         detail::normalize(binding, std::move(parameters.write)), std::move(extras)...);
   };
 
   std::apply(impl, std::move(parameters.extras));
@@ -57,19 +43,7 @@ readonly_property_t(const char *, Read_F, Tuple_T) -> readonly_property_t<Read_F
 template <typename T, WithSignature Read_F, typename... Ts>
 decltype(auto) operator|(pybind11::class_<T> &&binding, readonly_property_t<Read_F, Ts...> &&parameters) {
   auto impl = [&](auto &&...extras) {
-    binding.def_property_readonly(parameters.name, with_units(std::move(parameters.read)), std::move(extras)...);
-  };
-
-  std::apply(impl, std::move(parameters.extras));
-
-  return std::move(binding);
-}
-
-template <CuriouslyRecurring<ComponentRef_base> D, WithSignature Read_F, typename... Ts>
-decltype(auto) operator|(pybind11::class_<D> &&binding,
-                         readonly_property_t<Read_F, Ts...> &&parameters) requires(!Accepting<Read_F, 0, D &>) {
-  auto impl = [&](auto &&...extras) {
-    binding.def_property_readonly(parameters.name, with_units(D::make_wrapper(std::move(parameters.read))),
+    binding.def_property_readonly(parameters.name, detail::normalize(binding, std::move(parameters.read)),
                                   std::move(extras)...);
   };
 
@@ -110,10 +84,10 @@ template <std::copy_constructible T, typename C> auto property(const char *name,
 
 template <typename Cast_T>
 auto box2d_property(const char *name, WithSignature auto &&read, WithSignature auto &&write, auto &&...extras) {
-  return property(name, normalize_box2d<Cast_T()>(FWD(read)), normalize_box2d<void(Cast_T)>(FWD(write)),
+  return property(name, detail::normalize_box2d<Cast_T()>(FWD(read)), detail::normalize_box2d<void(Cast_T)>(FWD(write)),
                   FWD(extras)...);
 }
 
 template <typename Cast_T> auto box2d_property(const char *name, WithSignature auto &&read, auto &&...extras) {
-  return property(name, normalize_box2d<Cast_T()>(FWD(read)), FWD(extras)...);
+  return property(name, detail::normalize_box2d<Cast_T()>(FWD(read)), FWD(extras)...);
 }
