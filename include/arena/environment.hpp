@@ -1,14 +1,16 @@
 #pragma once
 
 #include <chrono>
-#include <functional>
 #include <thread>
 #include <utility>
 
 #include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
+#include <entt/process/scheduler.hpp>
+#include <entt/signal/delegate.hpp>
 #include <units/isq/si/time.h>
 
+#include <arena/detail/forward.hpp>
 #include <arena/draw.hpp>
 #include <arena/physics.hpp>
 
@@ -30,13 +32,26 @@ struct Environment {
   constexpr static int32_t position_iterations = 3;
 
   b2World world;
+  entt::scheduler<duration_t> scheduler;
   entt::registry registry;
   PyGameDrawer m_renderer;
-  std::function<void(Environment &)> upkeep;
 
-  explicit Environment(std::invocable<Environment &> auto &&upkeep)
-      : world{{0, 0}}, m_renderer{renderer_scale}, upkeep{std::forward<decltype(upkeep)>(upkeep)} {
+  template <auto Upkeep>
+  requires std::invocable<decltype(Upkeep), duration_t, Environment *, void (*)(), void (*)()>
+  explicit Environment(entt::connect_arg_t<Upkeep> upkeep) : world{{0, 0}}, m_renderer{renderer_scale} {
+    scheduler.attach(entt::delegate{upkeep});
+
     world.SetDebugDraw(&m_renderer);
+
+    m_renderer.SetFlags(m_renderer.e_shapeBit);
+  }
+
+  explicit Environment(std::invocable<duration_t, Environment *, void (*)(), void (*)()> auto &&upkeep)
+      : world{{0, 0}}, m_renderer{renderer_scale} {
+    scheduler.attach(ARENA_FWD(upkeep));
+
+    world.SetDebugDraw(&m_renderer);
+
     m_renderer.SetFlags(m_renderer.e_shapeBit);
   }
 
@@ -51,8 +66,10 @@ struct Environment {
   }
 
   void step(duration_t timestep) {
-    upkeep(*this);
+    scheduler.update(timestep, this);
+
     world.Step(timestep.number(), velocity_iterations, position_iterations);
+
     if (m_renderer) {
       world.DebugDraw();
       m_renderer.show();

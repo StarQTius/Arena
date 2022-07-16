@@ -33,7 +33,7 @@ TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
   using namespace arena;
   using namespace units::isq::si::literals;
 
-  Environment environment([](Environment &) {});
+  Environment environment([](auto &&...) {});
   create(environment.world, environment.registry, entity::Field{.width = 10_q_m, .height = 10_q_m});
 
   py::exec(R"(

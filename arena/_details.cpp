@@ -47,7 +47,9 @@ using namespace units::isq::si::time_references;
 
 namespace {
 
-void upkeep(Environment &environment) {
+void upkeep(duration_t, void *environment_ptr, entt::any, entt::any) {
+  auto &environment = *static_cast<Environment *>(environment_ptr);
+
   for (auto &&[self, py_host] : environment.registry.view<component::PyHost>().each())
     py_host.invoke(environment, self);
 }
@@ -56,7 +58,7 @@ void upkeep(Environment &environment) {
 //! The new environment is allocated dynamically because it cannot be copied or
 //! moved from.
 Environment *create_environment(length_t width, length_t height) {
-  auto *retval = new Environment{upkeep};
+  auto *retval = new Environment{entt::connect_arg<upkeep>};
   retval->create(entity::Field{.width = width, .height = height});
   return retval;
 };

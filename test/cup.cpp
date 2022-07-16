@@ -31,7 +31,7 @@ TEST_CASE("Cup interaction with contained bodies", "[Cup][STW]") {
   using arena::Environment;
   using namespace units::isq::si::literals;
 
-  Environment environment{[](Environment &) {}};
+  Environment environment{[](auto &&...) {}};
 
   py::exec(R"(
     _globals = globals()
