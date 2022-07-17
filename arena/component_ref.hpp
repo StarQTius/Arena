@@ -7,9 +7,9 @@
 
 #include <arena/environment.hpp>
 
-#include "traits/crtp.hpp" // IWYU pragma: keep
+#include "traits/crtp.hpp"
 #include "traits/template.hpp"
-#include "traits/type.hpp" // IWYU pragma: keep
+#include "traits/type.hpp"
 #include <forward.hpp>
 
 template <typename D> class ComponentRef_base {

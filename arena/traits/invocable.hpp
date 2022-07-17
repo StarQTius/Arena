@@ -4,6 +4,11 @@
 
 #include <forward.hpp>
 
+// For IWYU
+#define CallableWithSignature CallableWithSignature
+#define MemberFunction MemberFunction
+#define WithSignature WithSignature
+
 template <typename F> struct signature_info : signature_info<decltype(std::function{std::declval<F>()})> {};
 
 template <typename R, typename... Args> struct signature_info<R (*)(Args...)> {

@@ -9,7 +9,9 @@
 #include <units/isq/si/speed.h>
 #include <units/isq/si/time.h>
 
-#include "physics.hpp" // IWYU pragma: keep
+#include <arena/concept.hpp>
+
+#include "physics.hpp"
 #include <forward.hpp>
 
 //! \brief Satisfied when `T` is an instance of `pybind11::array_t`
@@ -42,7 +44,7 @@ auto numpy_number(auto &&x) {
   } else if constexpr (QuantityEquivalentTo<arena::angular_speed_t, T>) {
     return quantity_cast<decltype(rad / s)::unit>(FWD(x)).number();
   } else {
-    static_assert(arena::always_false<T>, "Unsupported dimension for NumPy");
+    static_assert(ARENA_ALWAYS_FALSE, "Unsupported dimension for NumPy");
   }
 }
 

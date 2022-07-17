@@ -1,5 +1,7 @@
 #pragma once
 
+#include <arena/arena.hpp> // IWYU pragma: export
+
 #include <utility>
 #include <vector>
 

@@ -2,6 +2,8 @@
 
 #include <arena/physics.hpp>
 
+#define QuantityVector QuantityVector
+
 //! \brief Holds of 2D vector of quantities
 template <units::Quantity Q> struct quantity_vector {
   using quantity = Q;

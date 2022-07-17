@@ -5,7 +5,7 @@
 #include <pybind11/pybind11.h>
 
 #include "../traits/invocable.hpp"
-#include "../traits/type.hpp" // IWYU pragma: keep
+#include "../traits/type.hpp"
 #include "normalize.hpp"
 #include <forward.hpp>
 

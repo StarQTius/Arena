@@ -1,5 +1,7 @@
 #pragma once
 
+#include <arena/arena.hpp> // IWYU pragma: export
+
 #include <box2d/b2_draw.h>
 #include <box2d/b2_math.h>
 #include <box2d/b2_types.h>

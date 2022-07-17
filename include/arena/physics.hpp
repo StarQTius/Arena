@@ -1,5 +1,7 @@
 #pragma once
 
+#include <arena/arena.hpp> // IWYU pragma: export
+
 #include <box2d/b2_shape.h>
 #include <type_traits>
 #include <units/generic/angle.h>
@@ -8,7 +10,7 @@
 #include <units/isq/si/speed.h>
 #include <units/isq/si/time.h>
 
-#include <arena/concept.hpp> // IWYU pragma: keep
+#include <arena/concept.hpp>
 
 namespace arena {
 
@@ -44,7 +46,7 @@ auto box2d_number(auto &&x) {
   } else if constexpr (QuantityEquivalentTo<angular_speed_t, T>) {
     return quantity_cast<decltype(rad / s)::unit>(x).number();
   } else {
-    static_assert(always_false<T>, "Unsupported dimension for Box2D");
+    static_assert(ARENA_ALWAYS_FALSE, "Unsupported dimension for Box2D");
   }
 }
 

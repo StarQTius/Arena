@@ -1,6 +1,6 @@
 #pragma once
 
-#include "traits.hpp" // IWYU pragma: keep
+#include "traits.hpp"
 #include <forward.hpp>
 
 decltype(auto) operator|(Binding auto &&binding, std::string_view doc) {

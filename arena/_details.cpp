@@ -15,6 +15,7 @@
 #include <units/isq/si/time.h>
 
 #include <arena/binding/fetcher.hpp>
+#include <arena/component/body.hpp>
 #include <arena/component/host.hpp>
 #include <arena/concept.hpp>
 #include <arena/draw.hpp>

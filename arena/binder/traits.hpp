@@ -3,7 +3,12 @@
 #include <pybind11/pybind11.h>
 
 #include "../traits/invocable.hpp"
-#include "../traits/template.hpp" // IWYU pragma: keep
+#include "../traits/template.hpp"
+
+// For IWYU
+#define Getter Getter
+#define Setter Setter
+#define Binding Binding
 
 template <typename Mf>
 concept Getter = MemberFunction<Mf> && !std::is_void_v<return_t<Mf>>;

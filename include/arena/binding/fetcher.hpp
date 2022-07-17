@@ -1,5 +1,7 @@
 #pragma once
 
+#include <arena/arena.hpp> // IWYU pragma: export
+
 #include <entt/entity/entity.hpp>
 #include <pybind11/cast.h>
 #include <pybind11/pytypes.h>

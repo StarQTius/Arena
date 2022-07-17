@@ -5,6 +5,7 @@
 #include <pybind11/pybind11.h>
 
 #include "../component_ref.hpp"
+#include "../traits/invocable.hpp"
 #include "def.hpp"
 #include "static_def.hpp"
 #include <forward.hpp>

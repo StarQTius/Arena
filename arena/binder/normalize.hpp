@@ -7,6 +7,7 @@
 #include "../box2d.hpp"
 #include "../component_ref.hpp"
 #include "../python.hpp"
+#include "../traits/crtp.hpp"
 #include "../traits/invocable.hpp"
 #include "../utility.hpp"
 #include <forward.hpp>

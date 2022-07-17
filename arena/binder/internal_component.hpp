@@ -6,8 +6,7 @@
 #include <arena/environment.hpp>
 
 #include "../component_ref.hpp"
-#include "../traits/invocable.hpp" // IWYU pragma: keep
-#include "../traits/type.hpp"      // IWYU pragma: keep
+#include "../traits/invocable.hpp"
 #include <forward.hpp>
 
 namespace kind {

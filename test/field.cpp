@@ -21,7 +21,6 @@
 #include <units/isq/si/time.h>
 
 #include <arena/2021/cup.hpp>
-#include <arena/concept.hpp>
 #include <arena/entity/bot.hpp>
 #include <arena/entity/field.hpp>
 #include <arena/environment.hpp>
@@ -34,7 +33,7 @@ TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
   using namespace units::isq::si::literals;
 
   Environment environment([](auto &&...) {});
-  create(environment.world, environment.registry, entity::Field{.width = 10_q_m, .height = 10_q_m});
+  create(*environment.world, environment.registry, entity::Field{.width = 10_q_m, .height = 10_q_m});
 
   py::exec(R"(
     _globals = globals()
@@ -56,7 +55,7 @@ TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
         {4_q_m, 4_q_m, {1, 1}}, {4_q_m, -4_q_m, {1, -1}}, {-4_q_m, 4_q_m, {-1, 1}}, {-4_q_m, -4_q_m, {-1, -1}}};
 
     for (auto &&[x, y, velocity_vector] : init_parameters) {
-      auto bot_self = create(environment.world, environment.registry,
+      auto bot_self = create(*environment.world, environment.registry,
                              entity::Bot{.x = x, .y = y, .mass = 1_q_kg, .logic = pybind11::globals()["noop"]});
       environment.registry.emplace<b2Vec2>(bot_self, velocity_vector);
     }
@@ -64,7 +63,7 @@ TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
     for ([[maybe_unused]] auto x : ltl::valueRange(0, 100)) {
       for (auto &&[self, body_ptr, velocity] : environment.registry.view<b2Body *, b2Vec2>().each())
         body_ptr->SetLinearVelocity(velocity);
-      environment.world.Step((1._q_s / 20).number(), 8, 3);
+      environment.world->Step((1._q_s / 20).number(), 8, 3);
     }
 
     for (auto &&[entity, body_ptr] : environment.registry.view<b2Body *>().each()) {

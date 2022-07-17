@@ -3,7 +3,6 @@
 #include <cmath>
 #include <type_traits>
 
-#include <box2d/b2_body.h>
 #include <box2d/b2_circle_shape.h>
 #include <box2d/b2_math.h>
 #include <box2d/b2_world.h>

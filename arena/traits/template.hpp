@@ -2,6 +2,10 @@
 
 #include "common.hpp"
 
+// For IWYU
+#define TemplateInstance TemplateInstance
+#define InstanceOf InstanceOf
+
 namespace detail {
 
 template <typename> struct is_template_instance : std::false_type {};

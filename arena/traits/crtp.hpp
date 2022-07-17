@@ -1,5 +1,8 @@
 #pragma once
 
+// For IWYU
+#define CuriouslyRecurring CuriouslyRecurring
+
 template <typename> struct crtp_derived_t;
 template <typename D, template <typename> typename Base_TT> struct crtp_derived_t<Base_TT<D>> { using type = D; };
 

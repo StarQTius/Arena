@@ -1,13 +1,15 @@
 #pragma once
 
+#include <arena/arena.hpp> // IWYU pragma: export
+
 #include <memory>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 
-namespace arena {
+#define ARENA_ALWAYS_FALSE ([]() {}, false)
 
-template <typename> inline constexpr bool always_false = false;
+namespace arena {
 
 // Satisfied when the provided type is an instance of 'std::unique_ptr'
 template <typename T>

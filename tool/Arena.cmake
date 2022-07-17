@@ -10,6 +10,7 @@ if(NOT TARGET iwyu)
     set(IWYU_COMMAND
         ${IWYU_PROGRAM} -std=gnu++20 -fcolor-diagnostics -Xiwyu --no_fwd_decls
         -Xiwyu --error -Xiwyu --max_line_length=120 -Xiwyu
+        --mapping_file=${PROJECT_SOURCE_DIR}/tool/mapping/Arena.imp -Xiwyu
         --mapping_file=${PROJECT_SOURCE_DIR}/tool/mapping/pybind11.imp -Xiwyu
         --mapping_file=${PROJECT_SOURCE_DIR}/tool/mapping/entt.imp -Xiwyu
         --mapping_file=${PROJECT_SOURCE_DIR}/tool/mapping/libcpp.imp -Xiwyu
@@ -45,7 +46,8 @@ function(add_iwyu_target FILE_PATH DEPENDENCY)
         done\\\; ${IWYU_COMMAND} -I${CMAKE_CURRENT_SOURCE_DIR}
         $$INCLUDE_PATH_OPTION $$COMPILE_DEF_OPTION
         ${CMAKE_CURRENT_SOURCE_DIR}/${FILE_PATH} 2> iwyu_log \\\; if [ $$? -ne 1
-        ]\\\; then exit 0\\\; else cat iwyu_log\\\; exit 1\\\; fi
+        ]\\\; then exit 0\\\; else cat iwyu_log && printf %\"$$\(tput cols\)\"s
+        | tr ' ' '='\\\; exit 1\\\; fi
       COMMAND_EXPAND_LISTS
       IMPLICIT_DEPENDS CXX ${CMAKE_CURRENT_SOURCE_DIR}/${FILE_PATH}
       COMMENT "Checking ${FILE_PATH_FROM_ROOT} inclusions")

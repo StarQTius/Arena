@@ -1,7 +1,9 @@
 #pragma once
 
+#include "../traits/invocable.hpp"
+#include "../traits/template.hpp"
 #include "normalize.hpp"
-#include "traits.hpp" // IWYU pragma: keep
+#include "traits.hpp"
 #include <forward.hpp>
 
 namespace detail {
