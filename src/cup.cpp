@@ -1,12 +1,15 @@
 #include <arena/2021/cup.hpp>
 
-#include <algorithm>
 #include <type_traits>
 
 #include <box2d/b2_circle_shape.h>
 #include <box2d/b2_math.h>
-#include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
+#include <ltl/algos.h>
+#include <ltl/functional.h>
+#include <ltl/optional.h>
+#include <tl/expected.hpp>
+#include <units/generic/angle.h>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
 #include <units/isq/si/time.h>
@@ -15,61 +18,76 @@
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
 
-using namespace units::isq::si::literals;
+using namespace arena;
 
 namespace {
+
+using namespace units::isq::si::literals;
 
 constexpr auto cup_mass = 10_q_g;
 constexpr auto cup_damping = 100_q_s;
 const auto cup_shape = arena::component::make_circle_shape(36_q_mm);
 
+auto is_same_color(Environment &environment, component::c21::CupColor color, entt::entity entity) {
+  using namespace ltl;
+
+  auto check = [&](auto *, auto entity_color) { return entity_color == color; };
+
+  return environment.try_get<b2Body *, component::c21::CupColor>(entity).transform(unzip(check)).value_or(false);
+}
+
 } // namespace
 
-entt::entity arena::entity::c21::create(b2World &world, entt::registry &registry, const entity::c21::Cup &def) {
-  using namespace units::isq;
+entt::entity arena::entity::c21::create(Environment &environment, const entity::c21::Cup &def) {
+  auto entity = environment.create();
 
   b2BodyDef body_def;
   body_def.type = b2_dynamicBody;
-  body_def.position = {def.x.number(), def.y.number()};
+  body_def.position = {box2d_number(def.x), box2d_number(def.y)};
 
-  auto *body_ptr = world.CreateBody(&body_def);
-  body_ptr->CreateFixture(&cup_shape, compute_shape_density(cup_shape, cup_mass).number());
-  body_ptr->SetLinearDamping(duration_t{cup_damping}.number());
-  body_ptr->SetAngularDamping(duration_t{cup_damping}.number());
+  auto *body_p = environment.attach(entity, body_def);
+  body_p->CreateFixture(&cup_shape, box2d_number(compute_shape_density(cup_shape, cup_mass)));
+  body_p->SetLinearDamping(box2d_number(cup_damping));
+  body_p->SetAngularDamping(box2d_number(cup_damping));
 
-  auto self = registry.create();
-  registry.emplace<b2Body *>(self, body_ptr);
-  registry.emplace<component::c21::CupColor>(self, def.color);
+  environment.attach(entity, def.color);
 
-  return self;
+  return entity;
 }
 
-bool arena::component::c21::CupGrabber::grab(Environment &environment, entt::entity target) {
-  auto &&[body_ptr, cup_color] = environment.registry.try_get<b2Body *, CupColor>(target);
-  if (body_ptr && storage.size() < capacity) {
+Expected<> arena::component::c21::CupGrabber::grab(Environment &environment, entt::entity target) {
+  using namespace ltl;
+  using enum Error;
+
+  ARENA_ASSERT(storage.size() < capacity, STORAGE_FULL);
+
+  auto disable_body = [&](auto *body_p, auto) {
     storage.insert(target);
-    (*body_ptr)->SetEnabled(false);
-    return true;
-  } else {
-    return false;
-  }
+    body_p->SetEnabled(false);
+  };
+
+  return environment.try_get<b2Body *, CupColor>(target).map(unzip(disable_body));
 }
 
-bool arena::component::c21::CupGrabber::drop(Environment &environment, const entity::c21::Cup &cup) {
-  auto is_same_color = [&](auto entity) { return environment.registry.get<CupColor>(entity) == cup.color; };
-  auto cup_entity_it = std::find_if(storage.begin(), storage.end(), is_same_color);
-  if (cup_entity_it != storage.end()) {
-    auto &body_ptr = environment.registry.get<b2Body *>(*cup_entity_it);
-    body_ptr->SetEnabled(true);
-    body_ptr->SetTransform({cup.x.number(), cup.y.number()}, body_ptr->GetAngle());
-    storage.erase(cup_entity_it);
-    return true;
-  } else {
-    return false;
-  }
+Expected<> arena::component::c21::CupGrabber::drop(Environment &environment, const entity::c21::Cup &cup) {
+  using namespace ltl;
+  using namespace units::literals;
+  using namespace units::angle_references;
+  using enum Error;
+
+  auto enable_body = [&](auto entity) {
+    auto *body_p = environment.get<b2Body *>(entity);
+    body_p->SetEnabled(true);
+    body_p->SetTransform({box2d_number(cup.x), box2d_number(cup.y)}, box2d_number(0_q_rad));
+    storage.erase(entity);
+  };
+
+  return expected(find_if_value(storage, curry(is_same_color)(std::ref(environment), cup.color)), NOT_IN_STORAGE)
+      .map(enable_body);
 }
 
 std::size_t arena::component::c21::CupGrabber::get_count(Environment &environment, CupColor color) const {
-  return std::ranges::count_if(storage,
-                               [&](auto entity) { return environment.registry.get<CupColor>(entity) == color; });
+  using namespace ltl;
+
+  return count_if(storage, curry(is_same_color)(std::ref(environment), color));
 }

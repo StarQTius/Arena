@@ -54,6 +54,12 @@ FetchContent_Declare(
   GIT_PROGRESS ON
   GIT_SHALLOW ON)
 FetchContent_Declare(
+  expected
+  GIT_REPOSITORY https://github.com/TartanLlama/expected
+  GIT_TAG v1.0.0
+  GIT_PROGRESS ON
+  GIT_SHALLOW ON)
+FetchContent_Declare(
   gsl-lite
   GIT_REPOSITORY https://github.com/gsl-lite/gsl-lite
   GIT_TAG v0.40.0

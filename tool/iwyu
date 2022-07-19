@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cmake -B build
+make iwyu -C build -O --no-print-directory $@

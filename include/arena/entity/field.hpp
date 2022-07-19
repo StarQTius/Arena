@@ -6,6 +6,7 @@
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 
+#include <arena/environment.hpp>
 #include <arena/physics.hpp>
 
 namespace arena {
@@ -15,7 +16,7 @@ struct Field {
   length_t width, height;
 };
 
-entt::entity create(b2World &, entt::registry &, const Field &);
+entt::entity create(Environment &, const Field &);
 
 } // namespace entity
 } // namespace arena

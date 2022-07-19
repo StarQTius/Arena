@@ -1,12 +1,10 @@
 #pragma once
 
-#include <arena/arena.hpp> // IWYU pragma: export
-
-#include <box2d/b2_world.h>
 #include <entt/entity/entity.hpp>
-#include <entt/entity/registry.hpp>
 #include <pybind11/pytypes.h>
 
+#include <arena/arena.hpp> // IWYU pragma: export
+#include <arena/environment.hpp>
 #include <arena/physics.hpp>
 
 namespace arena {
@@ -18,7 +16,7 @@ struct Bot {
   pybind11::function logic;
 };
 
-entt::entity create(b2World &, entt::registry &, const Bot &);
+entt::entity create(Environment &, const Bot &);
 
 } // namespace entity
 } // namespace arena

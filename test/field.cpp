@@ -2,14 +2,11 @@
 
 #include <array>
 #include <string>
-#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
 
-#include <box2d/b2_body.h>
 #include <box2d/b2_math.h>
-#include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
 #include <entt/entity/view.hpp>
 #include <ltl/Range/Value.h>
@@ -18,9 +15,11 @@
 #include <pybind11/pytypes.h>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
+#include <units/isq/si/speed.h>
 #include <units/isq/si/time.h>
 
 #include <arena/2021/cup.hpp>
+#include <arena/component/body.hpp>
 #include <arena/entity/bot.hpp>
 #include <arena/entity/field.hpp>
 #include <arena/environment.hpp>
@@ -28,12 +27,26 @@
 
 namespace py = pybind11;
 
+namespace {
+
+struct monitor_t {
+  arena::speed_t x, y;
+};
+
+constexpr auto arena_component_info(monitor_t *) {
+  struct {
+  } info;
+  return info;
+}
+
+} // namespace
+
 TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
   using namespace arena;
   using namespace units::isq::si::literals;
 
   Environment environment([](auto &&...) {});
-  create(*environment.world, environment.registry, entity::Field{.width = 10_q_m, .height = 10_q_m});
+  environment.create(entity::Field{.width = 10_q_m, .height = 10_q_m});
 
   py::exec(R"(
     _globals = globals()
@@ -50,27 +63,29 @@ TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
         pass
     )");
 
-    std::vector<std::tuple<length_t, length_t, b2Vec2>> init_parameters{
-        {1_q_m, 0_q_m, {1, 0}}, {-1_q_m, 0_q_m, {-1, 0}}, {0_q_m, 1_q_m, {0, 1}},   {0_q_m, -1_q_m, {0, -1}},
-        {4_q_m, 4_q_m, {1, 1}}, {4_q_m, -4_q_m, {1, -1}}, {-4_q_m, 4_q_m, {-1, 1}}, {-4_q_m, -4_q_m, {-1, -1}}};
+    std::vector<ltl::tuple_t<length_t, length_t, monitor_t>> init_parameters{
+        {1_q_m, 0_q_m, {1_q_m_per_s, 0_q_m_per_s}},   {-1_q_m, 0_q_m, {-1_q_m_per_s, 0_q_m_per_s}},
+        {0_q_m, 1_q_m, {0_q_m_per_s, 1_q_m_per_s}},   {0_q_m, -1_q_m, {0_q_m_per_s, -1_q_m_per_s}},
+        {4_q_m, 4_q_m, {1_q_m_per_s, 1_q_m_per_s}},   {4_q_m, -4_q_m, {1_q_m_per_s, -1_q_m_per_s}},
+        {-4_q_m, 4_q_m, {-1_q_m_per_s, 1_q_m_per_s}}, {-4_q_m, -4_q_m, {-1_q_m_per_s, -1_q_m_per_s}}};
 
     for (auto &&[x, y, velocity_vector] : init_parameters) {
-      auto bot_self = create(*environment.world, environment.registry,
-                             entity::Bot{.x = x, .y = y, .mass = 1_q_kg, .logic = pybind11::globals()["noop"]});
-      environment.registry.emplace<b2Vec2>(bot_self, velocity_vector);
+      auto bot_self =
+          environment.create(entity::Bot{.x = x, .y = y, .mass = 1_q_kg, .logic = pybind11::globals()["noop"]});
+      environment.attach(bot_self, velocity_vector);
     }
 
     for ([[maybe_unused]] auto x : ltl::valueRange(0, 100)) {
-      for (auto &&[self, body_ptr, velocity] : environment.registry.view<b2Body *, b2Vec2>().each())
-        body_ptr->SetLinearVelocity(velocity);
-      environment.world->Step((1._q_s / 20).number(), 8, 3);
+      for (auto &&[self, body_p, velocity] : environment.view<b2Body *, monitor_t>().each())
+        body_p->SetLinearVelocity({box2d_number(velocity.x), box2d_number(velocity.y)});
+      environment.step(1._q_s / 20);
     }
 
-    for (auto &&[entity, body_ptr] : environment.registry.view<b2Body *>().each()) {
-      REQUIRE(body_ptr->GetPosition().x >= -5);
-      REQUIRE(body_ptr->GetPosition().x <= 5);
-      REQUIRE(body_ptr->GetPosition().y >= -5);
-      REQUIRE(body_ptr->GetPosition().y <= 5);
+    for (auto &&[entity, body_p] : environment.view<b2Body *>().each()) {
+      REQUIRE(body_p->GetPosition().x >= -5);
+      REQUIRE(body_p->GetPosition().x <= 5);
+      REQUIRE(body_p->GetPosition().y >= -5);
+      REQUIRE(body_p->GetPosition().y <= 5);
     }
   }
 

@@ -4,12 +4,14 @@
 #include <variant>
 
 #include <entt/entity/entity.hpp>
+#include <ltl/functional.h>
 
 #include <arena/environment.hpp>
 
 #include "traits/crtp.hpp"
 #include "traits/template.hpp"
 #include "traits/type.hpp"
+#include "utility.hpp"
 #include <forward.hpp>
 
 template <typename D> class ComponentRef_base {
@@ -20,25 +22,31 @@ public:
   using raw_component_t = template_parameter_t<0, D>;
   using component_t = std::remove_pointer_t<raw_component_t>;
 
-  auto &operator*() {
-    auto &environment = derived().environment();
+  component_t &operator*() {
+    using namespace arena;
+    using enum arena::Error;
+
+    Environment &environment = derived().environment();
     auto entity = derived().entity();
 
     if constexpr (std::is_pointer_v<raw_component_t>) {
-      return **environment.registry.template try_get<raw_component_t>(entity);
+      return environment.try_get<raw_component_t>(entity).and_then(if_invalid(UNKNOWN)).or_else(pyraise).value();
     } else {
-      return *environment.registry.template try_get<raw_component_t>(entity);
+      return environment.try_get<raw_component_t>(entity).or_else(pyraise).value();
     }
   }
 
-  const auto &operator*() const {
-    auto &environment = derived().environment();
+  const component_t &operator*() const {
+    using namespace arena;
+    using enum arena::Error;
+
+    Environment &environment = derived().environment();
     auto entity = derived().entity();
 
     if constexpr (std::is_pointer_v<raw_component_t>) {
-      return **environment.registry.template try_get<raw_component_t>(entity);
+      return environment.try_get<raw_component_t>(entity).and_then(if_invalid(UNKNOWN)).or_else(pyraise).value();
     } else {
-      return *environment.registry.template try_get<raw_component_t>(entity);
+      return environment.try_get<raw_component_t>(entity).or_else(pyraise).value();
     }
   }
 
@@ -47,7 +55,8 @@ public:
   const auto *operator->() const { return &operator*(); }
 };
 
-template <typename T> class InternalComponentRef : public ComponentRef_base<InternalComponentRef<T>> {
+template <arena::Component Component_T>
+class InternalComponentRef : public ComponentRef_base<InternalComponentRef<Component_T>> {
 public:
   explicit InternalComponentRef(arena::Environment &environment, entt::entity entity)
       : m_environment{environment}, m_entity{entity} {}
@@ -61,12 +70,12 @@ private:
   entt::entity m_entity;
 };
 
-template <typename T> class ComponentRef : public ComponentRef_base<ComponentRef<T>> {
+template <arena::Component Component_T> class ComponentRef : public ComponentRef_base<ComponentRef<Component_T>> {
 public:
-  explicit ComponentRef(std::convertible_to<T> auto &&component)
-      : m_state{std::in_place_index<0>, new T{FWD(component)}} {}
-  explicit ComponentRef(auto &&...args) requires ListInitializableFrom<T, decltype(args)...>
-      : m_state{std::in_place_index<0>, new T{FWD(args)...}} {}
+  explicit ComponentRef(std::convertible_to<Component_T> auto &&component)
+      : m_state{std::in_place_index<0>, new Component_T{FWD(component)}} {}
+  explicit ComponentRef(auto &&...args) requires ListInitializableFrom<Component_T, decltype(args)...>
+      : m_state{std::in_place_index<0>, new Component_T{FWD(args)...}} {}
   explicit ComponentRef(arena::Environment &environment, entt::entity entity)
       : m_state{std::in_place_index<1>, environment, entity} {}
 
@@ -80,14 +89,19 @@ public:
   entt::entity entity() const { return std::get<1>(m_state).entity(); }
 
 private:
-  static void emplace(arena::Environment &environment, entt::entity entity, std::convertible_to<T> auto &&component) {
-    environment.registry.emplace_or_replace<T>(entity, FWD(component));
+  static void emplace(arena::Environment &environment, entt::entity entity,
+                      std::convertible_to<Component_T> auto &&component) {
+    using enum arena::Error;
+
+    if (environment.all_of<Component_T>(entity))
+      pyraise(ALREADY_ATTACHED);
+    environment.attach(entity, FWD(component));
   }
 
-  std::variant<std::unique_ptr<T>, InternalComponentRef<T>> m_state;
+  std::variant<std::unique_ptr<Component_T>, InternalComponentRef<Component_T>> m_state;
 };
 
-template <typename T> ComponentRef(T &&) -> ComponentRef<T>;
+template <typename Component_T> ComponentRef(Component_T &&) -> ComponentRef<Component_T>;
 
-template <CuriouslyRecurring<ComponentRef_base> ComponentRef_T>
-using component_t = typename ComponentRef_T::component_t;
+template <CuriouslyRecurring<ComponentRef_base> ComponentRef_Component_T>
+using component_t = typename ComponentRef_Component_T::component_t;

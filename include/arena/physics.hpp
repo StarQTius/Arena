@@ -26,10 +26,12 @@ using density_t = decltype(mass_t{} / (length_t{} * length_t{}));
 using speed_t = decltype(length_t{} / duration_t{});
 using angular_speed_t = decltype(angle_t{} / duration_t{});
 
-auto box2d_number(auto &&x) {
+float box2d_number(auto &&x) {
   using namespace units;
   using namespace units::isq;
   using namespace units::angle_references;
+  using namespace units::isq::si::length_references;
+  using namespace units::isq::si::mass_references;
   using namespace units::isq::si::time_references;
 
   using T = std::remove_cvref_t<decltype(x)>;
@@ -45,6 +47,8 @@ auto box2d_number(auto &&x) {
     return quantity_cast<si::metre_per_second>(x).number();
   } else if constexpr (QuantityEquivalentTo<angular_speed_t, T>) {
     return quantity_cast<decltype(rad / s)::unit>(x).number();
+  } else if constexpr (QuantityEquivalentTo<density_t, T>) {
+    return quantity_cast<decltype(kg / (m * m))::unit>(x).number();
   } else {
     static_assert(ARENA_ALWAYS_FALSE, "Unsupported dimension for Box2D");
   }

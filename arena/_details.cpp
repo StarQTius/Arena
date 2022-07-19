@@ -48,10 +48,10 @@ using namespace units::isq::si::time_references;
 
 namespace {
 
-void upkeep(duration_t, void *environment_ptr, entt::any, entt::any) {
-  auto &environment = *static_cast<Environment *>(environment_ptr);
+void upkeep(duration_t, void *environment_p, entt::any, entt::any) {
+  auto &environment = *static_cast<Environment *>(environment_p);
 
-  for (auto &&[self, py_host] : environment.registry.view<component::PyHost>().each())
+  for (auto &&[self, py_host] : environment.view<component::PyHost>().each())
     py_host.invoke(environment, self);
 }
 

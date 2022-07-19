@@ -1,22 +1,27 @@
 #pragma once
 
-#include <arena/arena.hpp> // IWYU pragma: export
-
 #include <cstddef>
 #include <unordered_set>
 
-#include <box2d/b2_world.h>
 #include <entt/entity/entity.hpp>
-#include <entt/entity/registry.hpp>
 
+#include <arena/arena.hpp> // IWYU pragma: export
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
 
 namespace arena {
+
 namespace component {
 namespace c21 {
 
 enum class CupColor { RED, GREEN };
+
+constexpr inline auto arena_component_info(CupColor *) {
+  struct {
+  } component_info;
+
+  return component_info;
+}
 
 } // namespace c21
 } // namespace component
@@ -29,7 +34,7 @@ struct Cup {
   component::c21::CupColor color;
 };
 
-entt::entity create(b2World &, entt::registry &, const Cup &);
+entt::entity create(Environment &, const Cup &);
 
 } // namespace c21
 } // namespace entity
@@ -43,10 +48,17 @@ struct CupGrabber {
 
   explicit CupGrabber(std::size_t capacity) : storage{}, capacity{capacity} {}
 
-  bool grab(Environment &environment, entt::entity target);
-  bool drop(Environment &environment, const entity::c21::Cup &cup);
-  std::size_t get_count(Environment &environment, c21::CupColor) const;
+  Expected<> grab(Environment &, entt::entity);
+  Expected<> drop(Environment &, const entity::c21::Cup &);
+  std::size_t get_count(Environment &, c21::CupColor) const;
 };
+
+constexpr inline auto arena_component_info(CupGrabber *) {
+  struct {
+  } component_info;
+
+  return component_info;
+}
 
 } // namespace c21
 } // namespace component

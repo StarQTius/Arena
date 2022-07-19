@@ -1,11 +1,11 @@
 #pragma once
 
-#include <arena/arena.hpp> // IWYU pragma: export
-
 #include <entt/entity/entity.hpp>
+#include <entt/entity/registry.hpp>
 #include <pybind11/cast.h>
 #include <pybind11/pytypes.h>
 
+#include <arena/arena.hpp> // IWYU pragma: export
 #include <arena/environment.hpp>
 
 namespace arena {

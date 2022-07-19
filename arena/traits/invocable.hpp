@@ -93,13 +93,13 @@ concept WithSignature = CallableWithSignature<F> || MemberFunction<F>;
 template <typename F, std::size_t I, typename T>
 concept Accepting = WithSignature<F> && I < arity_v<F> && std::convertible_to<T, arg_t<I, std::decay_t<F>>>;
 
-template <WithSignature F> auto *signature_ptr(F &&) { return (signature_t<std::decay_t<F>>)nullptr; }
+template <WithSignature F> auto *signature_p(F &&) { return (signature_t<std::decay_t<F>>)nullptr; }
 
-template <WithSignature F> auto *free_signature_ptr(F &&) { return (free_signature_t<std::decay_t<F>>)nullptr; }
+template <WithSignature F> auto *free_signature_p(F &&) { return (free_signature_t<std::decay_t<F>>)nullptr; }
 
-template <WithSignature F> auto *args_ptr(F &&) { return (args_t<std::decay_t<F>> *)nullptr; }
+template <WithSignature F> auto *args_p(F &&) { return (args_t<std::decay_t<F>> *)nullptr; }
 
-template <WithSignature F> auto *free_args_ptr(F &&) { return (free_args_t<std::decay_t<F>> *)nullptr; }
+template <WithSignature F> auto *free_args_p(F &&) { return (free_args_t<std::decay_t<F>> *)nullptr; }
 
 template <typename Mf>
 requires std::is_member_function_pointer_v<Mf>
@@ -108,5 +108,5 @@ auto make_free_function(Mf mf) {
     return [mf](Args... args) { return std::invoke(mf, FWD(args)...); };
   };
 
-  return impl(free_args_ptr(mf));
+  return impl(free_args_p(mf));
 }

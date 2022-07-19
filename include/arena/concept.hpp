@@ -7,6 +7,9 @@
 #include <type_traits>
 #include <utility>
 
+// For IWYU
+#define Empty Empty
+
 #define ARENA_ALWAYS_FALSE ([]() {}, false)
 
 namespace arena {
@@ -18,6 +21,9 @@ concept IsUniquePtr = requires(T x) {
     std::unique_ptr { std::move(x) }
     } -> std::convertible_to<T>;
 };
+
+template <typename T>
+concept Empty = std::is_empty_v<T>;
 
 inline auto dereference_if_needed = []<typename T>(T &&x) -> decltype(auto) {
   if constexpr (IsUniquePtr<std::remove_cvref_t<T>>) {

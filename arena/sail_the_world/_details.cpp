@@ -16,6 +16,7 @@
 #include <units/isq/si/time.h>
 
 #include <arena/2021/cup.hpp>
+#include <arena/component/body.hpp>
 #include <arena/concept.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
@@ -48,7 +49,7 @@ void initialize_c21(py::module_ &pymodule) {
       "C21_cups",
       [](Environment &self) {
         auto component_view =
-            self.registry.view<b2Body *, component::c21::CupColor>().each() |
+            self.view<b2Body *, component::c21::CupColor>().each() |
             ltl::filter([](auto &&tuple) { return std::get<1>(tuple)->IsEnabled(); }) | ltl::map([&](auto &&tuple) {
               return std::tuple{std::get<0>(tuple), InternalComponentRef<b2Body *>{self, std::get<0>(tuple)},
                                 std::get<2>(tuple)};

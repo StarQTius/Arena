@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pybind11/pybind11.h>
+#include <tl/expected.hpp>
 
 #include <arena/environment.hpp>
 
@@ -9,6 +10,7 @@
 #include "../python.hpp"
 #include "../traits/crtp.hpp"
 #include "../traits/invocable.hpp"
+#include "../traits/template.hpp"
 #include "../utility.hpp"
 #include <forward.hpp>
 
@@ -20,7 +22,16 @@ template <typename, typename F, typename R, typename... Args> auto normalize_imp
       std::invoke(f, from_numpy<Args>(args)...);
     } else {
       auto &&retval = std::invoke(f, from_numpy<Args>(args)...);
-      return copy_rvalue(to_numpy(FWD(retval)));
+
+      if constexpr (InstanceOf<R, tl::expected>) {
+        if constexpr (std::is_void_v<typename R::value_type>) {
+          FWD(retval).or_else(pyraise);
+        } else {
+          return copy_rvalue(to_numpy(FWD(retval).or_else(pyraise).value()));
+        }
+      } else {
+        return copy_rvalue(to_numpy(FWD(retval)));
+      }
     }
   };
 }
@@ -33,7 +44,16 @@ auto normalize_impl(F &&f, R (*)(T, Args...)) {
       std::invoke(f, *component_ref, from_numpy<Args>(args)...);
     } else {
       auto &&retval = std::invoke(f, *component_ref, from_numpy<Args>(args)...);
-      return copy_rvalue(to_numpy(FWD(retval)));
+
+      if constexpr (InstanceOf<R, tl::expected>) {
+        if constexpr (std::is_void_v<typename R::value_type>) {
+          FWD(retval).or_else(pyraise);
+        } else {
+          return copy_rvalue(to_numpy(FWD(retval).or_else(pyraise).value()));
+        }
+      } else {
+        return copy_rvalue(to_numpy(FWD(retval)));
+      }
     }
   };
 }
@@ -46,18 +66,27 @@ auto normalize_impl(F &&f, R (*)(T, arena::Environment &, Args...)) {
       std::invoke(f, *component_ref, component_ref.environment(), from_numpy<Args>(args)...);
     } else {
       auto &&retval = std::invoke(f, *component_ref, component_ref.environment(), from_numpy<Args>(args)...);
-      return copy_rvalue(to_numpy(FWD(retval)));
+
+      if constexpr (InstanceOf<R, tl::expected>) {
+        if constexpr (std::is_void_v<typename R::value_type>) {
+          FWD(retval).or_else(pyraise);
+        } else {
+          return copy_rvalue(to_numpy(FWD(retval).or_else(pyraise).value()));
+        }
+      } else {
+        return copy_rvalue(to_numpy(FWD(retval)));
+      }
     }
   };
 }
 
 template <typename T> auto normalize(const pybind11::class_<T> &, WithSignature auto &&f) {
-  return normalize_impl<T>(FWD(f), free_signature_ptr(f));
+  return normalize_impl<T>(FWD(f), free_signature_p(f));
 }
 
-auto normalize(const auto &, WithSignature auto &&f) { return normalize_impl<void>(FWD(f), free_signature_ptr(f)); }
+auto normalize(const auto &, WithSignature auto &&f) { return normalize_impl<void>(FWD(f), free_signature_p(f)); }
 
-auto normalize(WithSignature auto &&f) { return normalize_impl<void>(FWD(f), free_signature_ptr(f)); }
+auto normalize(WithSignature auto &&f) { return normalize_impl<void>(FWD(f), free_signature_p(f)); }
 
 template <typename F, typename R, typename... Args> auto normalize_box2d_impl(F &&f, R (*)(Args...)) {
   return [f = FWD(f)](Args... args) -> decltype(auto) {

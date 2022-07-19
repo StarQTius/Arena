@@ -46,7 +46,7 @@ void arena::PyGameDrawer::DrawPolygon(const b2Vec2 *points, int32 nb_points, con
   auto draw_pymodule = py::module::import("pygame").attr("draw");
   auto polygon_pyfunction = draw_pymodule.attr("polygon");
 
-  auto this_make_pygame_coordinate = [&](auto *point_ptr) { return make_pygame_coordinate(*point_ptr); };
+  auto this_make_pygame_coordinate = [&](auto *point_p) { return make_pygame_coordinate(*point_p); };
   polygon_pyfunction(m_screen, make_pygame_color(color),
                      std::vector{points, points + nb_points} | ltl::map(this_make_pygame_coordinate) | ltl::to_vector);
 }
@@ -55,7 +55,7 @@ void arena::PyGameDrawer::DrawSolidPolygon(const b2Vec2 *points, int32 nb_points
   auto draw_pymodule = py::module::import("pygame").attr("draw");
   auto polygon_pyfunction = draw_pymodule.attr("polygon");
 
-  auto this_make_pygame_coordinate = [&](auto *point_ptr) { return make_pygame_coordinate(*point_ptr); };
+  auto this_make_pygame_coordinate = [&](auto *point_p) { return make_pygame_coordinate(*point_p); };
   polygon_pyfunction(m_screen, make_pygame_color(color),
                      std::vector{points, points + nb_points} | ltl::map(this_make_pygame_coordinate) | ltl::to_vector,
                      thickness);

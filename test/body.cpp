@@ -7,37 +7,67 @@
 #include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
 #include <pybind11/pybind11.h>
+#include <tl/expected.hpp>
 
 #include <arena/component/body.hpp>
 #include <arena/environment.hpp>
 
 namespace py = pybind11;
 
+namespace {
+
+struct monitor_t {
+  int x;
+};
+
+constexpr auto arena_component_info(monitor_t *) {
+  struct {
+  } info;
+  return info;
+}
+
+b2World *world_p = nullptr;
+
+} // namespace
+
+namespace arena {
+
+template <> struct init_guard<monitor_t> {
+  static void init(entt::registry &registry) { world_p = &arena::get_world(registry); }
+};
+
+} // namespace arena
+
 TEST_CASE("Body component", "[Body][Base]") {
   using namespace arena;
 
   Environment environment([](auto &&...) {});
+  environment.attach(environment.create(), monitor_t{});
 
   SECTION("Bodies are created upon insertion into registry") {
-    auto initial_body_count = environment.world->GetBodyCount();
-    b2BodyDef def;
+    expected(world_p, Error{})
+        .map([&](b2World &world) {
+          auto initial_body_count = world.GetBodyCount();
 
-    auto entity = environment.registry.create();
-    environment.attach(entity, environment.world->CreateBody(&def));
+          auto entity = environment.create();
+          environment.attach(entity, b2BodyDef{});
 
-    REQUIRE(environment.world->GetBodyCount() == initial_body_count + 1);
+          REQUIRE(world.GetBodyCount() == initial_body_count + 1);
+        })
+        .or_else([](auto) { FAIL(); });
   }
 
   SECTION("Bodies are destroyed upon removal from registry") {
-    b2BodyDef def;
+    expected(world_p, Error{})
+        .map([&](b2World &world) {
+          auto entity = environment.create();
+          environment.attach(entity, b2BodyDef{});
 
-    auto entity = environment.registry.create();
-    environment.attach(entity, environment.world->CreateBody(&def));
+          auto initial_body_count = world.GetBodyCount();
 
-    auto initial_body_count = environment.world->GetBodyCount();
-
-    environment.registry.remove<b2Body *>(entity);
-
-    REQUIRE(environment.world->GetBodyCount() == initial_body_count - 1);
+          REQUIRE(environment.remove<b2Body *>(entity) == 1);
+          REQUIRE(world.GetBodyCount() == initial_body_count - 1);
+        })
+        .or_else([](auto) { FAIL(); });
   }
 }

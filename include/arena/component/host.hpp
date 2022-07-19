@@ -1,13 +1,12 @@
 #pragma once
 
-#include <arena/arena.hpp> // IWYU pragma: export
-
 #include <utility>
 #include <vector>
 
 #include <entt/entity/entity.hpp>
 #include <pybind11/pytypes.h>
 
+#include <arena/arena.hpp> // IWYU pragma: export
 #include <arena/environment.hpp>
 
 namespace arena {
@@ -34,6 +33,13 @@ private:
   std::vector<pybind11::object> m_pytypes;
   pybind11::function m_pycallback;
 };
+
+constexpr inline auto arena_component_info(PyHost *) {
+  struct {
+  } component_info;
+
+  return component_info;
+}
 
 } // namespace component
 } // namespace arena
