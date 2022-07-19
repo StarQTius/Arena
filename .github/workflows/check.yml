@@ -2,7 +2,7 @@ name: check
 on: push
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - id: date
         run: echo "::set-output name=date::$(date +'%W')"
@@ -17,5 +17,5 @@ jobs:
       - run: pip3 install pytest numpy
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow
-      - run: cmake -B ~/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10
+      - run: cmake -B ~/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-11
       - run: cmake --build ~/build --target check iwyu
