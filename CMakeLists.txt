@@ -13,6 +13,9 @@ file(
     path = ../.github/config
 ")
 
+# Generate compile commands for clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Get project version from git tags
 execute_process(COMMAND git describe --tags
                 OUTPUT_VARIABLE ARENA_GIT_TAG_VERSION)
@@ -28,8 +31,15 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/tool)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(BUILD_SHARED_LIBS OFF)
-set(ARENA_CPP_FLAGS $<$<CXX_COMPILER_ID:GNU>: -Wall -Wextra -Werror
-                    -fdiagnostics-color=always -fconcepts-diagnostics-depth=2>)
+set(ARENA_CPP_FLAGS
+    -Wall
+    -Wextra
+    -Werror
+    $<$<CXX_COMPILER_ID:GNU>:
+    -fdiagnostics-color=always
+    -fconcepts-diagnostics-depth=2>
+    $<$<CXX_COMPILER_ID:Clang>:
+    -fcolor-diagnostics>)
 
 # Fetch dependencies from GitHub
 include(FetchContent)

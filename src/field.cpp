@@ -1,13 +1,13 @@
 #include <type_traits>
 
-#include <box2d/b2_body.h>
+#include <entt/entity/entity.hpp>
 #include <box2d/b2_chain_shape.h>
 #include <box2d/b2_math.h>
-#include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
-#include <units/isq/si/length.h>
 
 #include <arena/component/body.hpp>
+#include <arena/environment.hpp>
+#include <arena/physics.hpp>
 #include <arena/entity/field.hpp>
 
 using namespace arena;

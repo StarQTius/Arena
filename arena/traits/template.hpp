@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+
 #include "common.hpp"
 
 // For IWYU
