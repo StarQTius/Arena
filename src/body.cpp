@@ -19,7 +19,7 @@ void destroy_body(entt::registry &registry, entt::entity entity) {
 
 } // namespace
 
-void arena::init_guard<b2Body *>::init(entt::registry &registry) {
+void arena::component::body_info_t::init(entt::registry &registry) {
   registry.on_destroy<b2Body *>().connect<destroy_body>();
 }
 

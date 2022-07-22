@@ -1,3 +1,4 @@
+#include "arena/component/common.hpp"
 #include <catch2/catch_test_macros.hpp>
 
 #include <string>
@@ -16,27 +17,22 @@ namespace py = pybind11;
 
 namespace {
 
+b2World *world_p = nullptr;
+
 struct monitor_t {
   int x;
 };
 
 constexpr auto arena_component_info(monitor_t *) {
   struct {
+    static void init(entt::registry &registry) { world_p = &arena::get_world(registry); }
   } info;
   return info;
 }
 
-b2World *world_p = nullptr;
+static_assert(arena::Initializable<monitor_t>);
 
 } // namespace
-
-namespace arena {
-
-template <> struct init_guard<monitor_t> {
-  static void init(entt::registry &registry) { world_p = &arena::get_world(registry); }
-};
-
-} // namespace arena
 
 TEST_CASE("Body component", "[Body][Base]") {
   using namespace arena;

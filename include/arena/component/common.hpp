@@ -8,7 +8,7 @@
 #include <arena/arena.hpp> // IWYU pragma: export
 #include <arena/concept.hpp>
 
-#define HasInitGuard HasInitGuard
+#define Initializable Initializable
 #define DescribingComponent DescribingComponent
 
 namespace arena {
@@ -21,8 +21,8 @@ concept Component = requires(std::remove_cvref_t<T> x) {
 };
 
 template <typename Component_T>
-concept HasInitGuard = Component<Component_T> && requires(entt::registry &registry) {
-  init_guard<std::remove_cvref_t<Component_T>>::init(registry);
+concept Initializable = Component<Component_T> && requires(entt::registry &registry) {
+  arena_component_info((Component_T *) nullptr).init(registry);
 };
 
 template <typename... Args>
@@ -30,8 +30,8 @@ concept DescribingComponent = requires(entt::registry &registry, Args &&...args)
   { arena_make_component(registry, ARENA_FWD(args)...) } -> Component;
 };
 
-template <HasInitGuard Component_T> void init(init_guard<Component_T>, entt::registry &registry) {
-  init_guard<Component_T>::init(registry);
+template <Initializable Component_T> void init(entt::registry &registry) {
+  arena_component_info((Component_T *) nullptr).init(registry);
 }
 
 inline auto &get_world(entt::registry &registry) { return registry.ctx().at<b2World &>(); }

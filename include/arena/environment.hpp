@@ -62,12 +62,14 @@ public:
 
   template <Component Component_T> auto &attach(entt::entity entity, Component_T &&component) {
     using component_t = std::remove_cvref_t<Component_T>;
-    using init_guard_t = init_guard<component_t>;
 
-    if constexpr (HasInitGuard<Component_T>) {
-      if (!m_registry.ctx().contains<init_guard_t>()) {
-        init(init_guard_t{}, m_registry);
-        m_registry.ctx().emplace<init_guard_t>();
+    // This type is bound to the function template instance, therefore it is different across distinct template instantiations
+    struct guard_t {};
+
+    if constexpr (Initializable<Component_T>) {
+      if (!m_registry.ctx().contains<guard_t>()) {
+        init<Component_T>(m_registry);
+        m_registry.ctx().emplace<guard_t>();
       }
     }
 

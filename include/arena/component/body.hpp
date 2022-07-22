@@ -13,10 +13,11 @@
 // IWYU pragma: end_exports
 
 namespace arena {
-
-template <> struct init_guard<b2Body *> { static void init(entt::registry &); };
-
 namespace component {
+
+struct body_info_t {
+  static void init(entt::registry &);
+};
 
 // Convenience function to create Box2D shapes
 b2CircleShape make_circle_shape(length_t);
@@ -24,10 +25,8 @@ b2CircleShape make_circle_shape(length_t);
 } // namespace component
 } // namespace arena
 
-constexpr inline auto arena_component_info(b2Body **) {
-  struct {
-  } component_info;
-  return component_info;
+constexpr inline arena::component::body_info_t arena_component_info(b2Body **) {
+  return {};
 }
 
 b2Body *arena_make_component(entt::registry &, const b2BodyDef &);
