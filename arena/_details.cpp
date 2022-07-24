@@ -138,5 +138,5 @@ void initialize_base(py::module_ &pymodule) {
 
 PYBIND11_MODULE(_details, pymodule) {
   initialize_base(pymodule);
-  initialize_c21(pymodule);
+  initialize_sail_the_world(pymodule);
 }

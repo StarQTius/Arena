@@ -18,7 +18,6 @@
 #include <units/isq/si/speed.h>
 #include <units/isq/si/time.h>
 
-#include <arena/2021/cup.hpp>
 #include <arena/component/body.hpp>
 #include <arena/entity/bot.hpp>
 #include <arena/entity/field.hpp>

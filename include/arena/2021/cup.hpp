@@ -11,8 +11,8 @@
 
 namespace arena {
 
+namespace stw {
 namespace component {
-namespace c21 {
 
 enum class CupColor { RED, GREEN };
 
@@ -23,24 +23,24 @@ constexpr inline auto arena_component_info(CupColor *) {
   return component_info;
 }
 
-} // namespace c21
 } // namespace component
+} // namespace stw
 
+namespace stw {
 namespace entity {
-namespace c21 {
 
 struct Cup {
   length_t x, y;
-  component::c21::CupColor color;
+  stw::component::CupColor color;
 };
 
 entt::entity create(Environment &, const Cup &);
 
-} // namespace c21
 } // namespace entity
+} // namespace stw
 
+namespace stw {
 namespace component {
-namespace c21 {
 
 struct CupGrabber {
   std::unordered_set<entt::entity> storage;
@@ -49,8 +49,8 @@ struct CupGrabber {
   explicit CupGrabber(std::size_t capacity) : storage{}, capacity{capacity} {}
 
   Expected<> grab(Environment &, entt::entity);
-  Expected<> drop(Environment &, const entity::c21::Cup &);
-  std::size_t get_count(Environment &, c21::CupColor) const;
+  Expected<> drop(Environment &, const entity::Cup &);
+  std::size_t get_count(Environment &, CupColor) const;
 };
 
 constexpr inline auto arena_component_info(CupGrabber *) {
@@ -60,6 +60,6 @@ constexpr inline auto arena_component_info(CupGrabber *) {
   return component_info;
 }
 
-} // namespace c21
 } // namespace component
+} // namespace stw
 } // namespace arena

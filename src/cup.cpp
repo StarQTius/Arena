@@ -28,17 +28,17 @@ constexpr auto cup_mass = 10_q_g;
 constexpr auto cup_damping = 100_q_s;
 const auto cup_shape = arena::component::make_circle_shape(36_q_mm);
 
-auto is_same_color(Environment &environment, component::c21::CupColor color, entt::entity entity) {
+auto is_same_color(Environment &environment, stw::component::CupColor color, entt::entity entity) {
   using namespace ltl;
 
   auto check = [&](auto *, auto entity_color) { return entity_color == color; };
 
-  return environment.try_get<b2Body *, component::c21::CupColor>(entity).transform(unzip(check)).value_or(false);
+  return environment.try_get<b2Body *, stw::component::CupColor>(entity).transform(unzip(check)).value_or(false);
 }
 
 } // namespace
 
-entt::entity arena::entity::c21::create(Environment &environment, const entity::c21::Cup &def) {
+entt::entity arena::stw::entity::create(Environment &environment, const entity::Cup &def) {
   auto entity = environment.create();
 
   b2BodyDef body_def;
@@ -55,7 +55,7 @@ entt::entity arena::entity::c21::create(Environment &environment, const entity::
   return entity;
 }
 
-Expected<> arena::component::c21::CupGrabber::grab(Environment &environment, entt::entity target) {
+Expected<> arena::stw::component::CupGrabber::grab(Environment &environment, entt::entity target) {
   using namespace ltl;
   using enum Error;
 
@@ -69,7 +69,7 @@ Expected<> arena::component::c21::CupGrabber::grab(Environment &environment, ent
   return environment.try_get<b2Body *, CupColor>(target).map(unzip(disable_body));
 }
 
-Expected<> arena::component::c21::CupGrabber::drop(Environment &environment, const entity::c21::Cup &cup) {
+Expected<> arena::stw::component::CupGrabber::drop(Environment &environment, const entity::Cup &cup) {
   using namespace ltl;
   using namespace units::literals;
   using namespace units::angle_references;
@@ -86,7 +86,7 @@ Expected<> arena::component::c21::CupGrabber::drop(Environment &environment, con
       .map(enable_body);
 }
 
-std::size_t arena::component::c21::CupGrabber::get_count(Environment &environment, CupColor color) const {
+std::size_t arena::stw::component::CupGrabber::get_count(Environment &environment, CupColor color) const {
   using namespace ltl;
 
   return count_if(storage, curry(is_same_color)(std::ref(environment), color));

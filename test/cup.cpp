@@ -55,8 +55,8 @@ TEST_CASE("Cup interaction with contained bodies", "[Cup][STW]") {
     using namespace arena;
     using namespace arena::entity;
     using namespace arena::component;
-    using namespace arena::entity::c21;
-    using namespace arena::component::c21;
+    using namespace arena::stw::entity;
+    using namespace arena::stw::component;
     namespace py = pybind11;
 
     py::exec(R"(

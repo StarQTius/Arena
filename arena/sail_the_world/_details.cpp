@@ -37,7 +37,7 @@ namespace py = pybind11;
 
 using namespace arena;
 
-void initialize_c21(py::module_ &pymodule) {
+void initialize_sail_the_world(py::module_ &pymodule) {
   using namespace py::literals;
   using namespace std::literals::string_literals;
   using namespace units::isq::si::literals;
@@ -49,7 +49,7 @@ void initialize_c21(py::module_ &pymodule) {
       "C21_cups",
       [](Environment &self) {
         auto component_view =
-            self.view<b2Body *, component::c21::CupColor>().each() |
+            self.view<b2Body *, stw::component::CupColor>().each() |
             ltl::filter([](auto &&tuple) { return std::get<1>(tuple)->IsEnabled(); }) | ltl::map([&](auto &&tuple) {
               return std::tuple{std::get<0>(tuple), InternalComponentRef<b2Body *>{self, std::get<0>(tuple)},
                                 std::get<2>(tuple)};
@@ -58,17 +58,17 @@ void initialize_c21(py::module_ &pymodule) {
       },
       py::return_value_policy::reference_internal);
 
-  kind::component<component::c21::CupGrabber>(pymodule, "C21_CupGrabber") //
+  kind::component<stw::component::CupGrabber>(pymodule, "C21_CupGrabber") //
       | ctor<std::size_t>("capacity"_a)                                   //
-      | def("grab", &component::c21::CupGrabber::grab)                    //
-      | def("drop", &component::c21::CupGrabber::drop)                    //
-      | def("get_count", &component::c21::CupGrabber::get_count)          //
-      | property("storage", &component::c21::CupGrabber::storage);        //
+      | def("grab", &stw::component::CupGrabber::grab)                    //
+      | def("drop", &stw::component::CupGrabber::drop)                    //
+      | def("get_count", &stw::component::CupGrabber::get_count)          //
+      | property("storage", &stw::component::CupGrabber::storage);        //
 
-  kind::entity<entity::c21::Cup>(pymodule, "C21_Cup")                                //
-      | ctor<length_t, length_t, component::c21::CupColor>("x"_a, "y"_a, "color"_a); //
+  kind::entity<stw::entity::Cup>(pymodule, "C21_Cup")                                //
+      | ctor<length_t, length_t, stw::component::CupColor>("x"_a, "y"_a, "color"_a); //
 
-  py::enum_<component::c21::CupColor>(pymodule, "C21_CupColor")
-      .value("RED", component::c21::CupColor::RED)
-      .value("GREEN", component::c21::CupColor::GREEN);
+  py::enum_<stw::component::CupColor>(pymodule, "C21_CupColor")
+      .value("RED", stw::component::CupColor::RED)
+      .value("GREEN", stw::component::CupColor::GREEN);
 }
