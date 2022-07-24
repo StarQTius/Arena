@@ -55,6 +55,7 @@ function(add_iwyu_target FILE_PATH DEPENDENCY)
       IWYU_${TARGET_NAME}
       DEPENDS ${CMAKE_BINARY_DIR}/${TARGET_NAME}.iwyu
       COMMENT "")
+    add_custom_target(IWYU_${TARGET_NAME}_group DEPENDS IWYU_${TARGET_NAME})
 
     # Add the include paths so CMake can find the file dependencies
     set_target_properties(
@@ -67,10 +68,10 @@ function(add_iwyu_target FILE_PATH DEPENDENCY)
     # Standalone headers are then checked first in order to reduce checking time
     string(FIND ${TARGET_NAME} .hpp IS_HEADER)
     if(IS_HEADER EQUAL -1)
-      add_dependencies(iwyu IWYU_${TARGET_NAME})
-      add_dependencies(IWYU_${TARGET_NAME} iwyu_headers)
+      add_dependencies(iwyu IWYU_${TARGET_NAME}_group)
+      add_dependencies(IWYU_${TARGET_NAME}_group iwyu_headers)
     else()
-      add_dependencies(iwyu_headers IWYU_${TARGET_NAME})
+      add_dependencies(iwyu_headers IWYU_${TARGET_NAME}_group)
     endif()
   endif()
 endfunction()
