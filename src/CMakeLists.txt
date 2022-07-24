@@ -11,7 +11,8 @@ set(SOURCES_LIST
     environment.cpp
     field.cpp
     host.cpp
-    physics.cpp)
+    physics.cpp
+    storage.cpp)
 
 set(STANDALONE_HEADERS forward.hpp)
 

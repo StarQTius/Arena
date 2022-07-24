@@ -77,8 +77,8 @@ FetchContent_Declare(
   GIT_SHALLOW ON)
 FetchContent_Declare(
   Little-Type-Library
-  GIT_REPOSITORY https://github.com/qnope/Little-Type-Library
-  GIT_TAG Benchmarks
+  GIT_REPOSITORY https://github.com/StarQTius/Little-Type-Library
+  GIT_TAG Arena
   GIT_PROGRESS ON
   GIT_SHALLOW ON)
 FetchContent_Declare(

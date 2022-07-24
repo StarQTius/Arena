@@ -1,7 +1,5 @@
 #pragma once
 
-#include <arena/arena.hpp> // IWYU pragma: export
-
 #include <utility>
 
 #include <box2d/b2_world.h>
@@ -9,6 +7,7 @@
 #include <entt/entity/registry.hpp>
 #include <entt/process/scheduler.hpp>
 #include <entt/signal/delegate.hpp>
+#include <entt/entity/helper.hpp> // IWYU pragma: keep
 #include <ltl/Tuple.h>
 #include <ltl/operator.h>
 #include <ltl/tuple_algos.h>
@@ -17,6 +16,7 @@
 #include <arena/component/common.hpp>
 #include <arena/draw.hpp>
 #include <arena/physics.hpp>
+#include <arena/arena.hpp> // IWYU pragma: export
 
 #define DescribingEntity DescribingEntity
 
@@ -74,7 +74,6 @@ public:
     }
 
     return m_registry.emplace<component_t>(entity, ARENA_FWD(component));
-    ;
   }
 
   template <DescribingComponent... Args> auto &attach(entt::entity entity, Args &&...args) {
@@ -84,7 +83,7 @@ public:
 
   template <Component... Component_Ts> auto view() { return m_registry.view<Component_Ts...>(); }
 
-  template <Component... Component_Ts> auto get(entt::entity entity) { return m_registry.get<Component_Ts...>(entity); }
+  template <Component... Component_Ts> auto &get(entt::entity entity) { return m_registry.get<Component_Ts...>(entity); }
 
   template <Component... Component_Ts> auto try_get(entt::entity entity) {
     using namespace ltl;
@@ -102,6 +101,10 @@ public:
 
   template <Component... Component_Ts> bool all_of(entt::entity entity) const {
     return m_registry.all_of<Component_Ts...>(entity);
+  }
+
+  template<Component Component_T> auto entity(const Component_T &component) {
+    return expected(entt::to_entity(m_registry, component), Error::DANGLING_COMPONENT);
   }
 
   template <Component... Component_Ts> auto remove(entt::entity entity) {
