@@ -1,23 +1,40 @@
-#include "arena/component/common.hpp"
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
-#include <string>
 #include <type_traits>
+#include <string>
 
+#include <box2d/b2_circle_shape.h>
+#include <box2d/b2_math.h>
 #include <box2d/b2_types.h>
 #include <box2d/b2_world.h>
+#include <ltl/operator.h>
+#include <units/isq/si/length.h>
+#include <units/isq/si/mass.h>
+#include <units/isq/si/speed.h>
+#include <units/isq/si/time.h>
+#include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
-#include <pybind11/pybind11.h>
+#include <entt/signal/dispatcher.hpp>
+#include <entt/signal/sigh.hpp>
 #include <tl/expected.hpp>
 
-#include <arena/component/body.hpp>
+#include <arena/physics.hpp>
 #include <arena/environment.hpp>
+#include <arena/component/body.hpp>
 
-namespace py = pybind11;
+using namespace arena;
+using namespace units::isq::si::literals;
 
 namespace {
 
 b2World *world_p = nullptr;
+std::function<void(CollisionBeginning &)> collision_callback;
+
+void on_collision_beginning(CollisionBeginning &event) {
+  collision_callback(event);
+}
 
 struct monitor_t {
   int x;
@@ -25,17 +42,19 @@ struct monitor_t {
 
 constexpr auto arena_component_info(monitor_t *) {
   struct {
-    static void init(entt::registry &registry) { world_p = &arena::get_world(registry); }
+    static void init(entt::registry &registry) {
+      world_p = &arena::get_world(registry);
+  
+      auto &dispatcher = get_dispatcher(registry);
+      dispatcher.sink<CollisionBeginning>().connect<&on_collision_beginning>();
+    }
   } info;
   return info;
 }
 
-static_assert(arena::Initializable<monitor_t>);
-
 } // namespace
 
 TEST_CASE("Body component", "[Body][Base]") {
-  using namespace arena;
 
   Environment environment([](auto &&...) {});
   environment.attach(environment.create(), monitor_t{});
@@ -66,4 +85,37 @@ TEST_CASE("Body component", "[Body][Base]") {
         })
         .or_else([](auto) { FAIL(); });
   }
+}
+
+TEST_CASE("Collision detection", "[base][collision]") {
+  Environment environment{_((...),)};
+  environment.attach(environment.create(), monitor_t{});
+  
+  SECTION("A event is emitted on collision and a callback can be hooked to that event") {
+    struct success : std::exception {};
+
+    b2BodyDef body_def;
+    auto circle_shape = component::make_circle_shape(10_q_cm);
+    auto e1 = environment.create(), e2 = environment.create();
+    body_def.type = b2_dynamicBody;
+
+    body_def.position = {box2d_number(-50_q_cm), box2d_number(0_q_cm)};
+    body_def.linearVelocity = {box2d_number(1_q_m_per_s), box2d_number(0_q_m_per_s)};
+    auto *b1_p = environment.attach(e1, body_def);
+    b1_p->CreateFixture(&circle_shape, box2d_number(compute_shape_density(circle_shape, 1_q_g)));
+    
+    body_def.position = {box2d_number(50_q_cm), box2d_number(0_q_cm)};
+    body_def.linearVelocity = {box2d_number(-1_q_m_per_s), box2d_number(0_q_m_per_s)};
+    auto *b2_p = environment.attach(e2, body_def);
+    b2_p->CreateFixture(&circle_shape, box2d_number(compute_shape_density(circle_shape, 1_q_g)));
+
+    collision_callback = [&](CollisionBeginning event) {
+      REQUIRE_THAT((std::vector{event.entity_a, event.entity_b}), Catch::Matchers::UnorderedEquals(std::vector{e1, e2}));
+      throw success{};
+    };
+
+    REQUIRE_THROWS_AS(environment.step(1_q_s), success);
+  }
+
+  collision_callback = nullptr;
 }

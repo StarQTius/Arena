@@ -17,6 +17,7 @@
 #include <arena/draw.hpp>
 #include <arena/physics.hpp>
 #include <arena/arena.hpp> // IWYU pragma: export
+#include <entt/signal/dispatcher.hpp>  // for basic_dispatcher
 
 #define DescribingEntity DescribingEntity
 
@@ -114,6 +115,7 @@ public:
 private:
   std::unique_ptr<b2World> m_world_p;
   entt::scheduler<duration_t> m_scheduler;
+  entt::dispatcher m_dispatcher;
   PyGameDrawer m_renderer;
   entt::registry m_registry;
 };

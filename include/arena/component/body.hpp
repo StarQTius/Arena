@@ -4,6 +4,7 @@
 
 #include <box2d/b2_circle_shape.h>
 #include <entt/entity/registry.hpp>
+#include <box2d/b2_fixture.h>
 
 #include <arena/physics.hpp>
 
@@ -13,6 +14,16 @@
 // IWYU pragma: end_exports
 
 namespace arena {
+
+struct CollisionBeginning {
+  entt::entity entity_a, entity_b;
+  entt::registry *registry_p;
+};
+
+inline auto get_entity(b2Body *body_p) {
+  return static_cast<entt::entity>(body_p->GetUserData().pointer);
+}
+
 namespace component {
 
 struct body_info_t {

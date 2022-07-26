@@ -1,6 +1,7 @@
 [
   { symbol: ["entt::entity", "private", "<entt/entity/entity.hpp>", "public"]},
   { symbol: ["entt::registry", "private", "<entt/entity/registry.hpp>", "public"]},
+  { symbol: ["entt::dispatcher", "private", "<entt/signal/dispatcher.hpp>", "public"]},
   { include: ["<entt/container/dense_map.hpp>", "private", "<entt/entity/registry.hpp>", "public"]},
   { include: ["<entt/entity/sparse_set.hpp>", "private", "<entt/entity/registry.hpp>", "public"]},
   { include: ["<entt/entity/storage.hpp>", "private", "<entt/entity/registry.hpp>", "public"]},

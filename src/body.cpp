@@ -5,6 +5,7 @@
 #include <entt/entity/registry.hpp>
 #include <entt/signal/sigh.hpp>
 #include <units/isq/si/length.h>
+#include <box2d/b2_settings.h>
 
 #include <arena/component/body.hpp>
 #include <arena/physics.hpp>
@@ -13,6 +14,10 @@ using namespace arena;
 
 namespace {
 
+void write_userdata(entt::registry &registry, entt::entity entity) {
+  registry.get<b2Body *>(entity)->GetUserData().pointer = static_cast<uintptr_t>(entity);
+}
+
 void destroy_body(entt::registry &registry, entt::entity entity) {
   get_world(registry).DestroyBody(registry.get<b2Body *>(entity));
 }
@@ -20,6 +25,7 @@ void destroy_body(entt::registry &registry, entt::entity entity) {
 } // namespace
 
 void arena::component::body_info_t::init(entt::registry &registry) {
+  registry.on_construct<b2Body *>().connect<write_userdata>();
   registry.on_destroy<b2Body *>().connect<destroy_body>();
 }
 

@@ -4,6 +4,7 @@
 
 #include <box2d/b2_world.h>
 #include <entt/entity/registry.hpp>
+#include <entt/signal/dispatcher.hpp>
 
 #include <arena/arena.hpp> // IWYU pragma: export
 #include <arena/concept.hpp>
@@ -35,5 +36,6 @@ template <Initializable Component_T> void init(entt::registry &registry) {
 }
 
 inline auto &get_world(entt::registry &registry) { return registry.ctx().at<b2World &>(); }
+inline auto &get_dispatcher(entt::registry &registry) { return registry.ctx().at<entt::dispatcher &>(); }
 
 } // namespace arena
