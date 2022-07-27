@@ -11,6 +11,7 @@
 
 #define Initializable Initializable
 #define DescribingComponent DescribingComponent
+#define Component Component
 
 namespace arena {
 

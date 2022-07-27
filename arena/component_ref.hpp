@@ -7,6 +7,7 @@
 #include <ltl/functional.h>
 
 #include <arena/environment.hpp>
+#include <arena/component/common.hpp>
 
 #include "traits/crtp.hpp"
 #include "traits/template.hpp"

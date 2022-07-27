@@ -13,11 +13,11 @@
 #include <ltl/tuple_algos.h>
 #include <units/isq/si/time.h>
 
-#include <arena/component/common.hpp>
 #include <arena/draw.hpp>
 #include <arena/physics.hpp>
 #include <arena/arena.hpp> // IWYU pragma: export
-#include <entt/signal/dispatcher.hpp>  // for basic_dispatcher
+#include <entt/signal/dispatcher.hpp>
+#include <arena/component/body.hpp>
 
 #define DescribingEntity DescribingEntity
 
@@ -80,6 +80,16 @@ public:
   template <DescribingComponent... Args> auto &attach(entt::entity entity, Args &&...args) {
     using arena::arena_make_component;
     return attach(entity, arena_make_component(m_registry, ARENA_FWD(args)...));
+  }
+
+  template <auto Function>
+  void on_collision() {
+    m_dispatcher.sink<CollisionBeginning>().connect<Function>();
+  }
+
+  template <auto Function>
+  void on_collision(auto &instance) {
+    m_dispatcher.sink<CollisionBeginning>().connect<Function>(instance);
   }
 
   template <Component... Component_Ts> auto view() { return m_registry.view<Component_Ts...>(); }

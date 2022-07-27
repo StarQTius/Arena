@@ -16,12 +16,20 @@
 
 namespace detail {
 
+template<typename T>
+using python_arg_t = to_numpy_t<T> &;
+
+template<typename T>
+remove_rvalue_reference_t<T> forward_from_python(auto &x) {
+  return from_numpy<std::remove_cvref_t<T>>(x);
+}
+
 template <typename, typename F, typename R, typename... Args> auto normalize_impl(F &&f, R (*)(Args...)) {
-  return [f = FWD(f)](to_numpy_t<Args> &...args) -> decltype(auto) {
+  return [f = FWD(f)](python_arg_t<Args> ...args) -> decltype(auto) {
     if constexpr (std::is_void_v<R>) {
-      std::invoke(f, from_numpy<Args>(args)...);
+      std::invoke(f, forward_from_python<Args>(args)...);
     } else {
-      auto &&retval = std::invoke(f, from_numpy<Args>(args)...);
+      auto &&retval = std::invoke(f, forward_from_python<Args>(FWD(args))...);
 
       if constexpr (InstanceOf<R, tl::expected>) {
         if constexpr (std::is_void_v<typename R::value_type>) {
@@ -39,11 +47,11 @@ template <typename, typename F, typename R, typename... Args> auto normalize_imp
 template <CuriouslyRecurring<ComponentRef_base> D, typename F, typename R, std::constructible_from<component_t<D> &> T,
           typename... Args>
 auto normalize_impl(F &&f, R (*)(T, Args...)) {
-  return [f = FWD(f)](D &component_ref, to_numpy_t<Args> &...args) -> decltype(auto) {
+  return [f = FWD(f)](D &component_ref, python_arg_t<Args> ...args) -> decltype(auto) {
     if constexpr (std::is_void_v<R>) {
-      std::invoke(f, *component_ref, from_numpy<Args>(args)...);
+      std::invoke(f, *component_ref, forward_from_python<Args>(FWD(args))...);
     } else {
-      auto &&retval = std::invoke(f, *component_ref, from_numpy<Args>(args)...);
+      auto &&retval = std::invoke(f, *component_ref, forward_from_python<Args>(FWD(args))...);
 
       if constexpr (InstanceOf<R, tl::expected>) {
         if constexpr (std::is_void_v<typename R::value_type>) {
@@ -61,11 +69,11 @@ auto normalize_impl(F &&f, R (*)(T, Args...)) {
 template <CuriouslyRecurring<ComponentRef_base> D, typename F, typename R, std::constructible_from<component_t<D> &> T,
           typename... Args>
 auto normalize_impl(F &&f, R (*)(T, arena::Environment &, Args...)) {
-  return [f = FWD(f)](D &component_ref, to_numpy_t<Args> &...args) -> decltype(auto) {
+  return [f = FWD(f)](D &component_ref, python_arg_t<Args> ...args) -> decltype(auto) {
     if constexpr (std::is_void_v<R>) {
-      std::invoke(f, *component_ref, component_ref.environment(), from_numpy<Args>(args)...);
+      std::invoke(f, *component_ref, component_ref.environment(), forward_from_python<Args>(FWD(args))...);
     } else {
-      auto &&retval = std::invoke(f, *component_ref, component_ref.environment(), from_numpy<Args>(args)...);
+      auto &&retval = std::invoke(f, *component_ref, component_ref.environment(), forward_from_python<Args>(FWD(args))...);
 
       if constexpr (InstanceOf<R, tl::expected>) {
         if constexpr (std::is_void_v<typename R::value_type>) {

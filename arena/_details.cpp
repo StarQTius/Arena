@@ -93,6 +93,14 @@ void set_position(b2Body &self, length_vec position) { self.SetTransform(to_box2
 
 void set_angle(b2Body &self, angle_t angle) { self.SetTransform(self.GetPosition(), to_box2d(angle)); }
 
+auto call_pyobject_as_collision_pycallback(PyObject &pycallback, const CollisionBeginning &event) {
+  return py::handle{&pycallback}(event.entity_a, event.entity_b); 
+}
+
+void register_on_collision_pycallback(Environment &environment, py::function pycallback) {
+  environment.on_collision<call_pyobject_as_collision_pycallback>(*pycallback.ptr());
+}
+
 } // namespace
 
 void initialize_base(py::module_ &pymodule) {
@@ -105,6 +113,7 @@ void initialize_base(py::module_ &pymodule) {
       | def("step", &Environment::step)                         //
       | def("get", get_pycomponent, rvp::reference_internal)    //
       | def("attach", attach_pycomponent)                       //
+      | def("on_collision", register_on_collision_pycallback, py::keep_alive<1, 2>{}) //
       | property("renderer", &Environment::renderer)            //
       | static_def(
             "__get", [](Environment & environment, entt::entity) -> auto & { return environment; },

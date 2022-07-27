@@ -44,3 +44,28 @@ def test_change_position_and_angle_of_body():
   assert body.position[0] == pytest.approx(0.1)
   assert body.position[1] == pytest.approx(0.1)
   assert body.angle == pytest.approx(3)
+
+def test_distinguish_collision_parties():
+    def forward(body: Body):
+        body.velocity = (0.1, 0)
+
+    def backward(body: Body):
+        body.velocity = (-0.1, 0)
+
+    env = Environment(width=3, height=3)
+
+    id1 = env.create(Bot(x=-1, y=0, mass=1, logic=forward))
+    id2 = env.create(Bot(x=1, y=0, mass=1, logic=backward))
+    id3 = env.create(Bot(x=0.5, y=0.2, mass=0.1, logic=lambda:None))
+
+    expected_collision = [(id1, id2), (id2, id3)]
+    
+    def on_collision(e1, e2):
+        assert (e1, e2) in expected_collision or (e2, e1) in expected_collision
+    
+    env.on_collision(on_collision)
+
+    for _ in range(300):
+        env.step(1 / 30)
+
+
