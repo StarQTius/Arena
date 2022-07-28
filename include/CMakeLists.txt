@@ -6,7 +6,7 @@ set(STANDALONE_HEADERS
     arena.hpp
     binding/fetcher.hpp
     component/common.hpp
-    component/ray.hpp
+    system/raycasting.hpp
     concept.hpp
     environment.hpp
     physics.hpp)

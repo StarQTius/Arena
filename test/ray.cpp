@@ -64,4 +64,17 @@ TEST_CASE("Ray component testing", "[base][ray][component]") {
 
     REQUIRE(abs(system::cast(ray, body_p) - 10_q_m) < units::epsilon<length_t>());
   }
+
+  SECTION("Ray components can sweep around their main axis") {
+    body_def.position = {box2d_number(5_q_m), box2d_number(0_q_m)};
+    environment.attach(environment.create(), body_def)
+      ->CreateFixture(&circle_shape, box2d_number(1_q_kg / 1_q_m2));
+    body_def.position = {box2d_number(-5_q_m), box2d_number(0_q_m)};
+    environment.attach(environment.create(), body_def)
+      ->CreateFixture(&circle_shape, box2d_number(1_q_kg / 1_q_m2));
+
+    auto lengths = system::sweep(ray, body_p, pi, 10);
+    REQUIRE(abs(lengths.front() - (5_q_m - 10_q_cm)) < units::epsilon<length_t>());
+    REQUIRE(abs(lengths.back() - (5_q_m - 10_q_cm)) < units::epsilon<length_t>());
+  }
 }

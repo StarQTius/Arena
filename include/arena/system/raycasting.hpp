@@ -9,6 +9,7 @@ namespace arena {
 namespace system {
 
 length_t cast(const component::Ray &, b2Body *);
+std::vector<length_t> sweep(component::Ray, b2Body *, angle_t, std::size_t);
 
 } // namespace system
 } // namespace arena

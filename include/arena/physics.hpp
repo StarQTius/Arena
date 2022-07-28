@@ -26,6 +26,8 @@ using density_t = decltype(mass_t{} / (length_t{} * length_t{}));
 using speed_t = decltype(length_t{} / duration_t{});
 using angular_speed_t = decltype(angle_t{} / duration_t{});
 
+constexpr angle_t pi = M_PI * angle_t{};
+
 float box2d_number(auto &&x) {
   using namespace units;
   using namespace units::isq;
