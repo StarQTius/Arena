@@ -5,7 +5,7 @@ include(Arena)
 include(CTest)
 include(Catch)
 
-set(TEST_LIST body.cpp field.cpp cup.cpp storage.cpp)
+set(TEST_LIST body.cpp field.cpp cup.cpp storage.cpp ray.cpp)
 
 set(PYTEST_COMMAND ${Python3_EXECUTABLE} -B -m pytest --color=yes -p
                    no:cacheprovider)

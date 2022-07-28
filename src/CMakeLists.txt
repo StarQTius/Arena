@@ -12,7 +12,8 @@ set(SOURCES_LIST
     field.cpp
     host.cpp
     physics.cpp
-    storage.cpp)
+    storage.cpp
+    raycasting.cpp)
 
 set(STANDALONE_HEADERS forward.hpp)
 
