@@ -7,15 +7,26 @@
 #include <units/generic/angle.h>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
-#include <units/isq/si/speed.h>
-#include <units/isq/si/time.h>
+#include <units/isq/si/speed.h> // IWYU pragma: keep
+#include <units/exponent.h>
+#include <units/math.h>
+#include <units/generic/dimensionless.h>
 
 #include <arena/concept.hpp>
+
+// IWYU pragma: no_include <units/isq/si/time.h>
 
 namespace arena {
 
 // Precision for calculation
 using precision_t = float;
+
+namespace detail {
+
+template<units::Dimension D>
+constexpr auto base_one_v = units::quantity<D, typename D::base_unit, precision_t>::one();
+
+} // namespace detail
 
 // Quantity used for the simulation
 using length_t = units::isq::si::length<units::isq::si::metre, precision_t>;
@@ -31,26 +42,29 @@ constexpr angle_t pi = M_PI * angle_t{};
 float box2d_number(auto &&x) {
   using namespace units;
   using namespace units::isq;
-  using namespace units::angle_references;
-  using namespace units::isq::si::length_references;
-  using namespace units::isq::si::mass_references;
-  using namespace units::isq::si::time_references;
+  using namespace units::isq::si;
 
   using T = std::remove_cvref_t<decltype(x)>;
   if constexpr (Length<T>) {
-    return quantity_cast<si::metre>(x).number();
+    return quantity_cast<metre>(x).number();
   } else if constexpr (Mass<T>) {
-    return quantity_cast<si::kilogram>(x).number();
+    return quantity_cast<kilogram>(x).number();
   } else if constexpr (Time<T>) {
-    return quantity_cast<si::second>(x).number();
+    return quantity_cast<second>(x).number();
   } else if constexpr (Angle<T>) {
     return quantity_cast<radian>(x).number();
-  } else if constexpr (Speed<T>) {
-    return quantity_cast<si::metre_per_second>(x).number();
-  } else if constexpr (QuantityEquivalentTo<angular_speed_t, T>) {
-    return quantity_cast<decltype(rad / s)::unit>(x).number();
-  } else if constexpr (QuantityEquivalentTo<density_t, T>) {
-    return quantity_cast<decltype(kg / (m * m))::unit>(x).number();
+  } else if constexpr (Quantity<T> && DerivedDimension<typename T::dimension>) {
+    // When the unit is derived, we use the recipe to decompose it into a product of exponentiated base units.
+    // For each of these units `U` and their exponent `E_U`, we multiply `x` by `box2d_scale(1 U) ^ E_U / (1 U) ^ E_U`.
+
+    auto dispatch = [&]<typename... Es>(units::exponent_list<Es...>) {
+      auto normal = (pow<Es::num, Es::den>(detail::base_one_v<typename Es::dimension>) * ... * 1);
+      auto scale = (std::pow(box2d_number(detail::base_one_v<typename Es::dimension>), Es::num / Es::den) * ... * 1);
+
+      return quantity_cast<one>(x / normal).number() * scale;
+    };
+
+    return dispatch(typename T::dimension::recipe{});
   } else {
     static_assert(ARENA_ALWAYS_FALSE, "Unsupported dimension for Box2D");
   }

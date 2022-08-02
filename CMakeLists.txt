@@ -39,6 +39,8 @@ set(ARENA_CPP_FLAGS
     -fdiagnostics-color=always
     -fconcepts-diagnostics-depth=2>
     $<$<CXX_COMPILER_ID:Clang>:
+    -Wno-missing-braces
+    -Wno-unneeded-internal-declaration
     -fcolor-diagnostics>)
 
 # Fetch dependencies from GitHub
