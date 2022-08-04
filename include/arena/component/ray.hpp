@@ -1,7 +1,8 @@
 #pragma once
 
-#include <arena/physics.hpp>
 #include <arena/arena.hpp> // IWYU pragma: export
+#include <arena/component/common.hpp>
+#include <arena/physics.hpp>
 
 namespace arena {
 namespace component {
@@ -11,11 +12,7 @@ struct Ray {
   angle_t angle;
 };
 
-constexpr auto arena_component_info(Ray *) {
-  struct {
-  } info;
-  return info;
-}
-
 } // namespace component
 } // namespace arena
+
+template <> struct arena_component_info<arena::component::Ray> {};

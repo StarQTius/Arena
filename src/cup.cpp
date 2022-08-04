@@ -10,9 +10,11 @@
 #include <ltl/optional.h>
 #include <tl/expected.hpp>
 #include <units/generic/angle.h>
+#include <units/isq/si/force.h>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
 #include <units/isq/si/time.h>
+#include <units/isq/si/torque.h>
 
 #include <arena/component/body.hpp>
 #include <arena/environment.hpp>
@@ -24,8 +26,6 @@ namespace {
 
 using namespace units::isq::si::literals;
 
-constexpr auto cup_mass = 10_q_g;
-constexpr auto cup_damping = 100_q_s;
 const auto cup_shape = arena::component::make_circle_shape(36_q_mm);
 
 auto is_same_color(Environment &environment, stw::component::CupColor color, entt::entity entity) {
@@ -45,11 +45,9 @@ entt::entity arena::stw::entity::create(Environment &environment, const entity::
   body_def.type = b2_dynamicBody;
   body_def.position = {box2d_number(def.x), box2d_number(def.y)};
 
-  auto *body_p = environment.attach(entity, body_def);
-  body_p->CreateFixture(&cup_shape, box2d_number(compute_shape_density(cup_shape, cup_mass)));
-  body_p->SetLinearDamping(box2d_number(cup_damping));
-  body_p->SetAngularDamping(box2d_number(cup_damping));
-
+  auto *body_p = environment.attach<b2Body *>(entity, body_def);
+  body_p->CreateFixture(&cup_shape, box2d_number(compute_shape_density(cup_shape, 10_q_g)));
+  environment.attach<b2FrictionJoint *>(entity, 0.001_q_N, 0.001_q_N_m_per_rad);
   environment.attach(entity, def.color);
 
   return entity;

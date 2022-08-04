@@ -1,4 +1,3 @@
-
 #include <cmath>
 #include <type_traits>
 
@@ -35,9 +34,8 @@ entt::entity arena::entity::create(Environment &environment, const Bot &def) {
   body_def.type = b2_dynamicBody;
   body_def.position = {box2d_number(def.x), box2d_number(def.y)};
 
-  auto *body_p = environment.attach(entity, body_def);
+  auto *body_p = environment.attach<b2Body *>(entity, body_def);
   body_p->CreateFixture(&bot_shape, box2d_number(compute_shape_density(bot_shape, def.mass)));
-
   environment.attach(entity, component::PyHost{def.logic});
 
   return entity;

@@ -32,13 +32,9 @@ struct monitor_t {
   arena::length_t x, y;
 };
 
-constexpr auto arena_component_info(monitor_t *) {
-  struct {
-  } info;
-  return info;
-}
-
 } // namespace
+
+template <> struct arena_component_info<monitor_t> {};
 
 TEST_CASE("Cup interaction with contained bodies", "[Cup][STW]") {
   using arena::Environment;
@@ -78,8 +74,9 @@ TEST_CASE("Cup interaction with contained bodies", "[Cup][STW]") {
     environment.attach(bot_self, monitor_t{0.5_q_m, 0_q_m});
 
     for ([[maybe_unused]] auto x : ltl::valueRange(0, 100)) {
-      for (auto &&[self, body_p, py_host, vec] : environment.view<b2Body *, PyHost, monitor_t>().each())
+      for (auto &&[self, body_p, py_host, vec] : environment.view<b2Body *, PyHost, monitor_t>().each()) {
         body_p->SetLinearVelocity({box2d_number(vec.x / 1.0_q_s), box2d_number(vec.y / 1.0_q_s)});
+      }
       environment.step(1.0_q_s / 20);
     }
 

@@ -1,16 +1,19 @@
 #pragma once
 
+#include "units/isq/si/acceleration.h"
 #include <arena/arena.hpp> // IWYU pragma: export
 
 #include <box2d/b2_shape.h>
 #include <type_traits>
+#include <units/exponent.h>
 #include <units/generic/angle.h>
+#include <units/generic/dimensionless.h>
+#include <units/isq/si/force.h>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
 #include <units/isq/si/speed.h> // IWYU pragma: keep
-#include <units/exponent.h>
+#include <units/isq/si/torque.h>
 #include <units/math.h>
-#include <units/generic/dimensionless.h>
 
 #include <arena/concept.hpp>
 
@@ -23,8 +26,7 @@ using precision_t = float;
 
 namespace detail {
 
-template<units::Dimension D>
-constexpr auto base_one_v = units::quantity<D, typename D::base_unit, precision_t>::one();
+template <units::Dimension D> constexpr auto base_one_v = units::quantity<D, typename D::base_unit, precision_t>::one();
 
 } // namespace detail
 
@@ -36,6 +38,8 @@ using angle_t = units::angle<units::radian, precision_t>;
 using density_t = decltype(mass_t{} / (length_t{} * length_t{}));
 using speed_t = decltype(length_t{} / duration_t{});
 using angular_speed_t = decltype(angle_t{} / duration_t{});
+using force_t = units::isq::si::force<units::isq::si::newton, precision_t>;
+using torque_t = units::isq::si::torque<units::isq::si::newton_metre_per_radian, precision_t>;
 
 constexpr angle_t pi = M_PI * angle_t{};
 
@@ -53,6 +57,12 @@ float box2d_number(auto &&x) {
     return quantity_cast<second>(x).number();
   } else if constexpr (Angle<T>) {
     return quantity_cast<radian>(x).number();
+  } else if constexpr (Acceleration<T>) {
+    return quantity_cast<metre_per_second_sq>(x).number();
+  } else if constexpr (Force<T>) {
+    return quantity_cast<newton>(x).number();
+  } else if constexpr (Torque<T>) {
+    return quantity_cast<newton_metre_per_radian>(x).number();
   } else if constexpr (Quantity<T> && DerivedDimension<typename T::dimension>) {
     // When the unit is derived, we use the recipe to decompose it into a product of exponentiated base units.
     // For each of these units `U` and their exponent `E_U`, we multiply `x` by `box2d_scale(1 U) ^ E_U / (1 U) ^ E_U`.

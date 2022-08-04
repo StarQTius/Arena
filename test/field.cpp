@@ -32,13 +32,9 @@ struct monitor_t {
   arena::speed_t x, y;
 };
 
-constexpr auto arena_component_info(monitor_t *) {
-  struct {
-  } info;
-  return info;
-}
-
 } // namespace
+
+template <> struct arena_component_info<monitor_t> {};
 
 TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
   using namespace arena;

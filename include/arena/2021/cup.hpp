@@ -1,5 +1,6 @@
 #pragma once
 
+#include "arena/component/common.hpp"
 #include <cstddef>
 #include <unordered_set>
 
@@ -10,23 +11,13 @@
 #include <arena/physics.hpp>
 
 namespace arena {
-
 namespace stw {
 namespace component {
 
 enum class CupColor { RED, GREEN };
 
-constexpr inline auto arena_component_info(CupColor *) {
-  struct {
-  } component_info;
-
-  return component_info;
-}
-
 } // namespace component
-} // namespace stw
 
-namespace stw {
 namespace entity {
 
 struct Cup {
@@ -37,9 +28,7 @@ struct Cup {
 entt::entity create(Environment &, const Cup &);
 
 } // namespace entity
-} // namespace stw
 
-namespace stw {
 namespace component {
 
 struct CupGrabber {
@@ -53,13 +42,10 @@ struct CupGrabber {
   std::size_t get_count(Environment &, CupColor) const;
 };
 
-constexpr inline auto arena_component_info(CupGrabber *) {
-  struct {
-  } component_info;
-
-  return component_info;
-}
-
 } // namespace component
 } // namespace stw
 } // namespace arena
+
+template <> struct arena_component_info<arena::stw::component::CupColor> {};
+
+template <> struct arena_component_info<arena::stw::component::CupGrabber> {};

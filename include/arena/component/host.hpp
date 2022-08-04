@@ -7,6 +7,7 @@
 #include <pybind11/pytypes.h>
 
 #include <arena/arena.hpp> // IWYU pragma: export
+#include <arena/component/common.hpp>
 #include <arena/environment.hpp>
 
 namespace arena {
@@ -34,12 +35,7 @@ private:
   pybind11::function m_pycallback;
 };
 
-constexpr inline auto arena_component_info(PyHost *) {
-  struct {
-  } component_info;
-
-  return component_info;
-}
-
 } // namespace component
 } // namespace arena
+
+template <> struct arena_component_info<arena::component::PyHost> {};
