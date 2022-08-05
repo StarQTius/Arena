@@ -4,8 +4,9 @@
 
 #include <pybind11/pybind11.h>
 
-#include "../traits/invocable.hpp"
-#include "../traits/type.hpp"
+#include <arena/traits/invocable.hpp>
+#include <arena/traits/type.hpp>
+
 #include "normalize.hpp"
 #include <forward.hpp>
 
@@ -18,8 +19,8 @@ template <typename F, typename Tuple_T> struct ctor_t {
 
 template <typename F, typename Tuple_T> ctor_t(F, Tuple_T) -> ctor_t<F, Tuple_T>;
 
-template <typename T, WithSignature F, typename Tuple_T>
-requires(std::convertible_to<return_t<F>, T> || std::convertible_to<return_t<F>, T *>) decltype(auto)
+template <typename T, arena::WithSignature F, typename Tuple_T>
+requires(std::convertible_to<arena::return_t<F>, T> || std::convertible_to<arena::return_t<F>, T *>) decltype(auto)
 operator|(pybind11::class_<T> &&binding, ctor_t<F, Tuple_T> &&parameters) {
   auto impl = [&](auto &&...extras) {
     binding.def(pybind11::init(detail::normalize(binding, std::move(parameters.f))), std::move(extras)...);
@@ -37,7 +38,7 @@ template <typename Tuple_T, typename... Ts> struct choose_ctor_t {
 };
 
 template <typename T, typename Tuple_T, typename... Args>
-requires ListInitializableFrom<T, Args...>
+requires arena::ListInitializableFrom<T, Args...>
 decltype(auto) operator|(pybind11::class_<T> &&binding, choose_ctor_t<Tuple_T, Args...> &&parameters) {
   auto impl = [&](auto &&...extras) {
     binding.def(pybind11::init(detail::normalize(binding, [](Args... args) { return T{FWD(args)...}; })),
@@ -51,7 +52,9 @@ decltype(auto) operator|(pybind11::class_<T> &&binding, choose_ctor_t<Tuple_T, A
 
 } // namespace detail
 
-auto ctor(WithSignature auto &&f, auto &&...extras) { return detail::ctor_t{FWD(f), std::tuple{FWD(extras)...}}; }
+auto ctor(arena::WithSignature auto &&f, auto &&...extras) {
+  return detail::ctor_t{FWD(f), std::tuple{FWD(extras)...}};
+}
 
 template <typename... Args> auto ctor(auto &&...extras) {
   return detail::choose_ctor_t{(std::tuple<Args...> *)nullptr, std::tuple{FWD(extras)...}};

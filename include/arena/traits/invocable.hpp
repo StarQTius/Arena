@@ -2,12 +2,15 @@
 
 #include <functional>
 
-#include <forward.hpp>
+#include <arena/arena.hpp>
 
-// For IWYU
+#if defined(ARENA_IWYU)
 #define CallableWithSignature CallableWithSignature
 #define MemberFunction MemberFunction
 #define WithSignature WithSignature
+#endif // defined(ARENA_IWYU)
+
+namespace arena {
 
 template <typename F> struct signature_info : signature_info<decltype(std::function{std::declval<F>()})> {};
 
@@ -105,8 +108,10 @@ template <typename Mf>
 requires std::is_member_function_pointer_v<Mf>
 auto make_free_function(Mf mf) {
   auto impl = [&]<typename... Args>(std::tuple<Args...> *) {
-    return [mf](Args... args) { return std::invoke(mf, FWD(args)...); };
+    return [mf](Args... args) { return std::invoke(mf, ARENA_FWD(args)...); };
   };
 
   return impl(free_args_p(mf));
 }
+
+} // namespace arena

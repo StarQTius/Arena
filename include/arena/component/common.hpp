@@ -8,11 +8,13 @@
 #include <entt/signal/dispatcher.hpp>
 
 #include <arena/arena.hpp> // IWYU pragma: export
-#include <arena/concept.hpp>
+#include <arena/traits/type.hpp>
 
+#if defined(ARENA_IWYU)
 #define Initializable Initializable
 #define DescribingComponent DescribingComponent
 #define Component Component
+#endif // ARENA_IWYU
 
 template <typename> struct arena_component_info; // IWYU pragma: keep
 

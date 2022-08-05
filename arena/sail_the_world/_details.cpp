@@ -17,7 +17,6 @@
 
 #include <arena/2021/cup.hpp>
 #include <arena/component/body.hpp>
-#include <arena/concept.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
 

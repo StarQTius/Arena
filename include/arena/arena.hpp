@@ -1,24 +1,26 @@
 #pragma once
 
+#include <entt/entity/entity.hpp>
+#include <ltl/Tuple.h>
 #include <ltl/functional.h>
 #include <ltl/operator.h>
 #include <ltl/optional.h>
 #include <tl/expected.hpp>
-#include <entt/entity/entity.hpp>
 
-#include "../../arena/traits/template.hpp"
-#include "ltl/Tuple.h"
+#include <arena/traits/template.hpp>
 
 #define ARENA_FWD(X) static_cast<decltype(X) &&>(X)
+
+#define ARENA_ALWAYS_FALSE ([]() {}, false)
 
 #define ARENA_ASSERT(CONDITION, ERROR)                                                                                 \
   if (!(CONDITION))                                                                                                    \
   return unexpected(ERROR)
 
-#define ARENA_IF_LEGAL(...) \
-  if constexpr (requires { __VA_ARGS__ }) { \
-    __VA_ARGS__ \
-  } \
+#define ARENA_IF_LEGAL(...)                                                                                            \
+  if constexpr (requires {__VA_ARGS__}) {                                                                              \
+    __VA_ARGS__                                                                                                        \
+  }
 
 namespace arena {
 
@@ -26,7 +28,16 @@ template <typename T>
 concept Optional =
     InstanceOf<std::remove_cvref_t<T>, tl::expected> || InstanceOf<std::remove_cvref_t<T>, ltl::optional>;
 
-enum class Error { NOT_ATTACHED, ALREADY_ATTACHED, NOT_IN_STORAGE, STORAGE_FULL, NOT_OWNED, ALREADY_OWNED, DANGLING_COMPONENT, UNKNOWN = 0 };
+enum class Error {
+  NOT_ATTACHED,
+  ALREADY_ATTACHED,
+  NOT_IN_STORAGE,
+  STORAGE_FULL,
+  NOT_OWNED,
+  ALREADY_OWNED,
+  DANGLING_COMPONENT,
+  UNKNOWN = 0
+};
 
 template <typename T = void> using Expected = tl::expected<T, Error>;
 
@@ -50,8 +61,7 @@ template <typename T> constexpr auto expected(std::reference_wrapper<T> ref, Err
   return expected(static_cast<T &>(ref), error);
 }
 
-template<typename... Ts>
-constexpr auto expected(const Expected<Ts> &... xps) {
+template <typename... Ts> constexpr auto expected(const Expected<Ts> &...xps) {
   using namespace ltl;
 
   bool error_found = false;

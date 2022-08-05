@@ -8,6 +8,7 @@
 #include <entt/entity/registry.hpp>
 #include <entt/process/scheduler.hpp>
 #include <entt/signal/delegate.hpp>
+#include <entt/signal/dispatcher.hpp>
 #include <ltl/Tuple.h>
 #include <ltl/operator.h>
 #include <ltl/tuple_algos.h>
@@ -17,7 +18,6 @@
 #include <arena/component/body.hpp>
 #include <arena/draw.hpp>
 #include <arena/physics.hpp>
-#include <entt/signal/dispatcher.hpp>
 
 #define DescribingEntity DescribingEntity
 

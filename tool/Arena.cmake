@@ -8,8 +8,8 @@ if(NOT TARGET iwyu)
         "`include-what-you-use` program not found, skipping inclusions check")
   else()
     set(IWYU_COMMAND
-        ${IWYU_PROGRAM} -std=gnu++20 -fcolor-diagnostics -Xiwyu --no_fwd_decls
-        -Xiwyu --error -Xiwyu --max_line_length=120 -Xiwyu
+        ${IWYU_PROGRAM} -std=gnu++20 -fcolor-diagnostics -DARENA_IWYU -Xiwyu
+        --no_fwd_decls -Xiwyu --error -Xiwyu --max_line_length=120 -Xiwyu
         --mapping_file=${PROJECT_SOURCE_DIR}/tool/mapping/Arena.imp -Xiwyu
         --mapping_file=${PROJECT_SOURCE_DIR}/tool/mapping/pybind11.imp -Xiwyu
         --mapping_file=${PROJECT_SOURCE_DIR}/tool/mapping/entt.imp -Xiwyu

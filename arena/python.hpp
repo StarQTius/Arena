@@ -9,8 +9,6 @@
 #include <units/isq/si/speed.h>
 #include <units/isq/si/time.h>
 
-#include <arena/concept.hpp>
-
 #include "physics.hpp"
 #include <forward.hpp>
 

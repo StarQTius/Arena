@@ -4,8 +4,8 @@
 #include <pybind11/pybind11.h>
 
 #include <arena/environment.hpp>
+#include <arena/traits/invocable.hpp>
 
-#include "../traits/invocable.hpp"
 #include <forward.hpp>
 
 #include "entity.hpp" // IWYU pragma: associated
@@ -17,7 +17,8 @@ concept Entity = requires(arena::Environment e, T x) {
 
 namespace kind {
 
-template <typename Entity_T> auto entity(pybind11::module_ &pymodule, const char *name, WithSignature auto &&create) {
+template <typename Entity_T>
+auto entity(pybind11::module_ &pymodule, const char *name, arena::WithSignature auto &&create) {
   return pybind11::class_<Entity_T>(pymodule, name) | def("__create", FWD(create));
 }
 

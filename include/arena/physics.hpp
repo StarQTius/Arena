@@ -1,13 +1,12 @@
 #pragma once
 
-#include "units/isq/si/acceleration.h"
-#include <arena/arena.hpp> // IWYU pragma: export
+#include <type_traits>
 
 #include <box2d/b2_shape.h>
-#include <type_traits>
 #include <units/exponent.h>
 #include <units/generic/angle.h>
 #include <units/generic/dimensionless.h>
+#include <units/isq/si/acceleration.h>
 #include <units/isq/si/force.h>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
@@ -15,7 +14,7 @@
 #include <units/isq/si/torque.h>
 #include <units/math.h>
 
-#include <arena/concept.hpp>
+#include <arena/arena.hpp> // IWYU pragma: export
 
 // IWYU pragma: no_include <units/isq/si/time.h>
 

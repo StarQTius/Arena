@@ -25,6 +25,12 @@ foreach(SOURCE_FILE IN LISTS MODULE_SOURCES)
 endforeach()
 
 set(STANDALONE_HEADERS
+    box2d.hpp
+    common.hpp
+    component_ref.hpp
+    physics.hpp
+    python.hpp
+    utility.hpp
     binder/component.hpp
     binder/ctor.hpp
     binder/def.hpp
@@ -34,18 +40,8 @@ set(STANDALONE_HEADERS
     binder/normalize.hpp
     binder/property.hpp
     binder/static_def.hpp
-    binder/traits.hpp
-    box2d.hpp
-    common.hpp
-    component_ref.hpp
-    physics.hpp
-    python.hpp
-    traits/common.hpp
-    traits/crtp.hpp
-    traits/invocable.hpp
-    traits/template.hpp
-    traits/type.hpp
-    utility.hpp)
+    binder/traits.hpp)
+
 foreach(HEADER IN LISTS STANDALONE_HEADERS)
   add_iwyu_target(${HEADER} _details)
 endforeach()

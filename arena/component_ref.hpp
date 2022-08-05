@@ -6,12 +6,12 @@
 #include <entt/entity/entity.hpp>
 #include <ltl/functional.h>
 
-#include <arena/environment.hpp>
 #include <arena/component/common.hpp>
+#include <arena/environment.hpp>
+#include <arena/traits/crtp.hpp>
+#include <arena/traits/template.hpp>
+#include <arena/traits/type.hpp>
 
-#include "traits/crtp.hpp"
-#include "traits/template.hpp"
-#include "traits/type.hpp"
 #include "utility.hpp"
 #include <forward.hpp>
 
@@ -20,7 +20,7 @@ template <typename D> class ComponentRef_base {
   const D &derived() const { return static_cast<const D &>(*this); }
 
 public:
-  using raw_component_t = template_parameter_t<0, D>;
+  using raw_component_t = arena::template_parameter_t<0, D>;
   using component_t = std::remove_pointer_t<raw_component_t>;
 
   component_t &operator*() {
@@ -75,7 +75,7 @@ template <arena::Component Component_T> class ComponentRef : public ComponentRef
 public:
   explicit ComponentRef(std::convertible_to<Component_T> auto &&component)
       : m_state{std::in_place_index<0>, new Component_T{FWD(component)}} {}
-  explicit ComponentRef(auto &&...args) requires ListInitializableFrom<Component_T, decltype(args)...>
+  explicit ComponentRef(auto &&...args) requires arena::ListInitializableFrom<Component_T, decltype(args)...>
       : m_state{std::in_place_index<0>, new Component_T{FWD(args)...}} {}
   explicit ComponentRef(arena::Environment &environment, entt::entity entity)
       : m_state{std::in_place_index<1>, environment, entity} {}
@@ -104,5 +104,5 @@ private:
 
 template <typename Component_T> ComponentRef(Component_T &&) -> ComponentRef<Component_T>;
 
-template <CuriouslyRecurring<ComponentRef_base> ComponentRef_Component_T>
+template <arena::CuriouslyRecurring<ComponentRef_base> ComponentRef_Component_T>
 using component_t = typename ComponentRef_Component_T::component_t;

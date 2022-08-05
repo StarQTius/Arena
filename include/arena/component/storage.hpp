@@ -1,10 +1,11 @@
 #pragma once
 
+#include <cstddef>
+
 #include <arena/arena.hpp> // IWYU pragma: export
 #include <arena/component/body.hpp>
 #include <arena/component/common.hpp>
 #include <arena/environment.hpp>
-#include <cstddef>
 
 namespace arena {
 namespace component {
@@ -42,7 +43,6 @@ public:
   explicit Storage(std::size_t capacity) : impl_t{.m_count = 0, .m_capacity = capacity} {}
 
   std::size_t count() const { return m_count; }
-
   std::size_t capacity() const { return m_capacity; }
 
   auto owned(Environment &environment) const {

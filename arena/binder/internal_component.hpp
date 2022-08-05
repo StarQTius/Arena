@@ -4,15 +4,15 @@
 #include <pybind11/pybind11.h>
 
 #include <arena/environment.hpp>
+#include <arena/traits/invocable.hpp>
 
 #include "../component_ref.hpp"
-#include "../traits/invocable.hpp"
 #include <forward.hpp>
 
 namespace kind {
 
 template <typename Component_T>
-auto internal_component(pybind11::module_ &pymodule, const char *name, WithSignature auto &&get) {
+auto internal_component(pybind11::module_ &pymodule, const char *name, arena::WithSignature auto &&get) {
   return pybind11::class_<InternalComponentRef<Component_T *>>(pymodule, name) |
          static_def("__get", FWD(get), pybind11::return_value_policy::reference_internal);
 }

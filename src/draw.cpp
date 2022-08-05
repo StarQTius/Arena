@@ -1,5 +1,3 @@
-#include <arena/draw.hpp>
-
 #include <array>
 #include <utility>
 #include <vector>
@@ -13,6 +11,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 
+#include <arena/draw.hpp>
 #include <arena/physics.hpp>
 
 namespace py = pybind11;

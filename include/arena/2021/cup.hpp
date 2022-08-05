@@ -1,12 +1,12 @@
 #pragma once
 
-#include "arena/component/common.hpp"
 #include <cstddef>
 #include <unordered_set>
 
 #include <entt/entity/entity.hpp>
 
 #include <arena/arena.hpp> // IWYU pragma: export
+#include <arena/component/common.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
 

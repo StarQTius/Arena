@@ -1,8 +1,7 @@
-#include <arena/component/host.hpp>
-
 #include <array>
 #include <iterator>
 
+#include <entt/entity/entity.hpp>
 #include <ltl/Range/Map.h>
 #include <ltl/Range/Zip.h>
 #include <ltl/Range/enumerate.h>
@@ -14,6 +13,7 @@
 #include <pybind11/pytypes.h>
 
 #include <arena/binding/fetcher.hpp>
+#include <arena/component/host.hpp>
 #include <arena/environment.hpp>
 
 namespace py = pybind11;

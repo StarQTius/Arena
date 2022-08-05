@@ -4,8 +4,6 @@
 #include <string>
 #include <type_traits>
 
-#include <arena/binding/fetcher.hpp>
-#include <arena/concept.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/entity/view.hpp>
 #include <pybind11/cast.h>
@@ -13,7 +11,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 
+#include <arena/binding/fetcher.hpp>
 #include <arena/component/host.hpp>
+#include <arena/concept.hpp>
 #include <arena/environment.hpp>
 
 namespace py = pybind11;

@@ -4,10 +4,12 @@
 
 #include "common.hpp"
 
-// For IWYU
+#if defined(ARENA_IWYU)
 #define TemplateInstance TemplateInstance
 #define InstanceOf InstanceOf
+#endif // defined(ARENA_IWYU)
 
+namespace arena {
 namespace detail {
 
 template <typename> struct is_template_instance : std::false_type {};
@@ -39,3 +41,5 @@ concept TemplateInstance = detail::is_template_instance<T>::value;
 
 template <typename T, template <typename...> typename TT>
 concept InstanceOf = TemplateInstance<T> && detail::is_instance_of<T, TT>::value;
+
+} // namespace arena
