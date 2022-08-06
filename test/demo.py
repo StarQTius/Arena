@@ -6,7 +6,8 @@ def test_render_a_bot_and_some_cups():
     body.velocity = (0.5, 0)
 
   env = Environment()
-  env.create(Bot(x=-1, y=0, mass=1, logic=move_forward))
+  id = env.create(Bot(x=-1, y=0, mass=1, logic=move_forward))  
+  env.attach(id, Host(move_forward))
   env.create(stw.Cup(x=0, y=0.07, color=stw.CupColor.RED))
   env.create(stw.Cup(x=0, y=0, color=stw.CupColor.GREEN))
   env.create(stw.Cup(x=0, y=-0.07, color=stw.CupColor.RED))
@@ -23,7 +24,8 @@ def test_render_a_bot_grabbing_a_cup():
       cup_grabber.grab(next(env.cups)[0])
 
   env = Environment()
-  id = env.create(Bot(x=-1, y=0, mass=1, logic=grab))
+  id = env.create(Bot(x=-1, y=0, mass=1))
+  env.attach(id, Host(grab))
   env.attach(id, stw.CupGrabber(capacity=2))
   env.create(stw.Cup(x=0, y=0, color=stw.CupColor.RED))
   with env.renderer:
@@ -37,8 +39,9 @@ def test_drive_a_bot_with_forward_velocity():
     body.forward_velocity = 0.5
 
   env = Environment()
-  env.create(Bot(x=-1, y=0, mass=1, logic=drive_n_turn))
-
+  id = env.create(Bot(x=-1, y=0, mass=1, logic=drive_n_turn))
+  env.attach(id, Host(drive_n_turn))
+  
   with env.renderer:
     for _ in range(60):
       env.step(1/20)

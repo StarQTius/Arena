@@ -84,7 +84,11 @@ public:
     m_dispatcher.sink<CollisionBeginning>().connect<Function>(instance);
   }
 
-  template <Component... Component_Ts> auto view() { return m_registry.view<Component_Ts...>(); }
+  template <Component... Component_Ts, Component... Exclude_Ts> auto view(entt::exclude_t<Exclude_Ts...> exclude_list) {
+    return m_registry.view<Component_Ts...>(exclude_list);
+  }
+
+  template <Component... Component_Ts> auto view() { return view<Component_Ts...>({}); }
 
   template <Component... Component_Ts> auto &get(entt::entity entity) {
     return m_registry.get<Component_Ts...>(entity);

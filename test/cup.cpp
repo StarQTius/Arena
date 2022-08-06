@@ -8,18 +8,17 @@
 
 #include <box2d/b2_math.h>
 #include <entt/entity/registry.hpp>
+#include <entt/entity/utility.hpp>
 #include <entt/entity/view.hpp>
 #include <ltl/Range/Value.h>
 #include <pybind11/eval.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/pytypes.h>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
 #include <units/isq/si/time.h>
 
 #include <arena/2021/cup.hpp>
 #include <arena/component/body.hpp>
-#include <arena/component/host.hpp>
 #include <arena/entity/bot.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
@@ -65,8 +64,7 @@ TEST_CASE("Cup interaction with contained bodies", "[Cup][STW]") {
     auto middle_cup_self = environment.create(Cup{.x = 10_q_cm, .y = 0_q_cm, .color = CupColor::RED});
     auto upper_cup_self = environment.create(Cup{.x = 10_q_cm, .y = 5_q_cm, .color = CupColor::GREEN});
     auto lower_cup_self = environment.create(Cup{.x = 10_q_cm, .y = -5_q_cm, .color = CupColor::GREEN});
-    auto bot_self =
-        environment.create(Bot{.x = -30_q_cm, .y = 0_q_cm, .mass = 1_q_kg, .logic = pybind11::globals()["noop"]});
+    auto bot_self = environment.create(Bot{.x = -30_q_cm, .y = 0_q_cm, .mass = 1_q_kg});
 
     environment.attach(middle_cup_self, monitor_t{0.1_q_m, 0_q_m});
     environment.attach(upper_cup_self, monitor_t{0.1_q_m, 0.05_q_m});
@@ -74,7 +72,7 @@ TEST_CASE("Cup interaction with contained bodies", "[Cup][STW]") {
     environment.attach(bot_self, monitor_t{0.5_q_m, 0_q_m});
 
     for ([[maybe_unused]] auto x : ltl::valueRange(0, 100)) {
-      for (auto &&[self, body_p, py_host, vec] : environment.view<b2Body *, PyHost, monitor_t>().each()) {
+      for (auto &&[self, body_p, vec] : environment.view<b2Body *, monitor_t>(entt::exclude<CupColor>).each()) {
         body_p->SetLinearVelocity({box2d_number(vec.x / 1.0_q_s), box2d_number(vec.y / 1.0_q_s)});
       }
       environment.step(1.0_q_s / 20);

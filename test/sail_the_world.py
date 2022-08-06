@@ -7,12 +7,13 @@ def test_create_a_cup_and_move_it_with_a_bot():
     body.velocity = (1, 0)
 
   env = Environment()
-  env.create(Bot(x=-1.5, y=0, mass=1, logic=move_forward))
-  id = env.create(Cup(x=1, y=0, color=CupColor.RED))
+  id_bot = env.create(Bot(x=-1.5, y=0, mass=1))
+  env.attach(id_bot, Host(move_forward))
+  id_cup = env.create(Cup(x=1, y=0, color=CupColor.RED))
   for _ in range(500):
     env.step(0.1)
 
-  body = env.get(id, Body)
+  body = env.get(id_cup, Body)
 
   for cup in cups(env):
     assert body.position[0] > 1
@@ -27,7 +28,8 @@ def test_filter_cups_range():
     cup_grabber.grab(next(inrange_cups)[0])
 
   env = Environment()
-  id = env.create(Bot(x=-1.5, y=0, mass=1, logic=grab))
+  id = env.create(Bot(x=-1.5, y=0, mass=1))
+  env.attach(id, Host(grab))
   env.attach(id, CupGrabber(capacity=2))
   env.create(Cup(x=0, y=0, color=CupColor.RED))
   env.create(Cup(x=1, y=0, color=CupColor.GREEN))
@@ -50,7 +52,8 @@ def test_grab_and_drop():
   flag = False
 
   env = Environment()
-  id = env.create(Bot(x=-1, y=0, mass=1, logic=grab_n_drop))
+  id = env.create(Bot(x=-1, y=0, mass=1))
+  env.attach(id, Host(grab_n_drop))
   env.attach(id, CupGrabber(capacity=2))
   env.create(Cup(x=0, y=0, color=CupColor.RED))
   env.step(1)
@@ -79,7 +82,8 @@ def test_access_cup_grabber_storage():
   green_count = 0
 
   env = Environment()
-  id = env.create(Bot(x=-1, y=0, mass=1, logic=grab_all))
+  id = env.create(Bot(x=-1, y=0, mass=1))
+  env.attach(id, Host(grab_all))
   env.attach(id, CupGrabber(capacity=5))
   env.create(Cup(x=0, y=0, color=CupColor.RED))
   env.create(Cup(x=0.2, y=0, color=CupColor.GREEN))
@@ -97,7 +101,8 @@ def test_get_the_content_of_an_empty_cup_grabber():
     cup_grabber.get_count(CupColor.RED)
 
   env = Environment()
-  id = env.create(Bot(x=-1, y=0, mass=1, logic=access_storage))
+  id = env.create(Bot(x=-1, y=0, mass=1))
+  env.attach(id, Host(access_storage))
   env.attach(id, CupGrabber(capacity=5))
   env.step(1)
 
@@ -106,7 +111,8 @@ def test_create_a_field_of_custom_dimension():
     body.forward_velocity = 1
 
   env = Environment(width=1, height=1)
-  id = env.create(Bot(x=-1, y=0, mass=1, logic=go_forward))
+  id = env.create(Bot(x=-1, y=0, mass=1))
+  env.attach(id, Host(go_forward))
   body = env.get(id, Body)
   for _ in range(5):
     env.step(1)

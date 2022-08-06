@@ -2,11 +2,8 @@ from arena import *
 import pytest
 
 def test_get_component_from_an_entity():
-  def noop():
-    pass
-
   env = Environment()
-  entity = env.create(Bot(x=0.5, y=0.3, mass=1, logic=noop))
+  entity = env.create(Bot(x=0.5, y=0.3, mass=1))
   body = env.get(entity, Body)
 
   assert body.position[0] == pytest.approx(0.5)
@@ -17,7 +14,8 @@ def test_create_a_bot_and_drive_it():
     body.velocity = (1, 0.5)
 
   env = Environment()
-  entity = env.create(Bot(x=0, y=0, mass=1, logic=logic))
+  entity = env.create(Bot(x=0, y=0, mass=1))
+  env.attach(entity, Host(logic))
   for _ in range(10):
     env.step(1 / 10)
 
@@ -32,7 +30,8 @@ def test_change_position_and_angle_of_body():
     body.set_angle(3)
 
   env = Environment(width=1, height=1)
-  id = env.create(Bot(x=0, y=0, mass=1, logic=reposition))
+  id = env.create(Bot(x=0, y=0, mass=1))
+  env.attach(id, Host(reposition))
 
   body = env.get(id, Body)
 
@@ -53,10 +52,11 @@ def test_distinguish_collision_parties():
         body.velocity = (-0.1, 0)
 
     env = Environment(width=3, height=3)
-
-    id1 = env.create(Bot(x=-1, y=0, mass=1, logic=forward))
-    id2 = env.create(Bot(x=1, y=0, mass=1, logic=backward))
-    id3 = env.create(Bot(x=0.5, y=0.2, mass=0.1, logic=lambda:None))
+    id1 = env.create(Bot(x=-1, y=0, mass=1))
+    env.attach(id1, Host(forward))
+    id2 = env.create(Bot(x=1, y=0, mass=1))
+    env.attach(id2, Host(backward))
+    id3 = env.create(Bot(x=0.5, y=0.2, mass=0.1))
 
     expected_collision = [(id1, id2), (id2, id3)]
     

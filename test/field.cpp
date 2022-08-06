@@ -12,7 +12,6 @@
 #include <ltl/Range/Value.h>
 #include <pybind11/eval.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/pytypes.h>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
 #include <units/isq/si/speed.h>
@@ -65,8 +64,7 @@ TEST_CASE("Field interaction with contained bodies", "[Field][Base]") {
         {-4_q_m, 4_q_m, {-1_q_m_per_s, 1_q_m_per_s}}, {-4_q_m, -4_q_m, {-1_q_m_per_s, -1_q_m_per_s}}};
 
     for (auto &&[x, y, velocity_vector] : init_parameters) {
-      auto bot_self =
-          environment.create(entity::Bot{.x = x, .y = y, .mass = 1_q_kg, .logic = pybind11::globals()["noop"]});
+      auto bot_self = environment.create(entity::Bot{.x = x, .y = y, .mass = 1_q_kg});
       environment.attach(bot_self, velocity_vector);
     }
 

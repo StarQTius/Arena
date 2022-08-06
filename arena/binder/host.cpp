@@ -12,11 +12,14 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 
-#include <arena/binding/fetcher.hpp>
-#include <arena/component/host.hpp>
 #include <arena/environment.hpp>
 
+#include "fetcher.hpp"
+#include "host.hpp"
+
 namespace py = pybind11;
+
+using namespace arena;
 
 ////
 //// PyHost
@@ -40,11 +43,11 @@ static auto get_components_as_pyobjects(const auto &pytypes, arena::Environment 
 // PyHost definitions
 //
 
-void arena::component::PyHost::invoke(Environment &environment, entt::entity self) {
+void PyHost::invoke(Environment &environment, entt::entity self) {
   m_pycallback(*get_components_as_pyobjects(m_pytypes, environment, self));
 }
 
-std::vector<py::object> arena::component::PyHost::get_annotations(const py::function &pycallback) {
+std::vector<py::object> PyHost::get_annotations(const py::function &pycallback) {
   auto inspect_pymodule = py::module::import("inspect");
   auto signature_pyfunction = inspect_pymodule.attr("signature");
   auto parameter_pylist = py::dict{signature_pyfunction(pycallback).attr("parameters")};

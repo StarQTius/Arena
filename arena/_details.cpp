@@ -14,9 +14,7 @@
 #include <units/isq/si/mass.h>
 #include <units/isq/si/time.h>
 
-#include <arena/binding/fetcher.hpp>
 #include <arena/component/body.hpp>
-#include <arena/component/host.hpp>
 #include <arena/draw.hpp>
 #include <arena/entity/bot.hpp>
 #include <arena/entity/field.hpp>
@@ -28,6 +26,8 @@
 #include "binder/def.hpp"
 #include "binder/doc.hpp"
 #include "binder/entity.hpp"
+#include "binder/fetcher.hpp"
+#include "binder/host.hpp"
 #include "binder/internal_component.hpp"
 #include "binder/property.hpp"
 #include "binder/static_def.hpp"
@@ -50,7 +50,7 @@ namespace {
 void upkeep(duration_t, void *environment_p, entt::any, entt::any) {
   auto &environment = *static_cast<Environment *>(environment_p);
 
-  for (auto &&[self, py_host] : environment.view<component::PyHost>().each())
+  for (auto &&[self, py_host] : environment.view<PyHost>().each())
     py_host.invoke(environment, self);
 }
 
@@ -139,9 +139,11 @@ void initialize_base(py::module_ &pymodule) {
       | def("set_position", set_position)                                              //
       | def("set_angle", set_angle);                                                   //
 
+  kind::component<PyHost>(pymodule, "Host") | ctor<py::function>();
+
   kind::entity<entity::Bot>(pymodule, "Bot") | R"(
-      Contains data for creating a bot entity.)"                                           //
-      | ctor<length_t, length_t, mass_t, py::function>("x"_a, "y"_a, "mass"_a, "logic"_a); //
+      Contains data for creating a bot entity.)"                  //
+      | ctor<length_t, length_t, mass_t>("x"_a, "y"_a, "mass"_a); //
 }
 
 PYBIND11_MODULE(_details, pymodule) {

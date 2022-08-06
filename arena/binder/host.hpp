@@ -10,9 +10,6 @@
 #include <arena/component/common.hpp>
 #include <arena/environment.hpp>
 
-namespace arena {
-namespace component {
-
 // Holds a Python invocable to be called on the entity components
 class PyHost {
 public:
@@ -25,7 +22,7 @@ public:
       : m_pytypes{get_annotations(pycallback)}, m_pycallback{std::move(pycallback)} {}
 
   // Call the stored invocable on the entity component
-  void invoke(Environment &, entt::entity);
+  void invoke(arena::Environment &, entt::entity);
 
 private:
   // Get the annotations (type hints) of a Python function arguments
@@ -35,7 +32,4 @@ private:
   pybind11::function m_pycallback;
 };
 
-} // namespace component
-} // namespace arena
-
-template <> struct arena_component_info<arena::component::PyHost> {};
+template <> struct arena_component_info<PyHost> {};

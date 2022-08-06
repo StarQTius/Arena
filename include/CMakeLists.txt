@@ -4,8 +4,6 @@ target_include_directories(Arena PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 set(STANDALONE_HEADERS
     arena.hpp
-    physics.hpp
-    binding/fetcher.hpp
     component/common.hpp
     component/ray.hpp
     traits/common.hpp

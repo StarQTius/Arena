@@ -10,7 +10,6 @@ set(SOURCES_LIST
     draw.cpp
     environment.cpp
     field.cpp
-    host.cpp
     physics.cpp
     storage.cpp
     raycasting.cpp)
