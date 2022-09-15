@@ -82,7 +82,8 @@ function(add_arena_library LIBRARY_NAME SOURCE_LIST)
     ${LIBRARY_NAME} PUBLIC box2d EnTT::EnTT pybind11::pybind11
                            mp-units::mp-units LTL expected)
   target_compile_features(${LIBRARY_NAME} PUBLIC cxx_std_20)
-  target_compile_options(${LIBRARY_NAME} PRIVATE ${ARENA_CPP_FLAGS})
+  target_compile_options(${LIBRARY_NAME} PRIVATE ${ARENA_CPP_FLAGS}
+                                                 -DENTT_API_IMPORT)
   set_target_properties(
     ${LIBRARY_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
                                CXX_VISIBILITY_PRESET hidden)
@@ -95,7 +96,8 @@ function(add_arena_module MODULE_NAME SOURCE_LIST)
     ${MODULE_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
                               CXX_VISIBILITY_PRESET hidden)
   target_compile_features(${MODULE_NAME} PUBLIC cxx_std_20)
-  target_compile_options(${MODULE_NAME} PRIVATE ${ARENA_CPP_FLAGS})
+  target_compile_options(${MODULE_NAME} PRIVATE ${ARENA_CPP_FLAGS}
+                                                -DENTT_API_IMPORT)
   target_include_directories(${MODULE_NAME} PRIVATE ${ARENA_BASE_SOURCE_DIR}
                                                     ${ARENA_BASE_MODULE_DIR})
 endfunction()
