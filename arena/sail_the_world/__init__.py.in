@@ -1,1 +1,1 @@
-from _details import C21_cups as cups, C21_CupGrabber as CupGrabber, C21_Cup as Cup, C21_CupColor as CupColor
+from .._details import C21_cups as cups, C21_CupGrabber as CupGrabber, C21_Cup as Cup, C21_CupColor as CupColor
