@@ -1,7 +1,7 @@
 include(CTest)
 
 add_custom_target(check_coc COMMAND ctest -L check_coc --output-on-failure)
-add_dependencies(check_coc _coc_details)
+add_dependencies(check_coc _details _coc_details)
 add_dependencies(check check_coc)
 
 add_test(
