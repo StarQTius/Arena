@@ -2,7 +2,7 @@ FetchContent_MakeAvailable(pybind11)
 
 include(Arena)
 
-set(TEMPLATE_FILES __init__.py sail_the_world/__init__.py)
+set(TEMPLATE_FILES __init__.py storage_base.py sail_the_world/__init__.py)
 
 foreach(TEMPLATE_FILE IN LISTS TEMPLATE_FILES)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${TEMPLATE_FILE}.in

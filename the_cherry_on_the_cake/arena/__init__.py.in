@@ -1,1 +1,5 @@
 from ._coc_details import *
+from ..storage_base import StorageBase
+
+class Storage(StorageBase, Storage):
+    pass

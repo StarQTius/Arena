@@ -1,0 +1,14 @@
+from abc import abstractmethod
+
+class StorageBase():
+    @abstractmethod
+    def store(self, target):
+        ...
+
+    @abstractmethod
+    def remove(self, target):
+        ...
+
+    @abstractmethod
+    def owned(self):
+        ...
