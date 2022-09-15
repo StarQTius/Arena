@@ -8,7 +8,7 @@
 
 #include <forward.hpp>
 
-#include "entity.hpp" // IWYU pragma: associated
+#include "../binder/def.hpp"
 
 template <typename T>
 concept Entity = requires(arena::Environment e, T x) {

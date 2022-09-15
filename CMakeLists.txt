@@ -42,6 +42,9 @@ set(ARENA_CPP_FLAGS
     -Wno-missing-braces
     -Wno-unneeded-internal-declaration
     -fcolor-diagnostics>)
+set(ARENA_BASE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
+set(ARENA_BASE_MODULE_DIR ${PROJECT_SOURCE_DIR}/arena)
+set(ARENA_PACKAGE_DIR ${PROJECT_BINARY_DIR}/arena)
 
 # Fetch dependencies from GitHub
 include(FetchContent)
@@ -120,6 +123,9 @@ else()
   find_package(Python3 COMPONENTS Interpreter Development)
 endif()
 
+set(ARENA_PYTEST_COMMAND ${Python3_EXECUTABLE} -B -m pytest --color=yes -p
+                         no:cacheprovider)
+
 add_subdirectory(src)
 add_subdirectory(include)
 
@@ -127,3 +133,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   add_subdirectory(arena EXCLUDE_FROM_ALL)
   add_subdirectory(test EXCLUDE_FROM_ALL)
 endif()
+
+add_library(Arena::Arena ALIAS Arena)
+add_subdirectory(the_cherry_on_the_cake)

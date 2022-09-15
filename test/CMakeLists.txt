@@ -7,9 +7,6 @@ include(Catch)
 
 set(TEST_LIST body.cpp field.cpp cup.cpp storage.cpp ray.cpp)
 
-set(PYTEST_COMMAND ${Python3_EXECUTABLE} -B -m pytest --color=yes -p
-                   no:cacheprovider)
-
 add_executable(run_tests main.cpp ${TEST_LIST})
 target_link_libraries(run_tests PRIVATE Arena Catch2::Catch2WithMain
                                         pybind11::embed LTL)
@@ -29,15 +26,15 @@ catch_discover_tests(
   compact)
 add_test(
   NAME base_tests
-  COMMAND ${PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/base.py
+  COMMAND ${ARENA_PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/base.py
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 add_test(
   NAME sail_the_world_tests
-  COMMAND ${PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/sail_the_world.py
+  COMMAND ${ARENA_PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/sail_the_world.py
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 add_test(
   NAME demo_tests
-  COMMAND ${PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/demo.py
+  COMMAND ${ARENA_PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/demo.py
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_custom_target(check COMMAND ctest -L check --output-on-failure)

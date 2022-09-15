@@ -1,0 +1,41 @@
+#include <box2d/b2_circle_shape.h>
+#include <box2d/b2_math.h>
+#include <entt/entity/entity.hpp>
+#include <entt/entity/registry.hpp>
+#include <units/isq/si/force.h>
+#include <units/isq/si/length.h>
+#include <units/isq/si/mass.h>
+#include <units/isq/si/torque.h>
+
+#include <arena/component/body.hpp>
+#include <arena/environment.hpp>
+#include <arena/physics.hpp>
+#include <arena/the_cherry_on_the_cake/entity/cake_layer.hpp>
+
+using namespace arena;
+
+namespace {
+
+using namespace units::isq::si::literals;
+
+auto cake_layer_shape = component::make_circle_shape(60_q_mm);
+constexpr auto cake_layer_mass = 100_q_g;
+constexpr auto cake_layer_friction_force = 0_q_N;
+constexpr auto cake_layer_friction_torque = 0_q_N_m_per_rad;
+
+} // namespace
+
+entt::entity arena::coc::entity::create(Environment &environment, const CakeLayer &def) {
+  auto entity = environment.create();
+
+  b2BodyDef body_def;
+  body_def.type = b2_dynamicBody;
+  body_def.position = {box2d_number(def.x), box2d_number(def.y)};
+  auto *body_p = environment.attach<b2Body *>(entity, body_def);
+  body_p->CreateFixture(&cake_layer_shape, box2d_number(compute_shape_density(cake_layer_shape, cake_layer_mass)));
+
+  environment.attach<b2FrictionJoint *>(entity, cake_layer_friction_force, cake_layer_friction_torque);
+  environment.attach(entity, def.flavor);
+
+  return entity;
+}

@@ -2,11 +2,16 @@
 #include <cmath>
 #include <string>
 #include <type_traits>
+#include <variant>
 
-#include <box2d/b2_body.h>
+#include <Python.h>
+#include <entt/core/any.hpp>
+#include <entt/core/fwd.hpp>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/entity/view.hpp>
+#include <entt/signal/delegate.hpp>
+#include <pybind11/attr.h>
 #include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
@@ -21,18 +26,20 @@
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
 
+#include "binder/_entity.hpp"
 #include "binder/component.hpp"
 #include "binder/ctor.hpp"
 #include "binder/def.hpp"
 #include "binder/doc.hpp"
-#include "binder/entity.hpp"
 #include "binder/fetcher.hpp"
 #include "binder/host.hpp"
 #include "binder/internal_component.hpp"
+#include "binder/normalize.hpp"
 #include "binder/property.hpp"
 #include "binder/static_def.hpp"
 #include "box2d.hpp"
 #include "common.hpp"
+#include "component_ref.hpp"
 #include "physics.hpp"
 
 namespace py = pybind11;

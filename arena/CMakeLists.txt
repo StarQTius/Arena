@@ -32,11 +32,11 @@ set(STANDALONE_HEADERS
     physics.hpp
     python.hpp
     utility.hpp
+    binder/_entity.hpp
     binder/component.hpp
     binder/ctor.hpp
     binder/def.hpp
     binder/doc.hpp
-    binder/entity.hpp
     binder/fetcher.hpp
     binder/internal_component.hpp
     binder/normalize.hpp

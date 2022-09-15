@@ -1,6 +1,7 @@
 #include <string>
 #include <type_traits>
 #include <unordered_set>
+#include <variant>
 
 #include <box2d/b2_body.h>
 #include <entt/entity/entity.hpp>
@@ -11,26 +12,22 @@
 #include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
+#include <tl/expected.hpp>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
 #include <units/isq/si/time.h>
 
 #include <arena/2021/cup.hpp>
-#include <arena/component/body.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
 
+#include "../binder/_entity.hpp"
 #include "../binder/component.hpp"
 #include "../binder/ctor.hpp"
 #include "../binder/def.hpp"
-#include "../binder/doc.hpp"
-#include "../binder/entity.hpp"
-#include "../binder/internal_component.hpp"
 #include "../binder/property.hpp"
-#include "../binder/static_def.hpp"
-#include "../box2d.hpp"
 #include "../common.hpp"
-#include "../physics.hpp"
+#include "../component_ref.hpp"
 
 namespace py = pybind11;
 
