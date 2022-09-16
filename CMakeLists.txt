@@ -123,8 +123,10 @@ else()
   find_package(Python3 COMPONENTS Interpreter Development)
 endif()
 
-set(ARENA_PYTEST_COMMAND ${Python3_EXECUTABLE} -B -m pytest --color=yes -p
-                         no:cacheprovider)
+set(ARENA_PYTEST_TIMEOUT 3)
+set(ARENA_PYTEST_COMMAND
+    ${Python3_EXECUTABLE} -B -m pytest --timeout=${ARENA_PYTEST_TIMEOUT}
+    --color=yes -p no:cacheprovider)
 
 add_subdirectory(src)
 add_subdirectory(include)

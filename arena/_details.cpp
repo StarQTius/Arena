@@ -114,7 +114,7 @@ void initialize_base(py::module_ &pymodule) {
 
   py::class_<Environment>(pymodule, "Environment") | R"(
       Contains a simulated state)"                                                    //
-      | ctor(create_environment, "width"_a = 3, "height"_a = 2)                       //
+      | ctor(create_environment, "width"_a = 3000, "height"_a = 2000)                 //
       | def("create", create_pyentity)                                                //
       | def("step", &Environment::step)                                               //
       | def("get", get_pycomponent, rvp::reference_internal)                          //

@@ -27,6 +27,22 @@ namespace detail {
 
 template <units::Dimension D> constexpr auto base_one_v = units::quantity<D, typename D::base_unit, precision_t>::one();
 
+template <units::Quantity T, typename F> arena::precision_t cast_derived_unit(const T &x, F &&base_caster) {
+  using namespace units;
+
+  // When the unit is derived, we use the recipe to decompose it into a product of exponentiated base units.
+  // For each of these units `U` and their exponent `E_U`, we multiply `x` by `box2d_scale(1 U) ^ E_U / (1 U) ^ E_U`.
+
+  auto dispatch = [&]<typename... Es>(units::exponent_list<Es...>) {
+    auto normal = (pow<Es::num, Es::den>(detail::base_one_v<typename Es::dimension>) * ... * 1);
+    auto scale = (std::pow(base_caster(detail::base_one_v<typename Es::dimension>), Es::num / Es::den) * ... * 1);
+
+    return quantity_cast<one>(x / normal).number() * scale;
+  };
+
+  return dispatch(typename T::dimension::recipe{});
+}
+
 } // namespace detail
 
 // Quantity used for the simulation
@@ -63,17 +79,7 @@ float box2d_number(auto &&x) {
   } else if constexpr (Torque<T>) {
     return quantity_cast<newton_metre_per_radian>(x).number();
   } else if constexpr (Quantity<T> && DerivedDimension<typename T::dimension>) {
-    // When the unit is derived, we use the recipe to decompose it into a product of exponentiated base units.
-    // For each of these units `U` and their exponent `E_U`, we multiply `x` by `box2d_scale(1 U) ^ E_U / (1 U) ^ E_U`.
-
-    auto dispatch = [&]<typename... Es>(units::exponent_list<Es...>) {
-      auto normal = (pow<Es::num, Es::den>(detail::base_one_v<typename Es::dimension>) * ... * 1);
-      auto scale = (std::pow(box2d_number(detail::base_one_v<typename Es::dimension>), Es::num / Es::den) * ... * 1);
-
-      return quantity_cast<one>(x / normal).number() * scale;
-    };
-
-    return dispatch(typename T::dimension::recipe{});
+    return detail::cast_derived_unit(x, [](auto x) { return box2d_number(x); });
   } else {
     static_assert(ARENA_ALWAYS_FALSE, "Unsupported dimension for Box2D");
   }

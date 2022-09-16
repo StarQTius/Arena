@@ -6,7 +6,6 @@
 #include <units/generic/angle.h>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
-#include <units/isq/si/speed.h>
 #include <units/isq/si/time.h>
 
 #include "physics.hpp"
@@ -30,17 +29,15 @@ auto numpy_number(auto &&x) {
 
   using T = std::remove_cvref_t<decltype(x)>;
   if constexpr (Length<T>) {
-    return quantity_cast<si::metre>(FWD(x)).number();
+    return quantity_cast<si::millimetre>(FWD(x)).number();
   } else if constexpr (Mass<T>) {
     return quantity_cast<si::kilogram>(FWD(x)).number();
   } else if constexpr (Time<T>) {
     return quantity_cast<si::second>(FWD(x)).number();
   } else if constexpr (Angle<T>) {
     return quantity_cast<radian>(FWD(x)).number();
-  } else if constexpr (Speed<T>) {
-    return quantity_cast<si::metre_per_second>(FWD(x)).number();
-  } else if constexpr (QuantityEquivalentTo<arena::angular_speed_t, T>) {
-    return quantity_cast<decltype(rad / s)::unit>(FWD(x)).number();
+  } else if constexpr (Quantity<T> && DerivedDimension<typename T::dimension>) {
+    return arena::detail::cast_derived_unit(x, [](auto x) { return numpy_number(x); });
   } else {
     static_assert(ARENA_ALWAYS_FALSE, "Unsupported dimension for NumPy");
   }
