@@ -32,5 +32,3 @@ def test_pick_cake_stack(env, bot_entity, bot_storage):
     assert bot_storage.pick(x=100, y=0) == Entity.NULL
 
     assert len(list(bot_storage.owned)) == 2
-
-pytest.main([__file__])
