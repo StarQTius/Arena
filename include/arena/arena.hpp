@@ -36,6 +36,7 @@ enum class Error {
   NOT_OWNED,
   ALREADY_OWNED,
   DANGLING_COMPONENT,
+  DISABLED_BODY,
   UNKNOWN = 0
 };
 

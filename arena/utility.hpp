@@ -44,6 +44,12 @@ inline void pyraise(arena::Error error) {
     throw std::runtime_error{"NOT_IN_STORAGE"};
   case STORAGE_FULL:
     throw std::runtime_error{"STORAGE_FULL"};
+  case NOT_OWNED:
+    throw std::runtime_error{"NOT_OWNED"};
+  case ALREADY_OWNED:
+    throw std::runtime_error{"ALREADY_OWNED"};
+  case DANGLING_COMPONENT:
+    throw std::runtime_error{"DANGLING_OWNED"};
   default:
     throw std::runtime_error{"UNKNOWN"};
   }

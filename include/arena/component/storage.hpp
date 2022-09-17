@@ -79,6 +79,33 @@ public:
       return expected();
     });
   }
+
+  Expected<entt::entity> pick(Environment &environment, length_t x, length_t y) {
+    using namespace ltl;
+
+    auto is_hitting = [&](auto &&tuple) {
+      auto *body_p = std::get<b2Body *&>(tuple);
+
+      if (!body_p->IsEnabled())
+        return false;
+
+      for (auto *fixture_p = body_p->GetFixtureList(); fixture_p != nullptr; fixture_p = fixture_p->GetNext()) {
+        if (fixture_p->TestPoint(b2Vec2{box2d_number(x), box2d_number(y)}))
+          return true;
+      }
+
+      return false;
+    };
+
+    auto range = environment.view<b2Body *>().each() | filter(is_hitting);
+    auto begin_it = begin(range), end_it = end(range);
+
+    if (begin_it == end_it)
+      return expected(entt::entity{entt::null});
+
+    auto found_entity = std::get<entt::entity>(*begin_it);
+    return store(environment, found_entity).transform([&]() { return found_entity; });
+  }
 };
 
 } // namespace component

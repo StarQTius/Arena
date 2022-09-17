@@ -14,6 +14,7 @@ namespace entity {
 struct CakeLayer {
   length_t x, y;
   component::Flavor flavor;
+  std::size_t stack;
 };
 
 entt::entity create(Environment &, const CakeLayer &);

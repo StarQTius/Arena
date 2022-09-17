@@ -125,7 +125,7 @@ void initialize_base(py::module_ &pymodule) {
             "__get", [](Environment & environment, entt::entity) -> auto & { return environment; },
             rvp::reference); //
 
-  py::enum_<entt::entity>(pymodule, "Entity");
+  py::enum_<entt::entity>(pymodule, "Entity").value("NULL", entt::null);
 
   py::class_<PyGameDrawer>(pymodule, "Renderer") | R"(
       Manage a rendering context

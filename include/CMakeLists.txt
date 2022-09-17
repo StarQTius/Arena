@@ -6,6 +6,7 @@ set(STANDALONE_HEADERS
     arena.hpp
     component/common.hpp
     component/ray.hpp
+    component/stackable.hpp
     traits/common.hpp
     traits/crtp.hpp
     traits/invocable.hpp

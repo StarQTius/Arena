@@ -9,6 +9,7 @@
 #include <tl/expected.hpp>
 
 #include <arena/component/body.hpp>
+#include <arena/component/stackable.hpp>
 #include <arena/component/storage.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
@@ -27,7 +28,7 @@ namespace py = pybind11;
 using namespace arena;
 using namespace py::literals;
 
-using storage_t = component::Storage<b2Body *, coc::component::Flavor>;
+using storage_t = component::Storage<b2Body *, coc::component::Flavor, component::Stackable>;
 
 template <> struct arena_component_info<storage_t> {};
 
@@ -41,13 +42,14 @@ py::iterator storage_owned_pyiterator(storage_t &self, Environment &environment)
 } // namespace
 
 PYBIND11_MODULE(_coc_details, pymodule) {
-  kind::entity<coc::entity::CakeLayer>(pymodule, "CakeLayer") | R"(Single cake layer)" //
-      | ctor<length_t, length_t, coc::component::Flavor>("x"_a, "y"_a, "flavor"_a);    //
+  kind::entity<coc::entity::CakeLayer>(pymodule, "CakeLayer") | R"(Single cake layer)"                          //
+      | ctor<length_t, length_t, coc::component::Flavor, std::size_t>("x"_a, "y"_a, "flavor"_a, "stack"_a = 1); //
 
   kind::component<storage_t>(pymodule, "Storage") | R"(Cake layers storage)" //
-      | ctor<std::size_t>("storage"_a)                                       //
+      | ctor<std::size_t>("capacity"_a)                                      //
       | def("store", &storage_t::store)                                      //
       | def("remove", &storage_t::remove)                                    //
+      | def("pick", &storage_t::pick, "x"_a, "y"_a)                          //
       | property("owned", storage_owned_pyiterator);                         //
 
   py::enum_<coc::component::Flavor>{pymodule, "Flavor"}

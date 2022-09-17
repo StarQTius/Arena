@@ -8,17 +8,16 @@
 #include <units/isq/si/torque.h>
 
 #include <arena/component/body.hpp>
+#include <arena/component/stackable.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
 #include <arena/the_cherry_on_the_cake/entity/cake_layer.hpp>
-
-using namespace arena;
 
 namespace {
 
 using namespace units::isq::si::literals;
 
-auto cake_layer_shape = component::make_circle_shape(60_q_mm);
+auto cake_layer_shape = arena::component::make_circle_shape(60_q_mm);
 constexpr auto cake_layer_mass = 100_q_g;
 constexpr auto cake_layer_friction_force = 0_q_N;
 constexpr auto cake_layer_friction_torque = 0_q_N_m_per_rad;
@@ -26,16 +25,22 @@ constexpr auto cake_layer_friction_torque = 0_q_N_m_per_rad;
 } // namespace
 
 entt::entity arena::coc::entity::create(Environment &environment, const CakeLayer &def) {
-  auto entity = environment.create();
+  entt::entity previous_entity = entt::null;
 
-  b2BodyDef body_def;
-  body_def.type = b2_dynamicBody;
-  body_def.position = {box2d_number(def.x), box2d_number(def.y)};
-  auto *body_p = environment.attach<b2Body *>(entity, body_def);
-  body_p->CreateFixture(&cake_layer_shape, box2d_number(compute_shape_density(cake_layer_shape, cake_layer_mass)));
+  for (std::size_t i = 0; i < def.stack; i++) {
+    auto entity = environment.create();
 
-  environment.attach<b2FrictionJoint *>(entity, cake_layer_friction_force, cake_layer_friction_torque);
-  environment.attach(entity, def.flavor);
+    b2BodyDef body_def;
+    body_def.type = b2_dynamicBody;
+    body_def.position = {box2d_number(def.x), box2d_number(def.y)};
+    auto *body_p = environment.attach<b2Body *>(entity, body_def);
+    body_p->CreateFixture(&cake_layer_shape, box2d_number(compute_shape_density(cake_layer_shape, cake_layer_mass)));
 
-  return entity;
+    environment.attach<b2FrictionJoint *>(entity, cake_layer_friction_force, cake_layer_friction_torque);
+    environment.attach(entity, def.flavor);
+    environment.attach(entity, arena::component::make_stackable(environment, previous_entity).value());
+    previous_entity = entity;
+  }
+
+  return previous_entity;
 }

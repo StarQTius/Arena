@@ -17,7 +17,9 @@ template <typename Component_T>
 auto component(pybind11::module_ &pymodule, const char *name, arena::WithSignature auto &&attach,
                arena::WithSignature auto &&get) {
   return pybind11::class_<ComponentRef<Component_T>>(pymodule, name) | def("__attach", FWD(attach)) |
-         static_def("__get", FWD(get), pybind11::return_value_policy::reference_internal);
+         static_def("__get", FWD(get), pybind11::return_value_policy::reference_internal) |
+         property("environment", &ComponentRef<Component_T>::environment,
+                  pybind11::return_value_policy::reference_internal);
 }
 
 template <typename Component_T> auto component(pybind11::module_ &pymodule, const char *name) {
