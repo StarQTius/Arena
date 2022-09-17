@@ -14,7 +14,7 @@ jobs:
           key: build-${{ steps.date.outputs.date }}
           restore-keys: |
             build
-      - run: pip3 install pytest numpy
+      - run: pip3 install pytest pytest-timeout numpy
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow
       - run: cmake -B ~/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-11
