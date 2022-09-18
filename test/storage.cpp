@@ -30,9 +30,15 @@ struct storable_t {
 } // namespace
 
 template <> struct arena_component_info<storable_t> {
-  static void on_storing(storable_t &storable, Environment &) { storable.storing_count++; }
+  static Expected<> on_storing(storable_t &storable, Environment &) {
+    storable.storing_count++;
+    return expected();
+  }
 
-  static void on_removal(storable_t &storable, Environment &) { storable.removal_count++; }
+  static Expected<> on_removal(storable_t &storable, Environment &) {
+    storable.removal_count++;
+    return expected();
+  }
 };
 
 TEST_CASE("Storage component", "[component]") {

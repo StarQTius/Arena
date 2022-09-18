@@ -22,6 +22,15 @@
     __VA_ARGS__                                                                                                        \
   }
 
+#define ARENA_LEGAL_OR(EXPR, DEFAULT)                                                                                  \
+  [&]() {                                                                                                              \
+    if constexpr (requires { (EXPR); }) {                                                                              \
+      return (EXPR);                                                                                                   \
+    } else {                                                                                                           \
+      return (DEFAULT);                                                                                                \
+    }                                                                                                                  \
+  }()
+
 namespace arena {
 
 template <typename T>
@@ -42,7 +51,24 @@ enum class Error {
 
 template <typename T = void> using Expected = tl::expected<T, Error>;
 
+constexpr auto expected() { return Expected<>{}; }
+
 constexpr auto unexpected(Error error) { return tl::unexpected<Error>{error}; }
+
+template <typename... Ts> auto validate(const Expected<Ts> &...xps) {
+  using ltl::tuple_t;
+
+  bool error_found = false;
+  Error error;
+  for_each(tuple_t{std::ref(xps)...}, [&](auto &xp) {
+    if (!xp && !error_found) {
+      error_found = true;
+      error = xp.error();
+    }
+  });
+
+  return error_found ? unexpected(error) : expected();
+}
 
 template <typename T> constexpr auto expected(T &&x) { return Expected<std::remove_cvref_t<T>>{ARENA_FWD(x)}; }
 
@@ -65,19 +91,8 @@ template <typename T> constexpr auto expected(std::reference_wrapper<T> ref, Err
 template <typename... Ts> constexpr auto expected(const Expected<Ts> &...xps) {
   using namespace ltl;
 
-  bool error_found = false;
-  Error error;
-  for_each(tuple_t{std::ref(xps)...}, [&](auto &xp) {
-    if (!xp && !error_found) {
-      error_found = true;
-      error = xp.error();
-    }
-  });
-
-  return !error_found ? expected(tuple_t{xps.value()...}) : unexpected(error);
+  return validate(xps...).and_then([&]() { return expected(tuple_t{xps.value()...}); });
 }
-
-constexpr auto expected() { return Expected<>{}; }
 
 constexpr inline auto if_invalid = ltl::curry(_((error, p), expected(p, error)));
 

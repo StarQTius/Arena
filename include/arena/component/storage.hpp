@@ -24,16 +24,16 @@ struct Storage_impl {
 
 } // namespace detail
 
-template <Component Component_T> void on_storing(Component_T &&component, Environment &environment) {
+template <Component Component_T> Expected<> on_storing(Component_T &&component, Environment &environment) {
   auto info = component_info(ARENA_FWD(component));
 
-  ARENA_IF_LEGAL(info.on_storing(ARENA_FWD(component), environment);)
+  return ARENA_LEGAL_OR(info.on_storing(ARENA_FWD(component), environment), expected());
 }
 
-template <Component Component_T> void on_removal(Component_T &&component, Environment &environment) {
+template <Component Component_T> Expected<> on_removal(Component_T &&component, Environment &environment) {
   auto info = component_info(ARENA_FWD(component));
 
-  ARENA_IF_LEGAL(info.on_removal(ARENA_FWD(component), environment);)
+  return ARENA_LEGAL_OR(info.on_removal(ARENA_FWD(component), environment), expected());
 }
 
 template <Component... Component_Ts> class Storage : detail::Storage_impl {
@@ -64,8 +64,7 @@ public:
     ARENA_ASSERT(environment.all_of<Component_Ts...>(entity), NOT_ATTACHED);
 
     return impl_t::store(environment.entity(*this), environment, entity).and_then([&]() {
-      (on_storing(environment.get<Component_Ts>(entity), environment), ...);
-      return expected();
+      return validate(on_storing(environment.get<Component_Ts>(entity), environment)...);
     });
   }
 
@@ -75,8 +74,7 @@ public:
     ARENA_ASSERT(environment.all_of<Component_Ts...>(entity), NOT_ATTACHED);
 
     return impl_t::remove(environment.entity(*this), environment, entity).and_then([&]() {
-      (on_removal(environment.get<Component_Ts>(entity), environment), ...);
-      return expected();
+      return validate(on_removal(environment.get<Component_Ts>(entity), environment)...);
     });
   }
 
