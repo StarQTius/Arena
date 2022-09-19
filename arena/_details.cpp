@@ -15,11 +15,14 @@
 #include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
+#include <pybind11/stl.h> // IWYU pragma: keep
+#include <tl/expected.hpp>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
 #include <units/isq/si/time.h>
 
 #include <arena/component/body.hpp>
+#include <arena/component/stackable.hpp>
 #include <arena/draw.hpp>
 #include <arena/entity/bot.hpp>
 #include <arena/entity/field.hpp>
@@ -145,6 +148,11 @@ void initialize_base(py::module_ &pymodule) {
             "forward_velocity", [](b2Body &) {}, set_forward_velocity, rvp::automatic) //
       | def("set_position", set_position)                                              //
       | def("set_angle", set_angle);                                                   //
+
+  kind::component<component::Stackable>(pymodule, "Stackable") | def("stack", &component::Stackable::stack) |
+      def("unstack", &component::Stackable::unstack) |
+      property("range",
+               [](component::Stackable &stackable, Environment &environment) { return stackable.range(environment); });
 
   kind::component<PyHost>(pymodule, "Host") | ctor<py::function>();
 

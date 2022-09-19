@@ -31,6 +31,13 @@
     }                                                                                                                  \
   }()
 
+#define ARENA_PROPAGATE(EXPR)                                                                                          \
+  {                                                                                                                    \
+    auto xp = (EXPR);                                                                                                  \
+    if (!xp)                                                                                                           \
+      return unexpected(xp.error());                                                                                   \
+  }
+
 namespace arena {
 
 template <typename T>
@@ -46,6 +53,8 @@ enum class Error {
   ALREADY_OWNED,
   DANGLING_COMPONENT,
   DISABLED_BODY,
+  NOT_STACK_TOP,
+  ALREADY_STACKED,
   UNKNOWN = 0
 };
 

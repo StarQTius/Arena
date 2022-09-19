@@ -99,12 +99,14 @@ public:
     using enum Error;
 
     if constexpr (sizeof...(Component_Ts) == 1) {
-      return expected(m_registry.try_get<Component_Ts...>(entity), NOT_ATTACHED);
+      return entity != entt::null ? expected(m_registry.try_get<Component_Ts...>(entity), NOT_ATTACHED)
+                                  : unexpected(NOT_ATTACHED);
     } else {
       tuple_t components_p{m_registry.try_get<Component_Ts>(entity)...};
 
-      return components_p(_((... ps), (ps && ...))) ? expected(transform_type(components_p, _((p), *p)))
-                                                    : unexpected(NOT_ATTACHED);
+      return entity != entt::null && components_p(_((... ps), (ps && ...)))
+                 ? expected(transform_type(components_p, _((p), *p)))
+                 : unexpected(NOT_ATTACHED);
     }
   }
 

@@ -32,3 +32,19 @@ def test_pick_cake_stack(env, bot_entity, bot_storage):
     assert bot_storage.pick(x=100, y=0) == Entity.NULL
 
     assert len(list(bot_storage.owned)) == 2
+
+def test_rearrange_stack(env, bot_entity, bot_storage):
+    env.create(CakeLayer(x=0, y=0, flavor=Flavor.ICING, stack=3))
+    cake_layer_entities = [bot_storage.pick(x=0, y=0) for _ in range(3)]
+
+    env.get(cake_layer_entities[0], Body).set_position((0, 0))
+    bot_storage.remove(cake_layer_entities[0])
+
+    env.get(cake_layer_entities[2], Stackable).stack(cake_layer_entities[0])
+    bot_storage.remove(cake_layer_entities[2])
+
+    env.get(cake_layer_entities[1], Stackable).stack(cake_layer_entities[2])
+    bot_storage.remove(cake_layer_entities[1])
+
+    assert len(list(bot_storage.owned)) == 0
+    assert env.get(cake_layer_entities[1], Stackable).range == [cake_layer_entities[1], cake_layer_entities[2], cake_layer_entities[0]]

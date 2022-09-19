@@ -17,6 +17,8 @@
 
 namespace arena {
 
+class Environment;
+
 struct CollisionBeginning {
   entt::entity entity_a, entity_b;
   entt::registry *registry_p;
@@ -35,6 +37,18 @@ b2CircleShape make_circle_shape(length_t);
 template <> struct arena_component_info<b2Body *> {
   static void init(entt::registry &);
   static b2Body *make(entt::registry &, entt::entity, const b2BodyDef &);
+
+  static arena::Expected<> on_storing(b2Body *body_p, arena::Environment &) {
+    body_p->SetEnabled(false);
+
+    return arena::expected();
+  }
+
+  static arena::Expected<> on_removal(b2Body *body_p, arena::Environment &) {
+    body_p->SetEnabled(true);
+
+    return arena::expected();
+  }
 };
 
 template <> struct arena_component_info<b2FrictionJoint *> {

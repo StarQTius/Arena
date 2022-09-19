@@ -50,6 +50,10 @@ inline void pyraise(arena::Error error) {
     throw std::runtime_error{"ALREADY_OWNED"};
   case DANGLING_COMPONENT:
     throw std::runtime_error{"DANGLING_OWNED"};
+  case NOT_STACK_TOP:
+    throw std::runtime_error{"NOT_STACK_TOP"};
+  case ALREADY_STACKED:
+    throw std::runtime_error{"ALREADY_STACKED"};
   default:
     throw std::runtime_error{"UNKNOWN"};
   }
