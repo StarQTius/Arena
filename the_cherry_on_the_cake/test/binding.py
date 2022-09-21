@@ -48,3 +48,4 @@ def test_rearrange_stack(env, bot_entity, bot_storage):
 
     assert len(list(bot_storage.owned)) == 0
     assert env.get(cake_layer_entities[1], Stackable).range == [cake_layer_entities[1], cake_layer_entities[2], cake_layer_entities[0]]
+    assert [*map(lambda x : env.get(x, Body).is_enabled, env.get(cake_layer_entities[1], Stackable).range)] == [True, False, False]

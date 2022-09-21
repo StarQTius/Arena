@@ -147,7 +147,8 @@ void initialize_base(py::module_ &pymodule) {
       | property(
             "forward_velocity", [](b2Body &) {}, set_forward_velocity, rvp::automatic) //
       | def("set_position", set_position)                                              //
-      | def("set_angle", set_angle);                                                   //
+      | def("set_angle", set_angle)                                                    //
+      | property("is_enabled", &b2Body::IsEnabled);                                    //
 
   kind::component<component::Stackable>(pymodule, "Stackable") | def("stack", &component::Stackable::stack) |
       def("unstack", &component::Stackable::unstack) |

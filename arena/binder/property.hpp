@@ -64,20 +64,20 @@ template <arena::WithSignature F> auto property(const char *name, F &&read, auto
 }
 
 template <Getter Mf> auto property(const char *name, Mf &&mf, auto &&...extras) {
-  auto read = [mf](arena::class_t<Mf> & self) -> const auto & { return (self.*mf)(); };
+  auto read = [mf](arena::class_t<Mf> &self) -> decltype(auto) { return (self.*mf)(); };
 
   return property(name, std::move(read), FWD(extras)...);
 }
 
 template <Setter Mf> auto property(const char *name, Mf &&mf, auto &&...extras) {
-  auto read = [mf](arena::class_t<Mf> & self) -> const auto & { return (self.*mf)(); };
+  auto read = [mf](arena::class_t<Mf> &self) -> decltype(auto) { return (self.*mf)(); };
   auto write = [mf](arena::class_t<Mf> &self, arena::return_t<decltype(read)> rhs) { (self.*mf)() = rhs; };
 
   return property(name, std::move(read), std::move(write), FWD(extras)...);
 }
 
 template <std::copy_constructible T, typename C> auto property(const char *name, T C::*vm, auto &&...extras) {
-  auto read = [vm](C & self) -> const auto & { return self.*vm; };
+  auto read = [vm](C &self) -> decltype(auto) { return self.*vm; };
   auto write = [vm](C &self, const T &rhs) { return self.*vm = rhs; };
 
   return property(name, std::move(read), std::move(write), FWD(extras)...);
