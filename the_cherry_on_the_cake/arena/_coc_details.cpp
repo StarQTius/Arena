@@ -13,8 +13,10 @@
 #include <arena/component/storage.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
+#include <arena/the_cherry_on_the_cake/component/cherry_like.hpp>
 #include <arena/the_cherry_on_the_cake/component/flavor.hpp>
 #include <arena/the_cherry_on_the_cake/entity/cake_layer.hpp>
+#include <arena/the_cherry_on_the_cake/entity/cherry.hpp>
 
 #include <binder/_entity.hpp>
 #include <binder/component.hpp>
@@ -28,13 +30,15 @@ namespace py = pybind11;
 using namespace arena;
 using namespace py::literals;
 
-using storage_t = component::Storage<b2Body *, coc::component::Flavor, component::Stackable>;
+using cake_storage_t = component::Storage<b2Body *, coc::component::Flavor, component::Stackable>;
+using cherry_storage_t = component::Storage<b2Body *, coc::component::CherryLike, component::Stackable>;
 
-template <> struct arena_component_info<storage_t> {};
+template <> struct arena_component_info<cake_storage_t> {};
+template <> struct arena_component_info<cherry_storage_t> {};
 
 namespace {
 
-py::iterator storage_owned_pyiterator(storage_t &self, Environment &environment) {
+template <typename T> py::iterator storage_owned_pyiterator(T &self, Environment &environment) {
   auto range = self.owned(environment);
   return py::make_iterator(range.begin(), range.end());
 }
@@ -45,12 +49,21 @@ PYBIND11_MODULE(_coc_details, pymodule) {
   kind::entity<coc::entity::CakeLayer>(pymodule, "CakeLayer") | R"(Single cake layer)"                          //
       | ctor<length_t, length_t, coc::component::Flavor, std::size_t>("x"_a, "y"_a, "flavor"_a, "stack"_a = 1); //
 
-  kind::component<storage_t>(pymodule, "Storage") | R"(Cake layers storage)" //
-      | ctor<std::size_t>("capacity"_a)                                      //
-      | def("store", &storage_t::store)                                      //
-      | def("remove", &storage_t::remove)                                    //
-      | def("pick", &storage_t::pick, "x"_a, "y"_a)                          //
-      | property("owned", storage_owned_pyiterator);                         //
+  kind::entity<coc::entity::Cherry>(pymodule, "Cherry") | R"(Cherry entity)" | ctor<length_t, length_t>("x"_a, "y"_a);
+
+  kind::component<cake_storage_t>(pymodule, "CakeStorage") | R"(Cake layers storage)" //
+      | ctor<std::size_t>("capacity"_a)                                               //
+      | def("store", &cake_storage_t::store)                                          //
+      | def("remove", &cake_storage_t::remove)                                        //
+      | def("pick", &cake_storage_t::pick, "x"_a, "y"_a)                              //
+      | property("owned", storage_owned_pyiterator<cake_storage_t>);                  //
+
+  kind::component<cherry_storage_t>(pymodule, "CherryStorage") | R"(Cherries storage)" //
+      | ctor<std::size_t>("capacity"_a)                                                //
+      | def("store", &cherry_storage_t::store)                                         //
+      | def("remove", &cherry_storage_t::remove)                                       //
+      | def("pick", &cherry_storage_t::pick, "x"_a, "y"_a)                             //
+      | property("owned", storage_owned_pyiterator<cherry_storage_t>);                 //
 
   py::enum_<coc::component::Flavor>{pymodule, "Flavor"}
       .value("ICING", coc::component::Flavor::ICING)              //

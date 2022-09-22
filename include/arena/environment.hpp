@@ -18,6 +18,7 @@
 #include <arena/component/body.hpp>
 #include <arena/draw.hpp>
 #include <arena/physics.hpp>
+#include <arena/traits/invocable.hpp>
 
 #define DescribingEntity DescribingEntity
 
@@ -62,11 +63,13 @@ public:
     return create(*this, std::forward<Args>(args)...);
   }
 
-  template <Component Component_T> auto &attach(entt::entity entity, Component_T &&component) {
+  template <Component Component_T> decltype(auto) attach(entt::entity entity, Component_T &&component) {
     using component_t = std::remove_cvref_t<Component_T>;
 
     check_init_guard<Component_T>();
-    return m_registry.emplace<component_t>(entity, ARENA_FWD(component));
+    m_registry.emplace<component_t>(entity, ARENA_FWD(component));
+
+    return get<component_t>(entity);
   }
 
   template <Component Component_T, typename... Args>
@@ -90,8 +93,12 @@ public:
 
   template <Component... Component_Ts> auto view() { return view<Component_Ts...>({}); }
 
-  template <Component... Component_Ts> auto &get(entt::entity entity) {
-    return m_registry.get<Component_Ts...>(entity);
+  template <Component... Component_Ts> decltype(auto) get(entt::entity entity) {
+    if constexpr (std::is_void_v<decltype(m_registry.get<Component_Ts...>(entity))>) {
+      return (Component_Ts{}, ...);
+    } else {
+      return m_registry.get<Component_Ts...>(entity);
+    }
   }
 
   template <Component... Component_Ts> auto try_get(entt::entity entity) {

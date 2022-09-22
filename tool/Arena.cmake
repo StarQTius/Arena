@@ -76,8 +76,8 @@ function(add_iwyu_target FILE_PATH DEPENDENCY)
   endif()
 endfunction()
 
-function(add_arena_library LIBRARY_NAME SOURCE_LIST)
-  add_library(${LIBRARY_NAME} STATIC ${SOURCE_LIST})
+function(add_arena_library LIBRARY_NAME)
+  add_library(${LIBRARY_NAME} STATIC ${ARGN})
   target_link_libraries(
     ${LIBRARY_NAME} PUBLIC box2d EnTT::EnTT pybind11::pybind11
                            mp-units::mp-units LTL expected)
@@ -90,8 +90,8 @@ function(add_arena_library LIBRARY_NAME SOURCE_LIST)
   target_include_directories(${LIBRARY_NAME} PRIVATE ${ARENA_BASE_SOURCE_DIR})
 endfunction()
 
-function(add_arena_module MODULE_NAME SOURCE_LIST)
-  pybind11_add_module(${MODULE_NAME} ${SOURCE_LIST})
+function(add_arena_module MODULE_NAME)
+  pybind11_add_module(${MODULE_NAME} ${ARGN})
   set_target_properties(
     ${MODULE_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
                               CXX_VISIBILITY_PRESET hidden)

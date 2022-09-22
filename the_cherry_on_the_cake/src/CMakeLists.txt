@@ -1,6 +1,6 @@
 include(Arena)
 
-set(SOURCE_LIST cake_layer.cpp)
+set(SOURCE_LIST cake_layer.cpp cherry.cpp)
 
 add_arena_library(TheCherryOnTheCake ${SOURCE_LIST})
 
