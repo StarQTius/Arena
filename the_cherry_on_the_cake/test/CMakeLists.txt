@@ -9,3 +9,9 @@ add_test(
   COMMAND ${ARENA_PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/binding.py
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 set_tests_properties(Binding PROPERTIES LABELS check_coc)
+
+add_custom_target(
+  coc_demo
+  COMMAND ${ARENA_PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/demo.py
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_dependencies(coc_demo _details)

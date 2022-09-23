@@ -1,1 +1,11 @@
 from .._details.the_cherry_on_the_cake import *
+
+def default_layout():
+    from .. import _details as arena
+
+    env = arena.Environment()
+
+    env.create(CakeLayer(x=0, y=0, flavor=Flavor.ICING))
+    env.create(Cherry(x=100, y=0))
+
+    return env

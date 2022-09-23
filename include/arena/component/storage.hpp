@@ -102,7 +102,9 @@ public:
       return expected(entt::entity{entt::null});
 
     auto found_entity = std::get<entt::entity>(*begin_it);
-    return store(environment, found_entity).transform([&]() { return found_entity; });
+    return store(environment, found_entity).transform([&]() { return found_entity; }).or_else([&](Error error) {
+      return error == Error::NOT_ATTACHED ? expected(entt::null) : unexpected(error);
+    });
   }
 };
 
