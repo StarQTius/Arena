@@ -24,6 +24,7 @@
 #include <binder/def.hpp>
 #include <binder/doc.hpp>
 #include <binder/property.hpp>
+#include <common.hpp>
 
 namespace py = pybind11;
 
@@ -45,7 +46,7 @@ template <typename T> py::iterator storage_owned_pyiterator(T &self, Environment
 
 } // namespace
 
-PYBIND11_MODULE(_coc_details, pymodule) {
+void initialize_the_cherry_on_the_cake(pybind11::module_ &&pymodule) {
   kind::entity<coc::entity::CakeLayer>(pymodule, "CakeLayer") | R"(Single cake layer)"                          //
       | ctor<length_t, length_t, coc::component::Flavor, std::size_t>("x"_a, "y"_a, "flavor"_a, "stack"_a = 1); //
 

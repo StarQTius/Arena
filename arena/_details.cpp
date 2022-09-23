@@ -165,4 +165,5 @@ void initialize_base(py::module_ &pymodule) {
 PYBIND11_MODULE(_details, pymodule) {
   initialize_base(pymodule);
   initialize_sail_the_world(pymodule);
+  initialize_the_cherry_on_the_cake(pymodule.def_submodule("the_cherry_on_the_cake"));
 }

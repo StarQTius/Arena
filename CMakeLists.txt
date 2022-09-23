@@ -43,7 +43,6 @@ set(ARENA_CPP_FLAGS
     -Wno-unneeded-internal-declaration
     -fcolor-diagnostics>)
 set(ARENA_BASE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
-set(ARENA_BASE_MODULE_DIR ${PROJECT_SOURCE_DIR}/arena)
 set(ARENA_PACKAGE_DIR ${PROJECT_BINARY_DIR}/arena)
 
 # Fetch dependencies from GitHub

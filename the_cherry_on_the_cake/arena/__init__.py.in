@@ -1,1 +1,1 @@
-from ._coc_details import *
+from .._details.the_cherry_on_the_cake import *
