@@ -15,7 +15,8 @@ target_link_libraries(_details PRIVATE Arena)
 set_target_properties(_details PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
                                           CXX_VISIBILITY_PRESET hidden)
 target_compile_features(_details PUBLIC cxx_std_20)
-target_compile_options(_details PRIVATE ${ARENA_CPP_FLAGS} -DENTT_API_EXPORT)
+target_compile_options(_details PRIVATE ${ARENA_CPP_FLAGS} -DENTT_API_EXPORT
+                                        -DB2_SHARED)
 target_include_directories(_details PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
 add_custom_target(module DEPENDS _details)

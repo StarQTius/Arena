@@ -21,7 +21,8 @@ add_library(Arena STATIC ${SOURCES_LIST})
 target_link_libraries(Arena PUBLIC box2d EnTT::EnTT pybind11::pybind11
                                    mp-units::mp-units LTL expected)
 target_compile_features(Arena PUBLIC cxx_std_20)
-target_compile_options(Arena PRIVATE ${ARENA_CPP_FLAGS} -DENTT_API_EXPORT)
+target_compile_options(Arena PRIVATE ${ARENA_CPP_FLAGS} -DENTT_API_EXPORT
+                                     -DB2_SHARED)
 set_target_properties(Arena PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
                                        CXX_VISIBILITY_PRESET hidden)
 
