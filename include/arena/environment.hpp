@@ -94,11 +94,7 @@ public:
   template <Component... Component_Ts> auto view() { return view<Component_Ts...>({}); }
 
   template <Component... Component_Ts> decltype(auto) get(entt::entity entity) {
-    if constexpr (std::is_void_v<decltype(m_registry.get<Component_Ts...>(entity))>) {
-      return (Component_Ts{}, ...);
-    } else {
-      return m_registry.get<Component_Ts...>(entity);
-    }
+    return m_registry.get<Component_Ts...>(entity);
   }
 
   template <Component... Component_Ts> auto try_get(entt::entity entity) {

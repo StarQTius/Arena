@@ -4,7 +4,10 @@ namespace arena {
 namespace coc {
 namespace component {
 
-struct CherryLike {};
+struct CherryLike {
+private:
+  [[maybe_unused]] int filling;
+};
 
 } // namespace component
 } // namespace coc
