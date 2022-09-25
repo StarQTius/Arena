@@ -31,8 +31,8 @@ namespace py = pybind11;
 using namespace arena;
 using namespace py::literals;
 
-using cake_storage_t = component::Storage<b2Body *, coc::component::Flavor, component::Stackable>;
-using cherry_storage_t = component::Storage<b2Body *, coc::component::CherryLike, component::Stackable>;
+using cake_storage_t = component::Storage<component::Stackable, b2Body *, coc::component::Flavor>;
+using cherry_storage_t = component::Storage<component::Stackable, b2Body *, coc::component::CherryLike>;
 
 template <> struct arena_component_info<cake_storage_t> {};
 template <> struct arena_component_info<cherry_storage_t> {};

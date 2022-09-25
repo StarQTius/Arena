@@ -26,6 +26,10 @@ void destroy_body(entt::registry &registry, entt::entity entity) {
   get_world(registry).DestroyBody(registry.get<b2Body *>(entity));
 }
 
+template <typename Joint_T> void destroy_joint(entt::registry &registry, entt::entity entity) {
+  get_world(registry).DestroyJoint(registry.get<Joint_T *>(entity));
+}
+
 } // namespace
 
 entt::entity arena::get_entity(b2Body *body_p) { return static_cast<entt::entity>(body_p->GetUserData().pointer); }
@@ -59,4 +63,15 @@ void arena_component_info<b2FrictionJoint *>::init(entt::registry &registry) {
 b2FrictionJoint *arena_component_info<b2FrictionJoint *>::make(entt::registry &registry, entt::entity,
                                                                const b2FrictionJointDef &friction_joint_def) {
   return static_cast<b2FrictionJoint *>(get_world(registry).CreateJoint(&friction_joint_def));
+}
+
+void arena_component_info<b2WeldJoint *>::init(entt::registry &registry) {
+  registry.on_destroy<b2WeldJoint *>().connect<destroy_joint<b2WeldJoint>>();
+}
+
+b2WeldJoint *arena_component_info<b2WeldJoint *>::make(entt::registry &registry, entt::entity self,
+                                                       entt::entity target) {
+  b2WeldJointDef def;
+  def.Initialize(registry.get<b2Body *>(self), registry.get<b2Body *>(target), {0, 0});
+  return static_cast<b2WeldJoint *>(get_world(registry).CreateJoint(&def));
 }

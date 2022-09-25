@@ -26,14 +26,35 @@ constexpr auto cherry_mass = 1.83_q_g;
 constexpr auto cherry_friction_force = 0_q_N;
 constexpr auto cherry_friction_torque = 0_q_N_m_per_rad;
 
-arena::Expected<> on_stack(arena::Environment &environment, arena::component::Stackable &, entt::entity target) {
+arena::Expected<> on_stack(arena::Environment &environment, arena::component::Stackable &stackable,
+                           entt::entity target) {
   using namespace arena;
 
   using component::Stackable, coc::component::Flavor;
   using ltl::unzip;
   using enum Error;
 
-  return environment.all_of<b2Body *, Stackable, Flavor>(target) ? expected() : unexpected(NOT_ATTACHED);
+  ARENA_ASSERT((environment.all_of<b2Body *, Stackable, Flavor>(target)), NOT_ATTACHED);
+
+  return environment.entity(stackable).and_then([&](entt::entity entity) -> Expected<> {
+    ARENA_PROPAGATE(expected(environment.try_get<b2Body *>(entity), environment.try_get<b2Body *>(target))
+                        .transform(unzip([&](b2Body *body_p, b2Body *target_body_p) {
+                          body_p->SetTransform(target_body_p->GetPosition(), 0);
+                        })));
+    environment.attach<b2WeldJoint *>(entity, target);
+    return expected();
+  });
+}
+
+arena::Expected<> on_unstack(arena::Environment &environment, arena::component::Stackable &stackable) {
+  using namespace arena;
+
+  using component::Stackable, coc::component::Flavor;
+  using ltl::unzip;
+  using enum Error;
+
+  return environment.entity(stackable).transform(
+      [&](entt::entity entity) { environment.remove<b2WeldJoint *>(entity); });
 }
 
 } // namespace
@@ -49,7 +70,7 @@ entt::entity arena::coc::entity::create(Environment &environment, const Cherry &
 
   environment.attach<b2FrictionJoint *>(entity, cherry_friction_force, cherry_friction_torque);
   environment.attach(entity, component::CherryLike{});
-  environment.attach(entity, arena::component::make_stackable(environment, entt::null, on_stack, nullptr).value());
+  environment.attach(entity, arena::component::make_stackable(environment, entt::null, on_stack, on_unstack).value());
 
   return entity;
 }

@@ -13,6 +13,7 @@
 #include <arena/component/common.hpp>
 #include <box2d/b2_body.h>
 #include <box2d/b2_friction_joint.h>
+#include <box2d/b2_weld_joint.h>
 // IWYU pragma: end_exports
 
 namespace arena {
@@ -75,4 +76,9 @@ template <> struct arena_component_info<b2FrictionJoint *> {
     def.maxTorque = box2d_number(torque);
     return reinterpret_cast<b2FrictionJoint *>(world.CreateJoint(&def));
   }
+};
+
+template <> struct arena_component_info<b2WeldJoint *> {
+  static void init(entt::registry &);
+  static b2WeldJoint *make(entt::registry &, entt::entity, entt::entity);
 };

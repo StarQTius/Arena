@@ -82,7 +82,7 @@ public:
     using namespace ltl;
 
     auto is_hitting = [&](auto &&tuple) {
-      auto *body_p = std::get<b2Body *&>(tuple);
+      auto *body_p = std::get<1>(tuple);
 
       if (!body_p->IsEnabled())
         return false;
@@ -95,7 +95,7 @@ public:
       return false;
     };
 
-    auto range = environment.view<b2Body *>().each() | filter(is_hitting);
+    auto range = environment.view<b2Body *, Component_Ts...>().each() | filter(is_hitting);
     auto begin_it = begin(range), end_it = end(range);
 
     if (begin_it == end_it)

@@ -56,6 +56,8 @@ def test_stack_cherry_on_cake_layer(env, bot_entity):
 
     env.get(cherry_entity, Stackable).stack(cake_layer_entity)
 
+    assert (env.get(cherry_entity, Body).position == (0, 0)).all()
+
 def test_cannot_stack_anything_on_cherry(env, bot_entity):
     cake_layer_entity = env.create(CakeLayer(x=0, y=0, flavor=Flavor.ICING))
     cherry1_entity = env.create(Cherry(x=500, y=0))
