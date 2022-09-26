@@ -122,6 +122,10 @@ void register_on_ray_fired_pycallback(Environment &environment, py::function pyc
   environment.on_ray_fired<call_pyobject_as_ray_fired_pycallback>(*pycallback.ptr());
 }
 
+void draw_segment(PyGameDrawer &self, length_vec p1, length_vec p2) {
+  self.DrawSegment(to_box2d(p1), to_box2d(p2), {1, 1, 1});
+}
+
 } // namespace
 
 void initialize_base(py::module_ &pymodule) {
@@ -135,7 +139,7 @@ void initialize_base(py::module_ &pymodule) {
       | def("get", get_pycomponent, rvp::reference_internal)                          //
       | def("attach", attach_pycomponent)                                             //
       | def("on_collision", register_on_collision_pycallback, py::keep_alive<1, 2>{}) //
-      | def("on_ray_cast", register_on_ray_fired_pycallback, py::keep_alive<1, 2>{})  //
+      | def("on_ray_fired", register_on_ray_fired_pycallback, py::keep_alive<1, 2>{}) //
       | property("renderer", &Environment::renderer)                                  //
       | static_def(
             "__get", [](Environment & environment, entt::entity) -> auto & { return environment; },
@@ -148,7 +152,8 @@ void initialize_base(py::module_ &pymodule) {
       It is implemented as a context manager. When entering the context, a window will appear that renders the
       evolution of the simulated state the manager is associated with.)" //
       | def("__enter__", enter_drawer)                                   //
-      | def("__exit__", exit_drawer);                                    //
+      | def("__exit__", exit_drawer)                                     //
+      | def("draw_segment", draw_segment);                               //
 
   kind::internal_component<b2Body>(pymodule, "Body") | R"(
       Represents a physical body in a simulated state)"                                                               //

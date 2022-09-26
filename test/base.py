@@ -77,7 +77,7 @@ def test_hook_function_to_ray_cast_signal():
     env = Environment()
     entity = env.create(Bot(x=1000, y=500, mass=1))
     env.attach(entity, Ray(x=0, y=0, angle=0, range=1000))
-    env.on_ray_cast(ray_cast_hook)
+    env.on_ray_fired(ray_cast_hook)
 
     body = env.get(entity, Body)
     body.set_angle(1)
