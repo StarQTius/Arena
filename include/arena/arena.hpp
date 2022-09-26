@@ -45,6 +45,7 @@ concept Optional =
     InstanceOf<std::remove_cvref_t<T>, tl::expected> || InstanceOf<std::remove_cvref_t<T>, ltl::optional>;
 
 enum class Error {
+  NOT_IN_CONTEXT,
   NOT_ATTACHED,
   ALREADY_ATTACHED,
   NOT_IN_STORAGE,

@@ -18,6 +18,7 @@
 #include <arena/component/body.hpp>
 #include <arena/draw.hpp>
 #include <arena/physics.hpp>
+#include <arena/signal.hpp>
 #include <arena/traits/invocable.hpp>
 
 #define DescribingEntity DescribingEntity
@@ -81,10 +82,22 @@ public:
     return m_registry.emplace<component_t>(entity, make_component<Component_T>(m_registry, entity, ARENA_FWD(args)...));
   }
 
-  template <auto Function> void on_collision() { m_dispatcher.sink<CollisionBeginning>().connect<Function>(); }
+  template <typename T> auto try_ctx() { return expected(m_registry.ctx().find<T>(), Error::NOT_IN_CONTEXT); }
 
-  template <auto Function> void on_collision(auto &instance) {
-    m_dispatcher.sink<CollisionBeginning>().connect<Function>(instance);
+  template <auto Function> void on_collision() { on_signal<CollisionBeginning, Function>(); }
+
+  template <auto Function> void on_collision(auto &instance) { on_signal<CollisionBeginning, Function>(instance); }
+
+  template <auto Function> void on_ray_fired() { on_signal<RayFired, Function>(); }
+
+  template <auto Function> void on_ray_fired(auto &instance) { on_signal<RayFired, Function>(instance); }
+
+  template <typename Event_T, auto Function> void on_signal() {
+    m_dispatcher.sink<Event_T>().template connect<Function>();
+  }
+
+  template <typename Event_T, auto Function> void on_signal(auto &instance) {
+    m_dispatcher.sink<Event_T>().template connect<Function>(instance);
   }
 
   template <Component... Component_Ts, Component... Exclude_Ts> auto view(entt::exclude_t<Exclude_Ts...> exclude_list) {

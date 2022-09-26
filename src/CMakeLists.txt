@@ -11,6 +11,7 @@ set(SOURCES_LIST
     environment.cpp
     field.cpp
     physics.cpp
+    ray.cpp
     storage.cpp
     raycasting.cpp
     stackable.cpp)

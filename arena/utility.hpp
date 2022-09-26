@@ -54,6 +54,8 @@ inline void pyraise(arena::Error error) {
     throw std::runtime_error{"NOT_STACK_TOP"};
   case ALREADY_STACKED:
     throw std::runtime_error{"ALREADY_STACKED"};
+  case NOT_IN_CONTEXT:
+    throw std::runtime_error{"NOT_IN_CONTEXT"};
   default:
     throw std::runtime_error{"UNKNOWN"};
   }

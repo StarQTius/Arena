@@ -23,6 +23,7 @@
 #include <arena/component/body.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
+#include <arena/signal.hpp>
 
 using namespace arena;
 using namespace units::isq::si::literals;

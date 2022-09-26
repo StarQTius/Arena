@@ -68,4 +68,19 @@ def test_distinguish_collision_parties():
     for _ in range(300):
         env.step(1 / 30)
 
+def test_hook_function_to_ray_cast_signal():
+    result = ()
+    def ray_cast_hook(entity, x, y, angle, distance):
+        nonlocal result
+        result = (x, y, angle) 
 
+    env = Environment()
+    entity = env.create(Bot(x=1000, y=500, mass=1))
+    env.attach(entity, Ray(x=0, y=0, angle=0, range=1000))
+    env.on_ray_cast(ray_cast_hook)
+
+    body = env.get(entity, Body)
+    body.set_angle(1)
+    env.get(entity, Ray).cast()
+
+    assert result == (1000, 500, 1)

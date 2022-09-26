@@ -8,6 +8,7 @@
 
 #include <arena/arena.hpp> // IWYU pragma: export
 #include <arena/physics.hpp>
+#include <arena/signal.hpp>
 
 // IWYU pragma: begin_exports
 #include <arena/component/common.hpp>
@@ -19,11 +20,6 @@
 namespace arena {
 
 class Environment;
-
-struct CollisionBeginning {
-  entt::entity entity_a, entity_b;
-  entt::registry *registry_p;
-};
 
 entt::entity get_entity(b2Body *);
 b2Body *get_ground_p(entt::registry &);

@@ -22,12 +22,14 @@
 #include <units/isq/si/time.h>
 
 #include <arena/component/body.hpp>
+#include <arena/component/ray.hpp>
 #include <arena/component/stackable.hpp>
 #include <arena/draw.hpp>
 #include <arena/entity/bot.hpp>
 #include <arena/entity/field.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
+#include <arena/signal.hpp>
 
 #include "binder/_entity.hpp"
 #include "binder/component.hpp"
@@ -44,6 +46,7 @@
 #include "common.hpp"
 #include "component_ref.hpp"
 #include "physics.hpp"
+#include "python.hpp"
 
 namespace py = pybind11;
 
@@ -110,6 +113,15 @@ void register_on_collision_pycallback(Environment &environment, py::function pyc
   environment.on_collision<call_pyobject_as_collision_pycallback>(*pycallback.ptr());
 }
 
+auto call_pyobject_as_ray_fired_pycallback(PyObject &pycallback, const RayFired &event) {
+  return py::handle{&pycallback}(event.entity, numpy_number(event.x), numpy_number(event.y), numpy_number(event.angle),
+                                 numpy_number(event.distance));
+}
+
+void register_on_ray_fired_pycallback(Environment &environment, py::function pycallback) {
+  environment.on_ray_fired<call_pyobject_as_ray_fired_pycallback>(*pycallback.ptr());
+}
+
 } // namespace
 
 void initialize_base(py::module_ &pymodule) {
@@ -123,6 +135,7 @@ void initialize_base(py::module_ &pymodule) {
       | def("get", get_pycomponent, rvp::reference_internal)                          //
       | def("attach", attach_pycomponent)                                             //
       | def("on_collision", register_on_collision_pycallback, py::keep_alive<1, 2>{}) //
+      | def("on_ray_cast", register_on_ray_fired_pycallback, py::keep_alive<1, 2>{})  //
       | property("renderer", &Environment::renderer)                                  //
       | static_def(
             "__get", [](Environment & environment, entt::entity) -> auto & { return environment; },
@@ -154,6 +167,10 @@ void initialize_base(py::module_ &pymodule) {
       def("unstack", &component::Stackable::unstack) |
       property("range",
                [](component::Stackable &stackable, Environment &environment) { return stackable.range(environment); });
+
+  kind::component<component::Ray>(pymodule, "Ray") |
+      ctor<length_t, length_t, length_t, angle_t>("x"_a = 0, "y"_a = 0, "range"_a, "angle"_a = 0) //
+      | def("cast", &component::Ray::cast);                                                       //
 
   kind::component<PyHost>(pymodule, "Host") | ctor<py::function>();
 

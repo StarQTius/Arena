@@ -1,49 +1,43 @@
-#include <thread>
 #include <chrono>
+#include <thread>
 
+#include <box2d/b2_collision.h>
+#include <box2d/b2_contact.h>
+#include <box2d/b2_fixture.h>
 #include <box2d/b2_world.h>
-#include <ltl/Tuple.h>
+#include <box2d/b2_world_callbacks.h>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/process/scheduler.hpp>
 #include <entt/signal/delegate.hpp>
-#include <units/isq/si/time.h>
-#include <box2d/b2_contact.h>
-#include <box2d/b2_collision.h>
-#include <box2d/b2_fixture.h>
-#include <box2d/b2_world_callbacks.h>
 #include <entt/signal/dispatcher.hpp>
+#include <ltl/Tuple.h>
+#include <units/isq/si/time.h>
 
+#include <arena/component/body.hpp>
 #include <arena/draw.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
-#include <arena/component/body.hpp>
+#include <arena/signal.hpp>
 
 using namespace arena;
 
 namespace {
 
 auto get_entities(b2Contact &contact) {
-  return ltl::tuple_t{
-    get_entity(contact.GetFixtureA()->GetBody()),
-    get_entity(contact.GetFixtureB()->GetBody())
-  };
+  return ltl::tuple_t{get_entity(contact.GetFixtureA()->GetBody()), get_entity(contact.GetFixtureB()->GetBody())};
 }
 
 class ContactListener : public b2ContactListener {
 public:
   ContactListener(entt::registry &registry) : m_registry{registry} {}
-  
+
   virtual void BeginContact(b2Contact *contacts) {
     auto &dispatcher = get_dispatcher(m_registry);
 
     for (auto &contact = *contacts; contacts; contacts = contacts->GetNext()) {
       auto &&[entity_a, entity_b] = get_entities(contact);
-      dispatcher.trigger(CollisionBeginning{
-        .entity_a = entity_a,
-        .entity_b = entity_b,
-        .registry_p = &m_registry
-      });
+      dispatcher.trigger(CollisionBeginning{.entity_a = entity_a, .entity_b = entity_b, .registry_p = &m_registry});
     }
   }
 
@@ -62,10 +56,10 @@ entt::entity arena::create(Environment &environment) { return environment.m_regi
 arena::Environment::Environment() : m_world_p{new b2World{{0, 0}}}, m_renderer{renderer_scale} {
   m_registry.ctx().emplace<b2World &>(*m_world_p);
   m_registry.ctx().emplace<entt::dispatcher &>(m_dispatcher);
-  
+
   m_world_p->SetDebugDraw(&m_renderer);
   m_world_p->SetContactListener(new ContactListener{m_registry});
-  
+
   m_renderer.SetFlags(m_renderer.e_shapeBit);
 }
 
