@@ -12,7 +12,7 @@ def logic(body: Body, ray: Ray, cake_storage: coc.CakeStorage, cherry_storage: c
     global step
 
     body.forward_velocity = 500
-    ray.cast()
+    ray.sweep(fov=np.pi / 1.5, definition=50)
 
     if step == 0:
         cake_storage.pick(x=body.position[0] + 250, y=0)

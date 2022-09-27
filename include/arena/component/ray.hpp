@@ -15,6 +15,7 @@ struct Ray {
   angle_t angle;
 
   Expected<length_t> cast(arena::Environment &) const;
+  Expected<std::vector<length_t>> sweep(arena::Environment &, angle_t, std::size_t);
 };
 
 } // namespace component

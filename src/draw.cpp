@@ -17,6 +17,7 @@
 namespace py = pybind11;
 
 constexpr unsigned thickness = 2;
+constexpr unsigned segment_thickness = 1;
 
 arena::PyGameDrawer::PyGameDrawer(precision_t scale) : m_scale{scale}, m_screen{py::none{}} {}
 
@@ -83,7 +84,7 @@ void arena::PyGameDrawer::DrawSegment(const b2Vec2 &p1, const b2Vec2 &p2, const 
   auto line_pyfunction = draw_pymodule.attr("line");
 
   line_pyfunction(m_screen, make_pygame_color(color), make_pygame_coordinate(p1), make_pygame_coordinate(p2),
-                  thickness);
+                  segment_thickness);
 }
 
 void arena::PyGameDrawer::DrawTransform(const b2Transform &) {}

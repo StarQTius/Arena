@@ -3,6 +3,7 @@
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/signal/dispatcher.hpp>
+#include <ltl/Range/Value.h>
 #include <ltl/functional.h>
 #include <tl/expected.hpp>
 #include <units/generic/angle.h>
@@ -49,4 +50,23 @@ Expected<length_t> arena::component::Ray::cast(arena::Environment &environment) 
 
         return length;
       }));
+}
+
+Expected<std::vector<length_t>> arena::component::Ray::sweep(Environment &environment, angle_t fov,
+                                                             std::size_t definition) {
+  auto middle_angle = angle;
+
+  std::vector<length_t> retval{};
+  retval.reserve(definition);
+
+  for (auto i : ltl::steppedValueRange((long)definition / -2, (long)definition / 2, 1l)) {
+    angle = middle_angle + fov * i / definition;
+    ARENA_PROPAGATE(cast(environment).transform([&](length_t length) { retval.push_back(length); }).or_else([&](auto) {
+      angle = middle_angle;
+    }));
+  }
+
+  angle = middle_angle;
+
+  return retval;
 }

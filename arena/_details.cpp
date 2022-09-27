@@ -3,6 +3,7 @@
 #include <string>
 #include <type_traits>
 #include <variant>
+#include <vector>
 
 #include <Python.h>
 #include <entt/core/any.hpp>
@@ -11,6 +12,8 @@
 #include <entt/entity/registry.hpp>
 #include <entt/entity/view.hpp>
 #include <entt/signal/delegate.hpp>
+#include <ltl/Range/Map.h>
+#include <ltl/operator.h>
 #include <pybind11/attr.h>
 #include <pybind11/cast.h>
 #include <pybind11/pybind11.h>
@@ -126,6 +129,12 @@ void draw_segment(PyGameDrawer &self, length_vec p1, length_vec p2) {
   self.DrawSegment(to_box2d(p1), to_box2d(p2), {1, 1, 1});
 }
 
+auto ray_sweep(component::Ray &self, Environment &environment, angle_t fov, std::size_t definition) {
+  using ltl::map, ltl::to_vector;
+  return self.sweep(environment, fov, definition).value_or(std::vector<length_t>{}) | map(numpy_number<length_t &>) |
+         to_vector;
+}
+
 } // namespace
 
 void initialize_base(py::module_ &pymodule) {
@@ -175,7 +184,8 @@ void initialize_base(py::module_ &pymodule) {
 
   kind::component<component::Ray>(pymodule, "Ray") |
       ctor<length_t, length_t, length_t, angle_t>("x"_a = 0, "y"_a = 0, "range"_a, "angle"_a = 0) //
-      | def("cast", &component::Ray::cast);                                                       //
+      | def("cast", &component::Ray::cast)                                                        //
+      | def("sweep", ray_sweep, "fov"_a, "definition"_a);                                         //
 
   kind::component<PyHost>(pymodule, "Host") | ctor<py::function>();
 

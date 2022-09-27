@@ -45,8 +45,8 @@ std::vector<length_t> arena::system::sweep(component::Ray ray, b2Body *body_p, a
   std::vector<length_t> retval{};
   retval.reserve(definition);
 
-  for (auto i : ltl::steppedValueRange<long>(definition / -2, definition / 2, 1)) {
-    ray.angle = middle_angle + fov * i;
+  for (auto i : ltl::steppedValueRange((long)definition / -2, (long)definition / 2, 1l)) {
+    ray.angle = middle_angle + fov * i / definition;
     retval.push_back(cast(ray, body_p));
   }
 
