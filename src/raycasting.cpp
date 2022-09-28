@@ -22,9 +22,11 @@ length_t arena::system::cast(const component::Ray &ray, b2Body *body_p) {
     std::function<bool(entt::entity)> filter;
 
     virtual float ReportFixture(b2Fixture *fixture_p, const b2Vec2 &hitpoint, const b2Vec2 &, float fraction) {
-      if (!filter(get_entity(fixture_p)))
-        return -1;
       hitpoint_distance = 1_q_m * (hitpoint - origin).Length() / box2d_number(1_q_m);
+
+      if (!filter(get_entity(fixture_p)))
+        return 1;
+
       return fraction;
     }
   } callback;

@@ -62,7 +62,10 @@ b2Body *arena_component_info<b2Body *>::make(entt::registry &registry, entt::ent
 
 void arena_component_info<b2FrictionJoint *>::init(entt::registry &registry) {
   b2BodyDef def;
-  registry.ctx().emplace<ground_t>(get_world(registry).CreateBody(&def));
+
+  auto *body_p = get_world(registry).CreateBody(&def);
+  registry.ctx().emplace<ground_t>(body_p);
+  body_p->GetUserData().pointer = static_cast<uintptr_t>(entt::entity{entt::null});
 }
 
 b2FrictionJoint *arena_component_info<b2FrictionJoint *>::make(entt::registry &registry, entt::entity,
