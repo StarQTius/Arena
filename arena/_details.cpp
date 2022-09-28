@@ -16,6 +16,7 @@
 #include <ltl/operator.h>
 #include <pybind11/attr.h>
 #include <pybind11/cast.h>
+#include <pybind11/functional.h> // IWYU pragma: keep
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h> // IWYU pragma: keep
@@ -135,6 +136,15 @@ auto ray_sweep(component::Ray &self, Environment &environment, angle_t fov, std:
          to_vector;
 }
 
+bool has_all_of_pycomponents(Environment &self, entt::entity entity, py::list component_pytypes) {
+  for (auto &pytype : component_pytypes) {
+    if (!has_pycomponent(self, entity, pytype))
+      return false;
+  }
+
+  return true;
+}
+
 } // namespace
 
 void initialize_base(py::module_ &pymodule) {
@@ -147,6 +157,7 @@ void initialize_base(py::module_ &pymodule) {
       | def("step", &Environment::step)                                               //
       | def("get", get_pycomponent, rvp::reference_internal)                          //
       | def("attach", attach_pycomponent)                                             //
+      | def("all_of", has_all_of_pycomponents)                                        //
       | def("on_collision", register_on_collision_pycallback, py::keep_alive<1, 2>{}) //
       | def("on_ray_fired", register_on_ray_fired_pycallback, py::keep_alive<1, 2>{}) //
       | property("renderer", &Environment::renderer)                                  //
@@ -183,9 +194,11 @@ void initialize_base(py::module_ &pymodule) {
                [](component::Stackable &stackable, Environment &environment) { return stackable.range(environment); });
 
   kind::component<component::Ray>(pymodule, "Ray") |
-      ctor<length_t, length_t, length_t, angle_t>("x"_a = 0, "y"_a = 0, "range"_a, "angle"_a = 0) //
-      | def("cast", &component::Ray::cast)                                                        //
-      | def("sweep", ray_sweep, "fov"_a, "definition"_a);                                         //
+      ctor<length_t, length_t, length_t, angle_t, std::function<bool(entt::entity)>>(
+          "x"_a = 0, "y"_a = 0, "range"_a, "angle"_a = 0,
+          "filter"_a = std::function{[](entt::entity) { return true; }}) //
+      | def("cast", &component::Ray::cast)                               //
+      | def("sweep", ray_sweep, "fov"_a, "definition"_a);                //
 
   kind::component<PyHost>(pymodule, "Host") | ctor<py::function>();
 

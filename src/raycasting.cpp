@@ -2,6 +2,7 @@
 #include <box2d/b2_math.h>
 #include <box2d/b2_world.h>
 #include <box2d/b2_world_callbacks.h>
+#include <entt/entity/entity.hpp>
 #include <ltl/Range/Value.h>
 #include <units/isq/si/length.h>
 
@@ -18,8 +19,11 @@ length_t arena::system::cast(const component::Ray &ray, b2Body *body_p) {
   struct : b2RayCastCallback {
     length_t hitpoint_distance;
     b2Vec2 origin;
+    std::function<bool(entt::entity)> filter;
 
-    virtual float ReportFixture(b2Fixture *, const b2Vec2 &hitpoint, const b2Vec2 &, float fraction) {
+    virtual float ReportFixture(b2Fixture *fixture_p, const b2Vec2 &hitpoint, const b2Vec2 &, float fraction) {
+      if (!filter(get_entity(fixture_p)))
+        return -1;
       hitpoint_distance = 1_q_m * (hitpoint - origin).Length() / box2d_number(1_q_m);
       return fraction;
     }
@@ -27,6 +31,7 @@ length_t arena::system::cast(const component::Ray &ray, b2Body *body_p) {
 
   callback.hitpoint_distance = ray.range;
   callback.origin = body_p->GetPosition();
+  callback.filter = ray.filter;
 
   auto &world = *body_p->GetWorld();
   auto origin = b2Vec2{box2d_number(ray.x), box2d_number(ray.y)} + body_p->GetPosition();

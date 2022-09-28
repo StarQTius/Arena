@@ -23,4 +23,8 @@ inline pybind11::object attach_pycomponent(Environment &environment, entt::entit
   return pycomponent.attr("__attach")(environment, entity);
 }
 
+inline bool has_pycomponent(Environment &environment, entt::entity entity, const pybind11::handle &pytype) {
+  return pytype.attr("__has")(environment, entity).cast<bool>();
+}
+
 } // namespace arena

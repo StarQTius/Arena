@@ -1,5 +1,6 @@
 #pragma once
 
+#include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 
 #include <arena/arena.hpp> // IWYU pragma: export
@@ -13,6 +14,7 @@ namespace component {
 struct Ray {
   length_t x, y, range;
   angle_t angle;
+  std::function<bool(entt::entity)> filter = [](auto &&) { return true; };
 
   Expected<length_t> cast(arena::Environment &) const;
   Expected<std::vector<length_t>> sweep(arena::Environment &, angle_t, std::size_t);

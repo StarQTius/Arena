@@ -1,4 +1,5 @@
 #include <box2d/b2_circle_shape.h>
+#include <box2d/b2_fixture.h>
 #include <box2d/b2_math.h>
 #include <box2d/b2_settings.h>
 #include <box2d/b2_world.h>
@@ -33,6 +34,10 @@ template <typename Joint_T> void destroy_joint(entt::registry &registry, entt::e
 } // namespace
 
 entt::entity arena::get_entity(b2Body *body_p) { return static_cast<entt::entity>(body_p->GetUserData().pointer); }
+
+entt::entity arena::get_entity(b2Fixture *fixture_p) {
+  return static_cast<entt::entity>(fixture_p->GetBody()->GetUserData().pointer);
+}
 
 b2Body *arena::get_ground_p(entt::registry &registry) { return registry.ctx().at<ground_t>().body_p; }
 

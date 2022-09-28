@@ -84,3 +84,13 @@ def test_hook_function_to_ray_cast_signal():
     env.get(entity, Ray).cast()
 
     assert result == (1000, 500, 1)
+
+def test_filter_with_ray_cast():
+    env = Environment()
+    entity = env.create(Bot(x=-1000, y=0, mass=1))
+    env.attach(entity, Ray(range=3000, filter=lambda e: env.all_of(e, [Ray])))
+
+    e1, e2 = env.create(Bot(x=0, y=0, mass=1)), env.create(Bot(x=1000, y=0, mass=1))
+    env.attach(e2, Ray(range=0))
+
+    assert env.get(entity, Ray).cast() > 1000

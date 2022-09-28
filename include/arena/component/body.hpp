@@ -22,6 +22,7 @@ namespace arena {
 class Environment;
 
 entt::entity get_entity(b2Body *);
+entt::entity get_entity(b2Fixture *);
 b2Body *get_ground_p(entt::registry &);
 
 namespace component {
