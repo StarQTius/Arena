@@ -5,8 +5,7 @@ namespace coc {
 namespace component {
 
 struct CherryLike {
-private:
-  [[maybe_unused]] int filling;
+  int __unused;
 };
 
 } // namespace component
