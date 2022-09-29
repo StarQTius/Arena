@@ -1,4 +1,4 @@
-name: check
+name: Check Pip Install
 on: push
 jobs:
   build:
@@ -17,5 +17,5 @@ jobs:
       - run: pip3 install pytest pytest-timeout numpy
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow
-      - run: pip3 install .
+      - run: pip3 install . -vvv
       - run: pytest test/base.py --timeout=30
