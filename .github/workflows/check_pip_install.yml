@@ -15,6 +15,7 @@ jobs:
           restore-keys: |
             build
       - run: pip3 install pytest pytest-timeout numpy
+      - run: pip3 install -U setuptools
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow
       - run: pip3 install . -vvv
