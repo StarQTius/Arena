@@ -18,6 +18,14 @@ Path(f"{build_dir}/arena").mkdir(exist_ok=True)
 Path(f"{build_dir}/arena/sail_the_world").mkdir(exist_ok=True)
 Path(f"{build_dir}/arena/the_cherry_on_the_cake").mkdir(exist_ok=True)
 
+# Called just to create the Python files of the package (the actual compilation will be done later)
+check_call(
+    [
+        "cmake",
+        "-B", build_dir,
+    ],
+)
+
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir):
         Extension.__init__(self, name, sources=[])
