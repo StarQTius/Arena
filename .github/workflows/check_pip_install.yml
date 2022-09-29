@@ -1,0 +1,21 @@
+name: check
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - id: date
+        run: echo "::set-output name=date::$(date +'%W')"
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/build
+          key: build-${{ steps.date.outputs.date }}
+          restore-keys: |
+            build
+      - run: pip3 install pytest pytest-timeout numpy
+      - uses: actions/checkout@v2
+      - run: git fetch --prune --unshallow
+      - run: pip3 install .
+      - run: pytest test/base.py --timeout=30
