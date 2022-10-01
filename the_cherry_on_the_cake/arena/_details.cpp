@@ -66,8 +66,12 @@ void initialize_the_cherry_on_the_cake(pybind11::module_ &&pymodule) {
       | def("pick", &cherry_storage_t::pick, "x"_a, "y"_a)                             //
       | property("owned", storage_owned_pyiterator<cherry_storage_t>);                 //
 
-  py::enum_<coc::component::Flavor>{pymodule, "Flavor"}
-      .value("ICING", coc::component::Flavor::ICING)              //
-      .value("CREAM", coc::component::Flavor::CREAM)              //
-      .value("SPONGE_CAKE", coc::component::Flavor::SPONGE_CAKE); //
+  kind::component<coc::component::Flavor>(pymodule, "Flavor")
+      .def_property_readonly_static("ICING", [](py::object) { return coc::component::Flavor::ICING; })              //
+      .def_property_readonly_static("CREAM", [](py::object) { return coc::component::Flavor::CREAM; })              //
+      .def_property_readonly_static("SPONGE_CAKE", [](py::object) { return coc::component::Flavor::SPONGE_CAKE; }); //
+
+  py::enum_<coc::component::Flavor>{pymodule, "_Flavor_Enum"};
+
+  kind::component<coc::component::CherryLike>(pymodule, "CherryLike");
 }

@@ -95,12 +95,3 @@ def test_filter_with_ray_cast():
     env.attach(e2, Ray(range=0))
 
     assert env.get(entity, Ray).cast() > 1000
-
-def test_cast_ray_on_non_attached_body():
-    env = Environment()
-    entity = env.create(Bot(x=0, y=0, mass=1))
-    env.attach(entity, Ray(range=3000, filter=lambda e: e == Entity.NULL))
-    env.create(Bot(x=1000, y=0, mass=1))
-    
-    assert env.get(entity, Ray).cast() == 1500
-

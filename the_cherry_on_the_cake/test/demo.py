@@ -62,7 +62,7 @@ env = coc.default_layout()
 with env.renderer:
     bot_entity = env.create(Bot(x=-1000, y=0, mass=1))
     env.attach(bot_entity, Host(logic))
-    env.attach(bot_entity, Ray(range=1500))
+    env.attach(bot_entity, Ray(range=1500, filter=lambda e: env.all_of(e, [coc.CherryLike])))
     env.attach(bot_entity, coc.CakeStorage(3))
     env.attach(bot_entity, coc.CherryStorage(3))
 
