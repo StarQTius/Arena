@@ -3,9 +3,11 @@
 #include <pybind11/pybind11.h>
 #include <units/quantity.h>
 
+#include <arena/arena.hpp>
 #include <arena/physics.hpp>
 
 #include "python.hpp"
+#include "utility.hpp"
 
 namespace PYBIND11_NAMESPACE {
 namespace detail {
@@ -44,5 +46,29 @@ public:
 
   static handle cast(const type &src, return_value_policy, handle) { return to_numpy(src).release(); }
 };
+
+template <typename T> struct type_caster<arena::Expected<T>> {
+  using type = arena::Expected<T>;
+
+public:
+  PYBIND11_TYPE_CASTER(type, const_name("Monad"));
+
+  bool load(handle src, bool) { return false; }
+
+  template <typename Xp_T> static handle cast(Xp_T &&src, return_value_policy policy, handle parent) {
+    src.or_else(pyraise);
+
+    if (!std::is_lvalue_reference<Xp_T>::value) {
+      policy = return_value_policy_override<T>::policy(policy);
+    }
+
+    if constexpr (std::is_void_v<T>) {
+      return none{}.inc_ref();
+    } else {
+      return pybind11::cast(FWD(src).value(), policy, parent).release();
+    }
+  }
+};
+
 } // namespace detail
 } // namespace PYBIND11_NAMESPACE
