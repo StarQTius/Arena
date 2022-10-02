@@ -127,7 +127,7 @@ endif()
 
 set(ARENA_PYTEST_TIMEOUT 3)
 set(ARENA_PYTEST_COMMAND
-    ${Python3_EXECUTABLE} -B -m pytest -s --timeout=${ARENA_PYTEST_TIMEOUT}
+    ${Python3_EXECUTABLE} -B -m pytest -s -v --timeout=${ARENA_PYTEST_TIMEOUT}
     --color=yes -p no:cacheprovider)
 
 add_subdirectory(src)
