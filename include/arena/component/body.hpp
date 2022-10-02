@@ -2,19 +2,21 @@
 
 #include <box2d/b2_circle_shape.h>
 #include <box2d/b2_fixture.h>
+#include <box2d/b2_world.h>
+#include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
-#include <units/isq/dimensions/force.h>
-#include <units/isq/dimensions/torque.h>
+#include <units/isq/dimensions/force.h>  // IWYU pragma: keep
+#include <units/isq/dimensions/torque.h> // IWYU pragma: keep
 
 #include <arena/arena.hpp> // IWYU pragma: export
 #include <arena/physics.hpp>
-#include <arena/signal.hpp>
 
 // IWYU pragma: begin_exports
-#include <arena/component/common.hpp>
 #include <box2d/b2_body.h>
 #include <box2d/b2_friction_joint.h>
 #include <box2d/b2_weld_joint.h>
+
+#include <arena/component/common.hpp>
 // IWYU pragma: end_exports
 
 namespace arena {

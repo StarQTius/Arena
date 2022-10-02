@@ -1,3 +1,5 @@
+#include "host.hpp"
+
 #include <array>
 #include <iterator>
 
@@ -15,7 +17,6 @@
 #include <arena/environment.hpp>
 
 #include "fetcher.hpp"
-#include "host.hpp"
 
 namespace py = pybind11;
 

@@ -1,3 +1,5 @@
+#include "arena/2021/cup.hpp"
+
 #include <type_traits>
 #include <unordered_set>
 
@@ -15,10 +17,11 @@
 #include <units/isq/si/mass.h>
 #include <units/isq/si/torque.h>
 
-#include <arena/2021/cup.hpp>
-#include <arena/component/body.hpp>
-#include <arena/environment.hpp>
-#include <arena/physics.hpp>
+#include "arena/component/body.hpp"
+#include "arena/environment.hpp"
+#include "arena/physics.hpp"
+
+// IWYU pragma: no_include <units/isq/si/time.h>
 
 using namespace arena;
 

@@ -5,7 +5,6 @@
 #include <arena/arena.hpp> // IWYU pragma: export
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
-#include <arena/the_cherry_on_the_cake/component/flavor.hpp>
 
 namespace arena {
 namespace coc {

@@ -1,3 +1,5 @@
+#include "arena/component/body.hpp"
+
 #include <box2d/b2_circle_shape.h>
 #include <box2d/b2_fixture.h>
 #include <box2d/b2_math.h>
@@ -8,8 +10,7 @@
 #include <entt/signal/sigh.hpp>
 #include <units/isq/si/length.h>
 
-#include <arena/component/body.hpp>
-#include <arena/physics.hpp>
+#include "arena/physics.hpp"
 
 using namespace arena;
 

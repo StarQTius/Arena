@@ -1,7 +1,8 @@
 #pragma once
 
-#include <arena/physics.hpp>
 #include <box2d/b2_math.h>
+
+#include <arena/physics.hpp>
 
 #include "physics.hpp"
 #include <forward.hpp>

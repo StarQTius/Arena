@@ -2,10 +2,15 @@
 
 #include <cstddef>
 
+#include <box2d/b2_math.h>
+#include <entt/entity/entity.hpp>
+#include <ltl/Range/Filter.h>
+
 #include <arena/arena.hpp> // IWYU pragma: export
 #include <arena/component/body.hpp>
 #include <arena/component/common.hpp>
 #include <arena/environment.hpp>
+#include <arena/physics.hpp>
 
 namespace arena {
 namespace component {

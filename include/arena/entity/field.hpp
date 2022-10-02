@@ -1,8 +1,6 @@
 #pragma once
 
-#include <box2d/b2_world.h>
 #include <entt/entity/entity.hpp>
-#include <entt/entity/registry.hpp>
 
 #include <arena/arena.hpp> // IWYU pragma: export
 #include <arena/environment.hpp>

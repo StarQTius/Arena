@@ -6,9 +6,8 @@
 #include <arena/environment.hpp>
 #include <arena/traits/invocable.hpp>
 
-#include <forward.hpp>
-
 #include "../binder/def.hpp"
+#include <forward.hpp>
 
 template <typename T>
 concept Entity = requires(arena::Environment e, T x) {

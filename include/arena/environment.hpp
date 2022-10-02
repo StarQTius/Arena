@@ -6,6 +6,7 @@
 #include <entt/entity/entity.hpp>
 #include <entt/entity/helper.hpp> // IWYU pragma: keep
 #include <entt/entity/registry.hpp>
+#include <entt/entity/utility.hpp>
 #include <entt/process/scheduler.hpp>
 #include <entt/signal/delegate.hpp>
 #include <entt/signal/dispatcher.hpp>
@@ -19,13 +20,12 @@
 #include <arena/draw.hpp>
 #include <arena/physics.hpp>
 #include <arena/signal.hpp>
-#include <arena/traits/invocable.hpp>
 
 #define DescribingEntity DescribingEntity
 
 namespace arena {
 
-class Environment;
+class Environment; // IWYU pragma: keep
 
 using process_t = void(duration_t, void *, std::function<void()>, std::function<void()>);
 

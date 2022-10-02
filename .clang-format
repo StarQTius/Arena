@@ -81,21 +81,29 @@ ForEachMacros:
   - BOOST_FOREACH
 IfMacros:
   - KJ_IF_MAYBE
-IncludeBlocks:   Preserve
+IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
+  - Regex:           '^<(entt|pybind11|ltl|units|tl|box2d)/' # Third-party libraries
     Priority:        2
-    SortPriority:    0
+    SortPriority:    2
     CaseSensitive:   false
-  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
+  - Regex:           '^<arena/' # Arena angle bracket includes
     Priority:        3
-    SortPriority:    0
+    SortPriority:    3
     CaseSensitive:   false
-  - Regex:           '.*'
+  - Regex:           '^"arena/' # Arena quote includes
+    Priority:        4
+    SortPriority:    4
+    CaseSensitive:   false
+  - Regex:           '(\.h|\.hpp)(>|")$' # Miscellaneous includes
+    Priority:        5
+    SortPriority:    5
+    CaseSensitive:   false
+  - Regex:           '.*' # Remainder (i.e. standard includes)
     Priority:        1
-    SortPriority:    0
+    SortPriority:    1
     CaseSensitive:   false
-IncludeIsMainRegex: '(Test)?$'
+IncludeIsMainRegex: '$'
 IncludeIsMainSourceRegex: ''
 IndentAccessModifiers: false
 IndentCaseLabels: false

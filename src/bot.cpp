@@ -1,3 +1,5 @@
+#include "arena/entity/bot.hpp"
+
 #include <cmath>
 #include <type_traits>
 
@@ -7,10 +9,11 @@
 #include <entt/entity/registry.hpp>
 #include <units/isq/si/length.h>
 
-#include <arena/component/body.hpp>
-#include <arena/entity/bot.hpp>
-#include <arena/environment.hpp>
-#include <arena/physics.hpp>
+#include "arena/component/body.hpp"
+#include "arena/environment.hpp"
+#include "arena/physics.hpp"
+
+// IWYU pragma: no_include <units/isq/si/time.h>
 
 //
 // Definitions

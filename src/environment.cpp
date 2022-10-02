@@ -1,3 +1,5 @@
+#include "arena/environment.hpp"
+
 #include <chrono>
 #include <thread>
 
@@ -14,11 +16,10 @@
 #include <ltl/Tuple.h>
 #include <units/isq/si/time.h>
 
-#include <arena/component/body.hpp>
-#include <arena/draw.hpp>
-#include <arena/environment.hpp>
-#include <arena/physics.hpp>
-#include <arena/signal.hpp>
+#include "arena/component/body.hpp"
+#include "arena/draw.hpp"
+#include "arena/physics.hpp"
+#include "arena/signal.hpp"
 
 using namespace arena;
 

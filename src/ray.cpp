@@ -1,3 +1,5 @@
+#include "arena/component/ray.hpp"
+
 #include <box2d/b2_body.h>
 #include <box2d/b2_math.h>
 #include <entt/entity/entity.hpp>
@@ -9,11 +11,12 @@
 #include <units/generic/angle.h>
 #include <units/isq/si/length.h>
 
-#include <arena/component/ray.hpp>
-#include <arena/environment.hpp>
-#include <arena/physics.hpp>
-#include <arena/signal.hpp>
-#include <arena/system/raycasting.hpp>
+#include "arena/environment.hpp"
+#include "arena/physics.hpp"
+#include "arena/signal.hpp"
+#include "arena/system/raycasting.hpp"
+
+// IWYU pragma: no_include <units/isq/si/time.h>
 
 using namespace arena;
 

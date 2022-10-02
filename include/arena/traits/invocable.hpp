@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include <arena/arena.hpp>
+#include <arena/arena.hpp> // IWYU pragma: export
 
 #if defined(ARENA_IWYU)
 #define CallableWithSignature CallableWithSignature

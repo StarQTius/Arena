@@ -5,7 +5,6 @@
 #include <variant>
 #include <vector>
 
-#include <Python.h>
 #include <entt/core/any.hpp>
 #include <entt/core/fwd.hpp>
 #include <entt/entity/entity.hpp>
@@ -52,6 +51,7 @@
 #include "component_ref.hpp"
 #include "physics.hpp"
 #include "python.hpp"
+#include <Python.h>
 
 namespace py = pybind11;
 

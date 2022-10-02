@@ -1,3 +1,5 @@
+#include "arena/the_cherry_on_the_cake/entity/cherry.hpp"
+
 #include <box2d/b2_circle_shape.h>
 #include <box2d/b2_math.h>
 #include <entt/entity/entity.hpp>
@@ -13,9 +15,11 @@
 #include <arena/component/stackable.hpp>
 #include <arena/environment.hpp>
 #include <arena/physics.hpp>
-#include <arena/the_cherry_on_the_cake/component/cherry_like.hpp>
-#include <arena/the_cherry_on_the_cake/component/flavor.hpp>
-#include <arena/the_cherry_on_the_cake/entity/cherry.hpp>
+
+#include "arena/the_cherry_on_the_cake/component/cherry_like.hpp"
+#include "arena/the_cherry_on_the_cake/component/flavor.hpp"
+
+// IWYU pragma: no_include <units/isq/si/time.h>
 
 namespace {
 

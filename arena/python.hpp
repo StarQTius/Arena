@@ -1,12 +1,12 @@
 #pragma once
 
 #include <pybind11/numpy.h>
-
-#include <arena/physics.hpp>
 #include <units/generic/angle.h>
 #include <units/isq/si/length.h>
 #include <units/isq/si/mass.h>
 #include <units/isq/si/time.h>
+
+#include <arena/physics.hpp>
 
 #include "physics.hpp"
 #include <forward.hpp>
