@@ -213,3 +213,6 @@ PYBIND11_MODULE(_details, pymodule) {
   initialize_sail_the_world(pymodule);
   initialize_the_cherry_on_the_cake(pymodule.def_submodule("the_cherry_on_the_cake"));
 }
+
+void ARENA_WEAK initialize_sail_the_world(pybind11::module_ &) {}
+void ARENA_WEAK initialize_the_cherry_on_the_cake(pybind11::module_ &&) {}

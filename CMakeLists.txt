@@ -27,6 +27,9 @@ project(
   VERSION ${ARENA_GIT_TAG_VERSION}
   LANGUAGES CXX)
 
+option(THE_CHERRY_ON_THE_CAKE
+       "Build the library extension of The Cherry on The Cake" ON)
+
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/tool)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -135,5 +138,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   add_subdirectory(test EXCLUDE_FROM_ALL)
 endif()
 
+if(THE_CHERRY_ON_THE_CAKE)
+  add_subdirectory(the_cherry_on_the_cake)
+endif()
+
 add_library(Arena::Arena ALIAS Arena)
-add_subdirectory(the_cherry_on_the_cake)

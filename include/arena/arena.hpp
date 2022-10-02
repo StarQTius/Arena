@@ -9,6 +9,8 @@
 
 #include <arena/traits/template.hpp>
 
+#define ARENA_WEAK __attribute__((weak))
+
 #define ARENA_FWD(X) static_cast<decltype(X) &&>(X)
 
 #define ARENA_ALWAYS_FALSE ([]() {}, false)

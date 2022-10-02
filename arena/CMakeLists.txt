@@ -9,16 +9,14 @@ foreach(TEMPLATE_FILE IN LISTS TEMPLATE_FILES)
                  ${CMAKE_CURRENT_BINARY_DIR}/${TEMPLATE_FILE} @ONLY)
 endforeach()
 
-pybind11_add_module(
-  _details _details.cpp sail_the_world/_details.cpp
-  ../the_cherry_on_the_cake/arena/_details.cpp binder/host.cpp)
-target_link_libraries(_details PRIVATE Arena TheCherryOnTheCake)
+pybind11_add_module(_details _details.cpp sail_the_world/_details.cpp
+                    binder/host.cpp)
+target_link_libraries(_details PRIVATE Arena)
 set_target_properties(_details PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
                                           CXX_VISIBILITY_PRESET hidden)
 target_compile_features(_details PUBLIC cxx_std_20)
 target_compile_options(_details PRIVATE ${ARENA_CPP_FLAGS})
-target_include_directories(_details PRIVATE ${PROJECT_SOURCE_DIR}/src
-                                            ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(_details PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
 add_custom_target(module DEPENDS _details)
 

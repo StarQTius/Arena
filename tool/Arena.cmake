@@ -88,3 +88,52 @@ function(add_arena_library LIBRARY_NAME)
                                CXX_VISIBILITY_PRESET hidden)
   target_include_directories(${LIBRARY_NAME} PRIVATE ${ARENA_BASE_SOURCE_DIR})
 endfunction()
+
+# Declare the Python submodule target ${SUBMODULE_NAME}
+function(add_arena_submodule SUBMODULE_NAME)
+  add_library(${SUBMODULE_NAME} OBJECT ${ARGN})
+  set_target_properties(
+    ${SUBMODULE_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
+                                 CXX_VISIBILITY_PRESET hidden)
+  target_compile_features(${SUBMODULE_NAME} PUBLIC cxx_std_20)
+  target_compile_options(${SUBMODULE_NAME} PRIVATE ${ARENA_CPP_FLAGS})
+  target_include_directories(
+    ${SUBMODULE_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src
+                              ${PROJECT_SOURCE_DIR}/arena)
+  target_link_libraries(_details PRIVATE ${SUBMODULE_NAME})
+endfunction()
+
+#
+# Testing utilities
+#
+
+# Declare the test runner ${RUNNER_NAME}
+function(add_test_runner_target RUNNER_NAME)
+  add_custom_target(${RUNNER_NAME} COMMAND ctest -L ${RUNNER_NAME}
+                                           --output-on-failure)
+  add_dependencies(${RUNNER_NAME} module ${ARGN})
+  add_dependencies(check ${RUNNER_NAME})
+endfunction()
+
+# Declare the Python test ${TEST_NAME} running the tests in ${TEST_FILE} The
+# test will be run when the ${RUNNER} target is invoked.
+function(add_python_test TEST_NAME RUNNER TEST_FILE)
+  add_test(
+    NAME ${TEST_NAME}
+    COMMAND ${ARENA_PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/${TEST_FILE}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+  set_tests_properties(${TEST_NAME} PROPERTIES LABELS ${RUNNER})
+endfunction()
+
+# Declare a Python demo ${DEMO_NAME} running the demo in ${DEMO_FILE} The demo
+# will be run when ${RUNNER_NAME} target is invoked
+function(add_demo_runner_target DEMO_NAME RUNNER_NAME DEMO_FILE)
+  add_custom_target(${RUNNER_NAME} COMMAND ctest -L ${RUNNER_NAME}
+                                           --output-on-failure)
+  add_dependencies(${RUNNER_NAME} module)
+  add_test(
+    NAME ${DEMO_NAME}
+    COMMAND ${ARENA_PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/${DEMO_FILE}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+  set_tests_properties(${DEMO_NAME} PROPERTIES LABELS ${RUNNER_NAME})
+endfunction()

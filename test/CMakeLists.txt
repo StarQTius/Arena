@@ -1,50 +1,47 @@
-FetchContent_MakeAvailable(Catch2)
+FetchContent_MakeAvailable(pybind11 Catch2 Little-Type-Library)
 list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
 
 include(Arena)
 include(CTest)
 include(Catch)
 
+# This target should invoke all testing target. Any testing target should
+# therefore be made a dependency of this target.
+add_custom_target(check)
+
+#
+# Unit test for the base library
+#
+
 set(TEST_LIST body.cpp field.cpp cup.cpp storage.cpp ray.cpp)
 
-add_executable(run_tests main.cpp ${TEST_LIST})
-target_link_libraries(run_tests PRIVATE Arena Catch2::Catch2WithMain
+add_executable(cpp_tests main.cpp ${TEST_LIST})
+target_link_libraries(cpp_tests PRIVATE Arena Catch2::Catch2WithMain
                                         pybind11::embed LTL)
-target_compile_options(run_tests PRIVATE ${ARENA_CPP_FLAGS})
-set_target_properties(run_tests PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
+target_compile_options(cpp_tests PRIVATE ${ARENA_CPP_FLAGS})
+set_target_properties(cpp_tests PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
                                            CXX_VISIBILITY_PRESET hidden)
-
 catch_discover_tests(
-  run_tests
+  cpp_tests
   PROPERTIES
   LABELS
-  check
+  check_base
   EXTRA_ARGS
   --colour-mode
   ansi
   -r
   compact)
-add_test(
-  NAME base_tests
-  COMMAND ${ARENA_PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/base.py
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_test(
-  NAME sail_the_world_tests
-  COMMAND ${ARENA_PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/sail_the_world.py
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_test(
-  NAME demo_tests
-  COMMAND ${ARENA_PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/demo.py
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
-add_custom_target(check COMMAND ctest -L check --output-on-failure)
-add_dependencies(check module run_tests)
-set_tests_properties(base_tests PROPERTIES LABELS check)
-set_tests_properties(sail_the_world_tests PROPERTIES LABELS check)
+add_test_runner_target(check_base cpp_tests)
+add_python_test("Base" check_base base.py)
+add_python_test("Sail The World" check_base base.py)
 
-add_custom_target(demo COMMAND ctest -L demo)
-set_tests_properties(demo_tests PROPERTIES LABELS demo)
+#
+# Demo tests showcase the possible usage of Arena with the base library
+#
+
+add_demo_runner_target("Demo" demo_base demo.py)
 
 foreach(TEST_FILE IN LISTS TEST_LIST)
-  add_iwyu_target(${TEST_FILE} run_tests)
+  add_iwyu_target(${TEST_FILE} cpp_tests)
 endforeach()

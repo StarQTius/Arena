@@ -1,17 +1,6 @@
 include(CTest)
 
-add_custom_target(check_coc COMMAND ctest -L check_coc --output-on-failure)
-add_dependencies(check_coc _details)
-add_dependencies(check check_coc)
+add_test_runner_target(check_coc)
+add_python_test("The Cherry On The Cake" check_coc binding.py)
 
-add_test(
-  NAME Binding
-  COMMAND ${ARENA_PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/binding.py
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-set_tests_properties(Binding PROPERTIES LABELS check_coc)
-
-add_custom_target(
-  coc_demo
-  COMMAND ${ARENA_PYTEST_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/demo.py
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_dependencies(coc_demo _details)
+add_demo_runner_target("Demo" demo_coc demo.py)
