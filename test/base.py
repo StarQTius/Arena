@@ -95,3 +95,12 @@ def test_filter_with_ray_cast():
     env.attach(e2, Ray(range=0))
 
     assert env.get(entity, Ray).cast() > 1000
+
+def test_custom_caster():
+    with pytest.raises(RuntimeError):
+        Environment(width=(0, 0), height=500)
+
+    with pytest.raises(TypeError):
+        env = Environment()
+        e = env.create(Bot(x=0, y=0, mass=1))
+        env.get(e, Body).set_position(64)

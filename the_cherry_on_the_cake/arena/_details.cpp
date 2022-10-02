@@ -24,6 +24,7 @@
 #include <binder/def.hpp>
 #include <binder/doc.hpp>
 #include <binder/property.hpp>
+#include <caster.hpp> // IWYU pragma: keep
 #include <common.hpp>
 
 namespace py = pybind11;

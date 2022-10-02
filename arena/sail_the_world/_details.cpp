@@ -26,6 +26,7 @@
 #include "../binder/ctor.hpp"
 #include "../binder/def.hpp"
 #include "../binder/property.hpp"
+#include "../caster.hpp" // IWYU pragma: keep
 #include "../common.hpp"
 #include "../component_ref.hpp"
 

@@ -47,6 +47,7 @@
 #include "binder/property.hpp"
 #include "binder/static_def.hpp"
 #include "box2d.hpp"
+#include "caster.hpp" // IWYU pragma: keep
 #include "common.hpp"
 #include "component_ref.hpp"
 #include "physics.hpp"
