@@ -34,7 +34,7 @@ catch_discover_tests(
 
 add_test_runner_target(check_base cpp_tests)
 add_python_test("Base" check_base base.py)
-add_python_test("Sail The World" check_base base.py)
+add_python_test("Sail The World" check_base sail_the_world.py)
 
 #
 # Demo tests showcase the possible usage of Arena with the base library
