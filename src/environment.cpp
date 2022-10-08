@@ -67,6 +67,8 @@ arena::Environment::Environment() : m_world_p{new b2World{{0, 0}}}, m_renderer{r
 arena::Environment::Environment(const entt::delegate<process_t> &upkeep) : Environment{} { m_scheduler.attach(upkeep); }
 
 void arena::Environment::step(duration_t timestep) {
+  auto begin_time = std::chrono::steady_clock::now();
+
   m_scheduler.update(timestep, this);
 
   m_world_p->Step(timestep.number(), velocity_iterations, position_iterations);
@@ -74,8 +76,8 @@ void arena::Environment::step(duration_t timestep) {
   if (m_renderer) {
     m_world_p->DebugDraw();
     m_renderer.show();
-    std::this_thread::sleep_for(units::quantity_cast<units::isq::si::second>(timestep).number() *
-                                std::chrono::seconds{1});
+    std::this_thread::sleep_until(begin_time + units::quantity_cast<units::isq::si::second>(timestep).number() *
+                                                   std::chrono::seconds{1});
   }
 }
 
