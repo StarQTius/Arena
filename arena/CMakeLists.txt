@@ -10,7 +10,7 @@ foreach(TEMPLATE_FILE IN LISTS TEMPLATE_FILES)
 endforeach()
 
 pybind11_add_module(_details _details.cpp sail_the_world/_details.cpp
-                    binder/host.cpp)
+                    binder/host.cpp async.cpp)
 target_link_libraries(_details PRIVATE Arena)
 set_target_properties(_details PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON
                                           CXX_VISIBILITY_PRESET hidden)

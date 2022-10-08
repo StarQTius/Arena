@@ -2,3 +2,7 @@ import sys
 import os
 
 from ._details import *
+
+class wait_next:
+    def __await__(self):
+        yield self

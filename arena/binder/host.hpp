@@ -1,8 +1,5 @@
 #pragma once
 
-#include <utility>
-#include <vector>
-
 #include <entt/entity/entity.hpp>
 #include <pybind11/pytypes.h>
 
@@ -10,26 +7,19 @@
 #include <arena/component/common.hpp>
 #include <arena/environment.hpp>
 
-// Holds a Python invocable to be called on the entity components
+#include "../async.hpp"
+
+struct wait_next_t {};
+
 class PyHost {
 public:
-  // Copy initialize the stored callback
-  explicit PyHost(const pybind11::function &pycallback)
-      : m_pytypes{get_annotations(pycallback)}, m_pycallback{pycallback} {}
+  explicit PyHost(const pybind11::function &);
+  explicit PyHost(pybind11::function &&);
 
-  // Move initialize the stored callback
-  explicit PyHost(pybind11::function &&pycallback)
-      : m_pytypes{get_annotations(pycallback)}, m_pycallback{std::move(pycallback)} {}
-
-  // Call the stored invocable on the entity component
   void invoke(arena::Environment &, entt::entity);
 
 private:
-  // Get the annotations (type hints) of a Python function arguments
-  static std::vector<pybind11::object> get_annotations(const pybind11::function &);
-
-  std::vector<pybind11::object> m_pytypes;
-  pybind11::function m_pycallback;
+  PyAsyncSystem m_pyasyncsystem;
 };
 
 template <> struct arena_component_info<PyHost> {};
