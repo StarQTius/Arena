@@ -1,29 +1,39 @@
-## Requirements
+This library is a C++ powered Python package for simulating playing areas according to the Eurobot rules. The aim is to provide simulated environment for testing your robots or training your agents.
 
-### Running the python module
-- Python 3.8
+This package also comes as a C++ library if you need to speed up your simulation even more.
 
-### Compiling the module from source
-Libraries needed:
-- GCC 11
-- CMake 3.10
-- [Box2D](https://github.com/erincatto/box2d)
-- [EnTT](https://github.com/skypjack/entt)
-- [gsl-lite](https://github.com/gsl-lite/gsl-lite)
-- [Little-Type-Library](https://github.com/qnope/Little-Type-Library)
-- [pybind11](https://github.com/pybind/pybind11)
-- [units](https://github.com/mpusz/units)
+> **warning**
+> This project is currently on development. A lot of features might be removed or changed without notice.
 
-To make these libraries available to CMake, use the `git init` and `git update` commands.
+# Howto
 
-### Running the tests
-Libraries needed:
-- [Catch2](https://github.com/catchorg/Catch2)
+## Installation
 
-Likewise, use `git init` and `git update` to install thise library. Once installed, you can compile and run the test suites by running `check` and `check_integration`.
+### As a Python package using pip
 
-## Embedding custom components or systems
+This library is not yet available on Pypi, but you can install it from source via Github.
 
-Calling Python code too often from the simulation may result in heavily degraded performance. In that case, it is possible to embed your components and systems directly in the simulation.
+``` bash
+pip3 install git+https://github.com/StarQTius/Arena
+```
 
-The code for the simulation is written in C++ with the pybind11 library, and the source can be compiled through CMake integration. To understand how to embed a new components and systems, you must understand how to use the [different involved libraries](#markdown-header-compiling-the-module-from-source).
+### As a C++ library using CMake
+
+Fetch the project from Github (e.g. via [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html)) with the method of your choice and link your project against the target(s) you need.
+
+## The library structure
+
+The basic element for using this library can be found in the `arena` module (`Arena` if you are using CMake).
+
+Specific components for the different editions of the Eurobot contest can be found in their respective submodules (e.g. `arena.the_cherry_on_the_cake`). Their corresponding CMake targets have similar names writtent in camel case (e.g. `TheCherryOnTheCake`).
+
+## Quickstart
+
+Arena is based on the [ECS](https://en.wikipedia.org/wiki/Entity_component_system) pattern which is implemented by frameworks and libraries like [Unity](https://unity.com/) and [EnTT](https://github.com/skypjack/entt) (in fact, Arena uses EnTT for its ECS implementation). Therefore, entities in your environment can be added new features by attaching components to them.
+
+``` python:test/snippet.py:[4-20]
+```
+
+Logics can be added to your entities as coroutines thanks to the `Host` component. Arena will automatically fetch the requested components according to the parameter annotations of the async function.
+
+You can advance the state of the environment by a given timestep with the `Environment.step` method.
