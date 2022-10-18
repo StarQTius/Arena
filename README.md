@@ -31,7 +31,24 @@ Specific components for the different editions of the Eurobot contest can be fou
 
 Arena is based on the [ECS](https://en.wikipedia.org/wiki/Entity_component_system) pattern which is implemented by frameworks and libraries like [Unity](https://unity.com/) and [EnTT](https://github.com/skypjack/entt) (in fact, Arena uses EnTT for its ECS implementation). Therefore, entities in your environment can be added new features by attaching components to them.
 
-``` python:test/snippet.py:[4-20]
+``` python
+    from arena import Environment, Bot, Host, Body, wait_next
+    import numpy as np
+
+    async def logic(body: Body):
+        a = 0
+        while True:
+            body.forward_velocity = 1000
+            body.angular_velocity = 5 * np.cos(a)
+            a += 5e-2
+            await wait_next()
+
+    env = Environment()
+    entity = env.create(Bot(x=-1000, y=0, mass=1))
+    env.attach(entity, Host(logic))
+
+    for _ in range(200):
+        env.step(1e-2)
 ```
 
 Logics can be added to your entities as coroutines thanks to the `Host` component. Arena will automatically fetch the requested components according to the parameter annotations of the async function.
